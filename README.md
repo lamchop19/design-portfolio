@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# marcalam.com
 
-## Getting Started
+Design portfolio for Marc Alam. Next.js App Router, statically exported and served
+from GitHub Pages. Replaces the previous Framer site.
 
-First, run the development server:
+## Running it
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```sh
+npm install
+npm run dev          # generates images, then starts the dev server
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| Script | What it does |
+| --- | --- |
+| `npm run dev` | Image pipeline, then dev server |
+| `npm run build` | Images, OG cards, then static export to `out/` |
+| `npm start` | Serves `out/` — what GitHub Pages actually does |
+| `npm run new-project -- "Name"` | Scaffolds and registers a case study |
+| `npm run images` | Regenerates image derivatives |
+| `npm run og` | Regenerates Open Graph cards |
+| `npm run typecheck` / `npm run lint` | |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Adding work
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+See [`content/README.md`](content/README.md). In short: `npm run new-project`,
+fill in `meta.ts`, write `body.mdx`, drop images in `assets/`.
 
-## Learn More
+## How it's put together
 
-To learn more about Next.js, take a look at the following resources:
+**Content** lives in `content/`, entirely separate from `src/`. Project metadata
+sits in `meta.ts` files validated by a zod schema, so a malformed case study
+fails the build rather than rendering blank. Prose is MDX.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Images** are optimized at build time by `scripts/optimize-images.mjs`, which
+emits one AVIF per configured width plus a blur placeholder. A custom `next/image`
+loader (`src/lib/image-loader.ts`) points at those files, so we keep srcset, lazy
+loading and blur-up without an optimization server. The widths in that script must
+stay in sync with `images.deviceSizes`/`imageSizes` in `next.config.ts`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Motion** uses no animation library. Word reveals, figure rise-ins and the
+reading-progress bar are CSS — the hero is the LCP element, and gating it on a JS
+library delayed the largest paint until hydration. Page transitions and the
+cover→hero morph use the native View Transitions API via React's `<ViewTransition>`.
+The one exception is the cursor-tracked preview on the work index, which runs a
+small hand-rolled spring in `work-index.tsx`.
 
-## Deploy on Vercel
+Everything positional degrades under `prefers-reduced-motion`, and the
+scroll-driven effects are wrapped in `@supports` so unsupported browsers get
+static content rather than nothing.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deploying
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Pushing to `main` triggers `.github/workflows/deploy.yml`, which builds and
+publishes to GitHub Pages.
+
+The base path is env-driven (`NEXT_PUBLIC_BASE_PATH`), resolved by
+`actions/configure-pages`. While this is a project site it builds under
+`/design-portfolio`; once marcalam.com is attached as a custom domain it becomes
+root automatically. Use `asset()` from `src/lib/paths.ts` for any plain `<a href>`
+pointing at a file in `public/` — `next/link` and `next/image` handle it themselves.
+
+### Before the first deploy
+
+1. **Enable Pages**: repo Settings → Pages → Source: **GitHub Actions**.
+2. **Repo visibility**: Pages on a private repo requires a paid GitHub plan. Make
+   the repo public, or upgrade.
+
+### Cutting the domain over
+
+Do this last, once the site is ready — marcalam.com keeps pointing at Framer
+until then.
+
+1. Add `marcalam.com` in Settings → Pages → Custom domain (this commits a `CNAME`
+   file for you).
+2. Point DNS at GitHub: `A` records to `185.199.108–111.153`, and a `CNAME` on
+   `www` to `lamchop19.github.io`.
+3. Wait for the check to pass, then tick **Enforce HTTPS**.
+
+## Known gaps
+
+- Case study covers: only tech@nyu has one, and it's a generated placeholder.
+- Copy is migrated from Framer and needs Marc's pass; the bio is out of date.
+- The resume link is commented out in `content/site.ts` until `public/resume.pdf`
+  exists.
+- Scraps is built but empty.
