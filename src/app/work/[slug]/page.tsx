@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { MetaRail } from '@/components/case-study/meta-rail'
 import { NextProject } from '@/components/case-study/next-project'
 import { hasImage, getImage } from '@/lib/images'
+import { ogImage } from '@/lib/og'
 import { getNextWork, getWork, work } from '@/../content/work'
 
 export function generateStaticParams() {
@@ -18,9 +19,11 @@ export async function generateMetadata(props: PageProps<'/work/[slug]'>) {
   const { slug } = await props.params
   const meta = getWork(slug)
   if (!meta) return {}
+  const image = { url: ogImage(`work-${meta.slug}`), width: 1200, height: 630 }
   return {
     title: `${meta.title} — ${meta.subtitle}`,
     description: meta.headline,
+    openGraph: { type: 'article', title: meta.title, description: meta.headline, images: [image] },
   }
 }
 

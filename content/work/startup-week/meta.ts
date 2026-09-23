@@ -4,7 +4,7 @@ export const meta = defineWork({
   slug: 'startup-week',
   title: 'Startup Week',
   subtitle: 'brand & social',
-  headline: "Giving NYU's biggest startup showcase an identity",
+  headline: "Giving NYU’s biggest startup showcase an identity",
   role: 'Vice President of tech@nyu',
   timeline: 'January – March 2025',
   team: '2 people',

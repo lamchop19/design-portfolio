@@ -4,7 +4,7 @@ export const meta = defineWork({
   slug: 'tech-nyu',
   title: 'tech@nyu',
   subtitle: 'brand & social',
-  headline: "Rebranding NYU's largest tech community",
+  headline: "Rebranding NYU’s largest tech community",
   role: 'Marketing Lead, then Vice President',
   timeline: 'January – December 2025',
   team: '3 people',

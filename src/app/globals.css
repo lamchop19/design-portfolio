@@ -10,10 +10,10 @@
   --surface: oklch(97.5% 0.008 85);
   --surface-raised: oklch(94.5% 0.010 85);
   --ink: oklch(19% 0.012 60);
-  --ink-muted: oklch(52% 0.010 60);
-  --ink-faint: oklch(72% 0.008 60);
+  --ink-muted: oklch(44% 0.010 60);
+  --ink-faint: oklch(53% 0.010 60);
   --rule: oklch(88% 0.008 70);
-  --accent: oklch(52% 0.18 26);
+  --accent: oklch(47% 0.17 26);
 
   /* Motion — every animated surface reads from these so timing stays coherent. */
   --dur-fast: 150ms;
@@ -41,10 +41,10 @@
     --surface: oklch(16% 0.010 70);
     --surface-raised: oklch(21% 0.012 70);
     --ink: oklch(95% 0.008 85);
-    --ink-muted: oklch(68% 0.010 80);
-    --ink-faint: oklch(45% 0.010 75);
+    --ink-muted: oklch(80% 0.010 80);
+    --ink-faint: oklch(68% 0.012 75);
     --rule: oklch(30% 0.010 70);
-    --accent: oklch(72% 0.15 42);
+    --accent: oklch(75% 0.15 45);
   }
 }
 
@@ -195,5 +195,57 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Word reveal
+   Driven entirely by CSS. The hero is the LCP element, so gating it on a JS
+   animation library would delay the largest paint until hydration; keeping it in
+   CSS means it paints and animates with the first frame.
+   --------------------------------------------------------------------------- */
+
+.reveal-word {
+  display: inline-flex;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
+.reveal-word > span {
+  display: inline-block;
+  translate: 0 110%;
+  animation: reveal-rise var(--dur-slow) var(--ease-out) forwards;
+  animation-delay: calc(var(--i) * 45ms);
+}
+
+@keyframes reveal-rise {
+  to {
+    translate: 0 0;
+  }
+}
+
+/* Tie the reveal to scroll position where the browser supports it. Elsewhere the
+   words simply start in place — the section is below the fold either way. */
+.reveal-on-scroll > .reveal-word > span {
+  translate: 0 0;
+  animation: none;
+}
+
+@supports (animation-timeline: view()) {
+  .reveal-on-scroll > .reveal-word > span {
+    translate: 0 110%;
+    animation: reveal-rise 1ms linear forwards;
+    animation-timeline: view();
+    animation-delay: 0s;
+    /* Staggering by range rather than delay, since view timelines are driven by
+       scroll offset rather than elapsed time. */
+    animation-range: entry calc(12% + var(--i) * 3%) entry calc(58% + var(--i) * 3%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-word > span {
+    translate: 0 0 !important;
+    animation: none !important;
   }
 }

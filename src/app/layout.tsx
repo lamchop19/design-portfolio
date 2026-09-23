@@ -4,6 +4,7 @@ import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
 
 import { SiteFooter } from '@/components/layout/site-footer'
+import { ogImage } from '@/lib/og'
 import { site } from '@/../content/site'
 
 import './globals.css'
@@ -25,7 +26,9 @@ export const metadata: Metadata = {
     type: 'website',
     siteName: site.name,
     url: site.url,
+    images: [{ url: ogImage('index'), width: 1200, height: 630 }],
   },
+  twitter: { card: 'summary_large_image' },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
