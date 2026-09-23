@@ -1,3 +1,10 @@
+export type SiteLink = {
+  label: string
+  href: string
+  /** 'asset' links are files in public/ and need the deploy base path applied. */
+  kind: 'external' | 'mail' | 'asset'
+}
+
 /**
  * Single source of truth for site-wide copy and links. Kept in content/ next to
  * the case studies so everything editorial lives in one place.
@@ -13,8 +20,9 @@ export const site = {
 
   email: 'mlamchop23@gmail.com',
   links: [
-    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/marcalam/', external: true },
-    { label: 'Email', href: 'mailto:mlamchop23@gmail.com', external: true },
-    { label: 'Resume', href: '/resume.pdf', external: true },
-  ],
-} as const
+    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/marcalam/', kind: 'external' },
+    { label: 'Email', href: 'mailto:mlamchop23@gmail.com', kind: 'mail' },
+    // Re-enable once public/resume.pdf exists — shipping it now is a dead link.
+    { label: 'Resume', href: '/resume.pdf', kind: 'asset', disabled: true },
+  ].filter((link) => !('disabled' in link && link.disabled)) as SiteLink[],
+}

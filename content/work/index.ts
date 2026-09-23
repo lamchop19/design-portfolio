@@ -11,10 +11,11 @@ import { meta as techNyu } from './tech-nyu/meta'
  */
 const all: WorkMeta[] = [techNyu, startupWeek, nyuSydney, shmeel]
 
-/** Published work, newest first. Drafts are excluded from the built site. */
-export const work: WorkMeta[] = all
-  .filter((w) => !w.draft)
-  .sort((a, b) => b.year - a.year || a.title.localeCompare(b.title))
+/**
+ * Published work in the order it appears on the site. This is a curated running
+ * order, not a computed one — reorder the `all` array above to change it.
+ */
+export const work: WorkMeta[] = all.filter((w) => !w.draft)
 
 export function getWork(slug: string): WorkMeta | undefined {
   return work.find((w) => w.slug === slug)

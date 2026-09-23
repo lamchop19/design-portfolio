@@ -4,6 +4,7 @@ import Image from 'next/image'
 
 import { MetaRail } from '@/components/case-study/meta-rail'
 import { NextProject } from '@/components/case-study/next-project'
+import { ScrollProgress } from '@/components/case-study/scroll-progress'
 import { hasImage, getImage } from '@/lib/images'
 import { ogImage } from '@/lib/og'
 import { getNextWork, getWork, work } from '@/../content/work'
@@ -43,6 +44,7 @@ export default async function WorkPage(props: PageProps<'/work/[slug]'>) {
       default="none"
     >
       <article className="px-(--page-margin)">
+        <ScrollProgress />
         <header className="pt-[14vh] pb-12">
           <h1 className="flex flex-wrap items-baseline gap-x-5 gap-y-2">
             <span className="font-display text-[clamp(2.5rem,8vw,6rem)] leading-[0.95] tracking-tight">
@@ -67,7 +69,7 @@ export default async function WorkPage(props: PageProps<'/work/[slug]'>) {
               blurDataURL={cover.blurDataURL}
               priority
               sizes="100vw"
-              className="h-auto w-full bg-surface-raised"
+              className="max-h-[70vh] w-full bg-surface-raised object-cover"
             />
           </ViewTransition>
         ) : null}

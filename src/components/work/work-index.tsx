@@ -2,19 +2,13 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { ViewTransition, useRef, useState } from 'react'
-import {
-  AnimatePresence,
-  motion,
-  useMotionValue,
-  useSpring,
-  useTransform,
-  useVelocity,
-} from 'motion/react'
+import { ViewTransition, useEffect, useRef, useState } from 'react'
 
 import type { WorkMeta } from '@/lib/content'
 import type { ImageEntry } from '@/lib/images'
-import { duration, easeOut, followSpring } from '@/lib/motion'
+
+/** Loose enough to lag visibly behind the cursor, tight enough to still track it. */
+const followSpring = { stiffness: 340, damping: 34, mass: 0.8 }
 
 export type WorkIndexItem = {
   meta: WorkMeta
@@ -26,34 +20,67 @@ export type WorkIndexItem = {
  * spring lag and tilts into the direction of travel. Clicking through morphs that
  * same cover into the case study hero via a shared view-transition name.
  *
- * Pointer-driven behaviour is additive: the rows are ordinary links, so keyboard
- * and touch users get a plain, complete list.
+ * The spring is hand-rolled rather than pulled from a motion library: this is the
+ * home page's only interactive element, and the library cost 43kB gzipped on the
+ * critical path to provide it. Pointer behaviour is purely additive — the rows are
+ * ordinary links, so keyboard and touch users get a plain, complete list.
  */
 export function WorkIndex({ items }: { items: WorkIndexItem[] }) {
   const [active, setActive] = useState<string | null>(null)
   const listRef = useRef<HTMLUListElement>(null)
+  const previewRef = useRef<HTMLDivElement>(null)
 
-  const x = useMotionValue(0)
-  const y = useMotionValue(0)
-  const springX = useSpring(x, followSpring)
-  const springY = useSpring(y, followSpring)
+  // Kept in refs, not state: these update every frame and must not re-render.
+  const target = useRef({ x: 0, y: 0 })
+  const current = useRef({ x: 0, y: 0, vx: 0, vy: 0 })
+  const hasPosition = useRef(false)
 
-  // Tilt proportional to horizontal velocity, so the preview leans into the move.
-  const velocityX = useVelocity(springX)
-  const rotate = useSpring(
-    useTransform(velocityX, [-1600, 0, 1600], [-11, 0, 11], { clamp: true }),
-    followSpring,
-  )
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+    const { stiffness, damping, mass } = followSpring
+    let frame = 0
+    let last = performance.now()
+
+    const tick = (now: number) => {
+      // Clamp dt so a backgrounded tab doesn't integrate one huge unstable step.
+      const dt = Math.min((now - last) / 1000, 1 / 30)
+      last = now
+      const c = current.current
+
+      for (const axis of ['x', 'y'] as const) {
+        const v = axis === 'x' ? 'vx' : 'vy'
+        const accel = (-stiffness * (c[axis] - target.current[axis]) - damping * c[v]) / mass
+        c[v] += accel * dt
+        c[axis] += c[v] * dt
+      }
+
+      if (previewRef.current) {
+        // Lean into horizontal travel, capped so fast flicks stay readable.
+        const tilt = Math.max(-11, Math.min(11, c.vx * 0.012))
+        previewRef.current.style.transform =
+          `translate3d(${c.x}px, ${c.y}px, 0) rotate(${tilt.toFixed(2)}deg)`
+      }
+
+      frame = requestAnimationFrame(tick)
+    }
+
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
+  }, [])
 
   function handlePointerMove(event: React.PointerEvent<HTMLUListElement>) {
     if (event.pointerType !== 'mouse') return
     const bounds = listRef.current?.getBoundingClientRect()
     if (!bounds) return
-    x.set(event.clientX - bounds.left)
-    y.set(event.clientY - bounds.top)
-  }
+    target.current = { x: event.clientX - bounds.left, y: event.clientY - bounds.top }
 
-  const activeItem = items.find((item) => item.meta.slug === active) ?? null
+    // Jump to the cursor the first time rather than flying in from the corner.
+    if (!hasPosition.current) {
+      hasPosition.current = true
+      current.current = { ...target.current, vx: 0, vy: 0 }
+    }
+  }
 
   return (
     <div className="relative">
@@ -88,40 +115,39 @@ export function WorkIndex({ items }: { items: WorkIndexItem[] }) {
         ))}
       </ul>
 
-      {/* Cursor-tracked preview. Mouse only — pointer-events-none so it never
+      {/* Cursor-tracked preview. Mouse only, and pointer-events-none so it never
           intercepts the click it is previewing. */}
-      <motion.div
+      <div
+        ref={previewRef}
         aria-hidden
-        style={{ x: springX, y: springY, rotate }}
-        className="pointer-events-none absolute top-0 left-0 z-10 hidden md:block"
+        className="pointer-events-none absolute top-0 left-0 z-10 hidden will-change-transform md:block"
       >
-        <AnimatePresence>
-          {activeItem?.cover ? (
-            <motion.div
-              key={activeItem.meta.slug}
-              initial={{ opacity: 0, scale: 0.92 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.92 }}
-              transition={{ duration: duration.base, ease: easeOut }}
-              // Centres the preview on the cursor.
-              className="-translate-x-1/2 -translate-y-1/2"
+        {items.map(({ meta, cover }) =>
+          cover ? (
+            <div
+              key={meta.slug}
+              // Every cover stays mounted and is faded in on hover: swapping the
+              // mounted node would restart decoding and stutter the first frame.
+              className={`absolute -translate-x-1/2 -translate-y-1/2 transition-[opacity,scale] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                active === meta.slug ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
+              }`}
             >
-              <ViewTransition name={`cover-${activeItem.meta.slug}`} share="morph" default="none">
+              <ViewTransition name={`cover-${meta.slug}`} share="morph" default="none">
                 <Image
-                  src={activeItem.cover.src}
+                  src={cover.src}
                   alt=""
-                  width={activeItem.cover.width}
-                  height={activeItem.cover.height}
+                  width={cover.width}
+                  height={cover.height}
                   placeholder="blur"
-                  blurDataURL={activeItem.cover.blurDataURL}
+                  blurDataURL={cover.blurDataURL}
                   sizes="384px"
                   className="h-auto w-[22vw] max-w-[24rem] min-w-[14rem] bg-surface-raised shadow-2xl"
                 />
               </ViewTransition>
-            </motion.div>
-          ) : null}
-        </AnimatePresence>
-      </motion.div>
+            </div>
+          ) : null,
+        )}
+      </div>
     </div>
   )
 }

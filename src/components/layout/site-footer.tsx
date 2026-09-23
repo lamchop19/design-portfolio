@@ -1,5 +1,6 @@
 import Link from 'next/link'
 
+import { asset } from '@/lib/paths'
 import { site } from '@/../content/site'
 
 /**
@@ -28,8 +29,8 @@ export function SiteFooter() {
         {site.links.map((link) => (
           <a
             key={link.label}
-            href={link.href}
-            target={link.href.startsWith('mailto:') ? undefined : '_blank'}
+            href={link.kind === 'asset' ? asset(link.href) : link.href}
+            target={link.kind === 'mail' ? undefined : '_blank'}
             rel="noreferrer"
             className="text-ink-muted hover:text-accent"
           >

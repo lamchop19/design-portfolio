@@ -1,4 +1,3 @@
-import type { JSX } from 'react'
 
 type RevealTextProps = {
   children: string

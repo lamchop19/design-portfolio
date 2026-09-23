@@ -207,8 +207,13 @@ body {
 
 .reveal-word {
   display: inline-flex;
-  overflow: hidden;
   vertical-align: bottom;
+  /* `clip` rather than `hidden`, with a margin: a plain clip box cuts off glyph
+     overhang that extends past the advance width — Bricolage's ampersand tail
+     loses its flourish otherwise. The margin is far smaller than the 110% rise,
+     so the masked word still stays hidden. */
+  overflow: clip;
+  overflow-clip-margin: 0.18em;
 }
 
 .reveal-word > span {
@@ -247,5 +252,65 @@ body {
   .reveal-word > span {
     translate: 0 0 !important;
     animation: none !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Scroll-linked effects
+   Both are progressive enhancement via scroll-driven animations: where the
+   browser lacks them, figures are simply visible and the progress bar is hidden.
+   --------------------------------------------------------------------------- */
+
+@supports (animation-timeline: view()) {
+  .rise-in {
+    animation: rise-in 1ms linear both;
+    animation-timeline: view();
+    animation-range: entry 5% entry 45%;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    translate: 0 28px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+.scroll-progress {
+  display: none;
+}
+
+@supports (animation-timeline: scroll()) {
+  .scroll-progress {
+    display: block;
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 50;
+    height: 2px;
+    background: var(--accent);
+    transform-origin: 0 50%;
+    animation: scroll-progress linear;
+    animation-timeline: scroll(root block);
+  }
+}
+
+@keyframes scroll-progress {
+  from {
+    scale: 0 1;
+  }
+  to {
+    scale: 1 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise-in {
+    animation: none !important;
+    opacity: 1 !important;
+    translate: none !important;
   }
 }

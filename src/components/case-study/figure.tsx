@@ -19,7 +19,7 @@ export function Figure({ src, alt, caption, wide = false }: FigureProps) {
   const image = getImage(src)
 
   return (
-    <figure className={wide ? 'mt-16 md:-mx-[12vw]' : 'mt-16'}>
+    <figure className={`rise-in ${wide ? 'mt-16 md:-mx-[12vw]' : 'mt-16'}`}>
       <Image
         src={image.src}
         alt={alt}
