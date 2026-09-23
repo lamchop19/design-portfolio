@@ -1,0 +1,199 @@
+@import 'tailwindcss';
+
+/* ---------------------------------------------------------------------------
+   Tokens
+   Two authored palettes rather than an inversion: the dark surface is warm and
+   slightly lifted off pure black, and the accent shifts hue to stay legible.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --surface: oklch(97.5% 0.008 85);
+  --surface-raised: oklch(94.5% 0.010 85);
+  --ink: oklch(19% 0.012 60);
+  --ink-muted: oklch(52% 0.010 60);
+  --ink-faint: oklch(72% 0.008 60);
+  --rule: oklch(88% 0.008 70);
+  --accent: oklch(52% 0.18 26);
+
+  /* Motion — every animated surface reads from these so timing stays coherent. */
+  --dur-fast: 150ms;
+  --dur-base: 320ms;
+  --dur-slow: 640ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* View transition timings, referenced by the ::view-transition rules below. */
+  --duration-exit: 150ms;
+  --duration-enter: 210ms;
+  --duration-move: 400ms;
+
+  --page-margin: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --page-margin: 3rem;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: oklch(16% 0.010 70);
+    --surface-raised: oklch(21% 0.012 70);
+    --ink: oklch(95% 0.008 85);
+    --ink-muted: oklch(68% 0.010 80);
+    --ink-faint: oklch(45% 0.010 75);
+    --rule: oklch(30% 0.010 70);
+    --accent: oklch(72% 0.15 42);
+  }
+}
+
+@theme inline {
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-rule: var(--rule);
+  --color-accent: var(--accent);
+
+  --font-display: var(--font-display), Georgia, serif;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --ease-out-expo: var(--ease-out);
+}
+
+/* ---------------------------------------------------------------------------
+   Base
+   --------------------------------------------------------------------------- */
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--surface);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   View transitions
+   --------------------------------------------------------------------------- */
+
+/* The transition overlay swallows clicks mid-animation; let them through. */
+::view-transition {
+  pointer-events: none;
+}
+
+/* Shared-element morph: work index cover -> case study hero. The blur keyframe
+   hides pixel interpolation artifacts while the image is being rescaled. */
+::view-transition-group(.morph) {
+  animation-duration: var(--duration-move);
+  animation-timing-function: var(--ease-in-out);
+}
+::view-transition-image-pair(.morph) {
+  animation-name: via-blur;
+}
+@keyframes via-blur {
+  30% {
+    filter: blur(3px);
+  }
+}
+
+/* Directional page slides. Old content leaves fast so it stops competing for
+   attention; new content arrives more slowly so it can be read. */
+::view-transition-old(.nav-forward) {
+  --slide-offset: -60px;
+  animation:
+    var(--duration-exit) ease-in both vt-fade reverse,
+    var(--duration-move) var(--ease-in-out) both vt-slide reverse;
+}
+::view-transition-new(.nav-forward) {
+  --slide-offset: 60px;
+  animation:
+    var(--duration-enter) ease-out var(--duration-exit) both vt-fade,
+    var(--duration-move) var(--ease-in-out) both vt-slide;
+}
+::view-transition-old(.nav-back) {
+  --slide-offset: 60px;
+  animation:
+    var(--duration-exit) ease-in both vt-fade reverse,
+    var(--duration-move) var(--ease-in-out) both vt-slide reverse;
+}
+::view-transition-new(.nav-back) {
+  --slide-offset: -60px;
+  animation:
+    var(--duration-enter) ease-out var(--duration-exit) both vt-fade,
+    var(--duration-move) var(--ease-in-out) both vt-slide;
+}
+
+@keyframes vt-fade {
+  from {
+    opacity: 0;
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+@keyframes vt-slide {
+  from {
+    translate: var(--slide-offset);
+  }
+  to {
+    translate: 0;
+  }
+}
+
+/* The footer nav is the site's fixed spatial anchor — it must not slide with the
+   content, or the user loses their reference point. */
+::view-transition-group(site-footer) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(site-footer) {
+  display: none;
+}
+::view-transition-new(site-footer) {
+  animation: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Reduced motion
+   Positional movement is the main trigger for motion sensitivity, so we collapse
+   every transition to an instant swap — the browser's un-animated default.
+   --------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
