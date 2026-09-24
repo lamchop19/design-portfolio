@@ -1,5 +1,6 @@
 import { ViewTransition } from 'react'
 
+import { PixelGrid } from '@/components/brand/pixel-grid'
 import { RevealText } from '@/components/motion/reveal-text'
 import { WorkIndex, type WorkIndexItem } from '@/components/work/work-index'
 import { hasImage, getImage } from '@/lib/images'
@@ -20,21 +21,23 @@ export default function HomePage() {
       exit={{ 'nav-forward': 'nav-forward', 'nav-back': 'nav-back', default: 'none' }}
       default="none"
     >
-      <div className="px-(--page-margin)">
-        <header className="pt-[18vh] pb-[14vh]">
+      <div>
+        <header className="px-(--page-margin) pt-[18vh] pb-[12vh]">
           <RevealText className="max-w-[14ch] font-display text-[clamp(2.75rem,9vw,7.5rem)] leading-[0.95] tracking-tight">
             {site.headline}
           </RevealText>
         </header>
 
-        <section aria-labelledby="work-heading">
+        <PixelGrid single className="mb-[10vh]" />
+
+        <section aria-labelledby="work-heading" className="px-(--page-margin)">
           <h2 id="work-heading" className="sr-only">
             Selected work
           </h2>
           <WorkIndex items={items} />
         </section>
 
-        <section aria-labelledby="about-heading" className="py-[14vh]">
+        <section aria-labelledby="about-heading" className="px-(--page-margin) py-[14vh]">
           <h2
             id="about-heading"
             className="font-mono text-xs tracking-wide text-ink-faint uppercase"

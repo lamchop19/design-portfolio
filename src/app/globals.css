@@ -2,18 +2,35 @@
 
 /* ---------------------------------------------------------------------------
    Tokens
-   Two authored palettes rather than an inversion: the dark surface is warm and
-   slightly lifted off pure black, and the accent shifts hue to stay legible.
+
+   Palette derives from the footer grid artwork: blue, pink and green on white.
+   White is the primary surface; the brand colors are accents on top of it.
+
+   The three brand colors are NOT interchangeable — their contrast on white
+   decides what each is allowed to do:
+     blue  #0059FF  5.42:1  carries text and links
+     pink  #F551AB  3.16:1  large text only, or a fill with dark ink on it
+     green #81DB89  1.69:1  decorative fills only, never text on white
    --------------------------------------------------------------------------- */
 
 :root {
-  --surface: oklch(97.5% 0.008 85);
-  --surface-raised: oklch(94.5% 0.010 85);
-  --ink: oklch(19% 0.012 60);
-  --ink-muted: oklch(44% 0.010 60);
-  --ink-faint: oklch(53% 0.010 60);
-  --rule: oklch(88% 0.008 70);
-  --accent: oklch(47% 0.17 26);
+  /* Brand constants. Same value in both themes — these are the marks themselves,
+     not theme-dependent surfaces. */
+  --brand-blue: #0059ff;
+  --brand-pink: #f551ab;
+  --brand-green: #81db89;
+
+  --surface: #ffffff;
+  --surface-raised: #f2f4f8;
+  --ink: #0a0f1f;
+  --ink-muted: #4a5169;
+  --ink-faint: #6b7391;
+  --rule: #e3e7ef;
+
+  /* The interactive accent. Blue is the only brand color that clears AA for
+     body-sized text on white, so links and hovers are always blue. */
+  --accent: var(--brand-blue);
+  --on-accent: #ffffff;
 
   /* Motion — every animated surface reads from these so timing stays coherent. */
   --dur-fast: 150ms;
@@ -28,23 +45,34 @@
   --duration-move: 400ms;
 
   --page-margin: 1.5rem;
+
+  /* One cell of the footer grid. The artwork is 60x38 at 1440 wide. */
+  --cell-w: 40px;
+  --cell-h: 25px;
 }
 
 @media (min-width: 768px) {
   :root {
     --page-margin: 3rem;
+    --cell-w: 60px;
+    --cell-h: 38px;
   }
 }
 
+/* Dark is a translation of the white-primary brand, not a second brand: the
+   surface goes near-black and blue lifts to #4d8cff, since #0059ff only reaches
+   3.58:1 against it. Pink and green already clear AA on this surface unchanged. */
 @media (prefers-color-scheme: dark) {
   :root {
-    --surface: oklch(16% 0.010 70);
-    --surface-raised: oklch(21% 0.012 70);
-    --ink: oklch(95% 0.008 85);
-    --ink-muted: oklch(80% 0.010 80);
-    --ink-faint: oklch(68% 0.012 75);
-    --rule: oklch(30% 0.010 70);
-    --accent: oklch(75% 0.15 45);
+    --surface: #0b0d14;
+    --surface-raised: #161a26;
+    --ink: #f5f7fa;
+    --ink-muted: #a8b0c4;
+    --ink-faint: #8a93ab;
+    --rule: #262c3d;
+
+    --accent: #4d8cff;
+    --on-accent: #0a0f1f;
   }
 }
 
@@ -56,6 +84,11 @@
   --color-ink-faint: var(--ink-faint);
   --color-rule: var(--rule);
   --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-pink: var(--brand-pink);
+  --color-brand-green: var(--brand-green);
 
   --font-display: var(--font-display), Georgia, serif;
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
@@ -82,7 +115,7 @@ body {
 
 ::selection {
   background: var(--accent);
-  color: var(--surface);
+  color: var(--on-accent);
 }
 
 :focus-visible {
@@ -313,4 +346,46 @@ body {
     opacity: 1 !important;
     translate: none !important;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Brand grid band
+
+   The two rows of the artwork, each as one repeating gradient with a period of
+   eight cells. Blank cells are transparent so the band adopts whatever surface
+   it sits on.
+
+     row 0:  B . P . . G B .
+     row 1:  . B . P G . . B
+   --------------------------------------------------------------------------- */
+
+.pixel-row-0,
+.pixel-row-1 {
+  height: var(--cell-h);
+}
+
+.pixel-row-0 {
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--brand-blue) 0 var(--cell-w),
+    transparent var(--cell-w) calc(2 * var(--cell-w)),
+    var(--brand-pink) calc(2 * var(--cell-w)) calc(3 * var(--cell-w)),
+    transparent calc(3 * var(--cell-w)) calc(5 * var(--cell-w)),
+    var(--brand-green) calc(5 * var(--cell-w)) calc(6 * var(--cell-w)),
+    var(--brand-blue) calc(6 * var(--cell-w)) calc(7 * var(--cell-w)),
+    transparent calc(7 * var(--cell-w)) calc(8 * var(--cell-w))
+  );
+}
+
+.pixel-row-1 {
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0 var(--cell-w),
+    var(--brand-blue) var(--cell-w) calc(2 * var(--cell-w)),
+    transparent calc(2 * var(--cell-w)) calc(3 * var(--cell-w)),
+    var(--brand-pink) calc(3 * var(--cell-w)) calc(4 * var(--cell-w)),
+    var(--brand-green) calc(4 * var(--cell-w)) calc(5 * var(--cell-w)),
+    transparent calc(5 * var(--cell-w)) calc(7 * var(--cell-w)),
+    var(--brand-blue) calc(7 * var(--cell-w)) calc(8 * var(--cell-w))
+  );
 }

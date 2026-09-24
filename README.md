@@ -37,6 +37,24 @@ loader (`src/lib/image-loader.ts`) points at those files, so we keep srcset, laz
 loading and blur-up without an optimization server. The widths in that script must
 stay in sync with `images.deviceSizes`/`imageSizes` in `next.config.ts`.
 
+**Color** derives from the footer grid artwork. White is the primary surface; blue,
+pink and green are accents on it. They are not interchangeable — contrast on white
+decides what each may do:
+
+| | on white | allowed |
+| --- | --- | --- |
+| blue `#0059FF` | 5.42:1 | text, links, any interactive accent |
+| pink `#F551AB` | 3.16:1 | large text only, or a fill with dark ink on it |
+| green `#81DB89` | 1.69:1 | decorative fills only — never text on white |
+
+So `--accent` (links, hovers, focus rings) is always blue. Pink and green appear in
+the grid band and as block fills. Dark mode lifts blue to `#4D8CFF`, since the
+original only reaches 3.58:1 on the dark surface; pink and green pass unchanged.
+
+The grid band itself is `PixelGrid` — the 8-cell unit `B.P..GB.` over `.B.PG..B`,
+drawn as one repeating gradient per row. It heads the footer, and a single-row
+variant rules off the hero.
+
 **Motion** uses no animation library. Word reveals, figure rise-ins and the
 reading-progress bar are CSS — the hero is the LCP element, and gating it on a JS
 library delayed the largest paint until hydration. Page transitions and the

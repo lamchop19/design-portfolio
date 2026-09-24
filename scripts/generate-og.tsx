@@ -20,58 +20,101 @@ const OUT_DIR = path.join(ROOT, 'public', 'og')
 
 const SIZE = { width: 1200, height: 630 }
 const PALETTE = {
-  bg: '#faf7f2',
-  ink: '#1a1512',
-  muted: '#8a7f74',
-  rule: '#ddd4c8',
-  accent: '#c2542f',
+  bg: '#ffffff',
+  ink: '#0a0f1f',
+  muted: '#4a5169',
+  rule: '#e3e7ef',
+  blue: '#0059ff',
+  pink: '#f551ab',
+  green: '#81db89',
 }
 
+/** The brand grid, as the card's footer band. Two rows of the 8-cell unit. */
+const GRID_ROWS = [
+  ['blue', null, 'pink', null, null, 'green', 'blue', null],
+  [null, 'blue', null, 'pink', 'green', null, null, 'blue'],
+] as const
+
+const CELL = 60
+const BAND_H = 38
+
+function GridBand() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      {GRID_ROWS.map((row, r) => (
+        <div key={r} style={{ display: 'flex' }}>
+          {Array.from({ length: Math.ceil(SIZE.width / CELL) }, (_, i) => {
+            const key = row[i % row.length]
+            return (
+              <div
+                key={i}
+                style={{
+                  width: CELL,
+                  height: BAND_H,
+                  background: key ? PALETTE[key] : PALETTE.bg,
+                }}
+              />
+            )
+          })}
+        </div>
+      ))}
+    </div>
+  )
+}
 
 function Card({ eyebrow, title, footer }: { eyebrow: string; title: string; footer: string }) {
   return (
     <div
       style={{
-        width: '100%',
-        height: '100%',
+        width: SIZE.width,
+        height: SIZE.height,
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'space-between',
         background: PALETTE.bg,
         color: PALETTE.ink,
-        padding: '72px 80px',
         fontFamily: 'Bricolage',
       }}
     >
-      <div style={{ display: 'flex', fontSize: 26, letterSpacing: 2, color: PALETTE.muted }}>
-        {eyebrow.toUpperCase()}
-      </div>
+      {/* Explicit height rather than space-between across the whole card: satori
+          otherwise compresses or clips the fixed-height band at the bottom. */}
       <div
         style={{
+          height: SIZE.height - BAND_H * 2,
           display: 'flex',
-          // Long headlines step down a size or they overflow the card.
-          fontSize: title.length > 40 ? 76 : 104,
-          lineHeight: 1.04,
-          letterSpacing: -3,
-          maxWidth: 940,
-        }}
-      >
-        {title}
-      </div>
-      <div
-        style={{
-          display: 'flex',
+          flexDirection: 'column',
           justifyContent: 'space-between',
-          alignItems: 'flex-end',
-          borderTop: `2px solid ${PALETTE.rule}`,
-          paddingTop: 24,
-          fontSize: 26,
-          color: PALETTE.muted,
+          padding: '68px 80px 30px',
         }}
       >
-        <span>{footer}</span>
-        <span style={{ color: PALETTE.accent }}>{site.domain}</span>
+        <div style={{ display: 'flex', fontSize: 26, letterSpacing: 2, color: PALETTE.muted }}>
+          {eyebrow.toUpperCase()}
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            // Long headlines step down a size or they overflow the card.
+            fontSize: title.length > 40 ? 72 : 96,
+            lineHeight: 1.04,
+            letterSpacing: -3,
+            maxWidth: 940,
+          }}
+        >
+          {title}
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-end',
+            fontSize: 26,
+            color: PALETTE.muted,
+          }}
+        >
+          <span>{footer}</span>
+          <span style={{ color: PALETTE.blue }}>{site.domain}</span>
+        </div>
       </div>
+      <GridBand />
     </div>
   )
 }
