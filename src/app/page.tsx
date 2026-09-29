@@ -1,7 +1,6 @@
 import { ViewTransition } from 'react'
 
-import { PixelGrid } from '@/components/brand/pixel-grid'
-import { RevealText } from '@/components/motion/reveal-text'
+import { NameHero } from '@/components/brand/name-hero'
 import { WorkIndex, type WorkIndexItem } from '@/components/work/work-index'
 import { hasImage, getImage } from '@/lib/images'
 import { site } from '@/../content/site'
@@ -9,7 +8,7 @@ import { work } from '@/../content/work'
 
 export default function HomePage() {
   // Covers are resolved on the server so the client component never touches the
-  // manifest. Until a project has artwork, its hover preview is simply absent.
+  // manifest. Until a project has artwork, its thumbnail is a flat brand color.
   const items: WorkIndexItem[] = work.map((meta) => ({
     meta,
     cover: meta.cover && hasImage(meta.cover) ? getImage(meta.cover) : null,
@@ -21,38 +20,38 @@ export default function HomePage() {
       exit={{ 'nav-forward': 'nav-forward', 'nav-back': 'nav-back', default: 'none' }}
       default="none"
     >
-      <div>
-        <header className="px-(--page-margin) pt-[18vh] pb-[12vh]">
-          <RevealText className="max-w-[14ch] font-display text-[clamp(2.75rem,9vw,7.5rem)] leading-[0.95] tracking-tight">
-            {site.headline}
-          </RevealText>
-        </header>
+      {/* data-snap marks the section starts that SmoothScroll settles onto. */}
+      <header className="sky-hero" data-snap>
+        <div className="sky-clouds" aria-hidden="true">
+          <span className="sky-cloud-far" />
+          <span className="sky-cloud-near" />
+        </div>
+        <NameHero name={site.name} />
+      </header>
 
-        <PixelGrid single className="mb-[10vh]" />
+      <section
+        aria-labelledby="work-heading"
+        className="home-section px-(--page-margin)"
+        data-snap
+      >
+        <h2 id="work-heading" className="home-section-label">
+          Selected work <span className="tabular-nums">({String(items.length).padStart(2, '0')})</span>
+        </h2>
+        <WorkIndex items={items} />
+      </section>
 
-        <section aria-labelledby="work-heading" className="px-(--page-margin)">
-          <h2 id="work-heading" className="sr-only">
-            Selected work
-          </h2>
-          <WorkIndex items={items} />
-        </section>
-
-        <section aria-labelledby="about-heading" className="px-(--page-margin) py-[14vh]">
-          <h2
-            id="about-heading"
-            className="font-mono text-xs tracking-wide text-ink-faint uppercase"
-          >
-            About
-          </h2>
-          <RevealText
-            as="p"
-            onScroll
-            className="mt-6 max-w-[38ch] font-display text-[clamp(1.5rem,3.5vw,2.5rem)] leading-[1.15] tracking-tight"
-          >
-            {site.bio}
-          </RevealText>
-        </section>
-      </div>
+      <section
+        aria-labelledby="about-heading"
+        className="home-section home-about px-(--page-margin)"
+        data-snap
+      >
+        <h2 id="about-heading" className="home-section-label">
+          About
+        </h2>
+        <p className="max-w-[38ch] font-display text-[clamp(1.75rem,4vw,3.25rem)] leading-[1.12] tracking-tight text-balance">
+          {site.bio}
+        </p>
+      </section>
     </ViewTransition>
   )
 }

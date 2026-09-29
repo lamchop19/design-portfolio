@@ -1,6 +1,6 @@
 # marcalam.com
 
-Design portfolio for Marc Alam. Next.js App Router, statically exported and served
+Design portfolio for Marc Andre Lam. Next.js App Router, statically exported and served
 from GitHub Pages. Replaces the previous Framer site.
 
 ## Running it
@@ -47,20 +47,36 @@ decides what each may do:
 | pink `#F551AB` | 3.16:1 | large text only, or a fill with dark ink on it |
 | green `#81DB89` | 1.69:1 | decorative fills only — never text on white |
 
-So `--accent` (links, hovers, focus rings) is always blue. Pink and green appear in
+The default `--accent` (links, hovers, focus rings) is blue. Pink and green appear in
 the grid band and as block fills. Dark mode lifts blue to `#4D8CFF`, since the
 original only reaches 3.58:1 on the dark surface; pink and green pass unchanged.
 
 The grid band itself is `PixelGrid` — the 8-cell unit `B.P..GB.` over `.B.PG..B`,
-drawn as one repeating gradient per row. It heads the footer, and a single-row
-variant rules off the hero.
+drawn as one repeating gradient per row. It heads the footer on case studies and
+Scraps. Pixel art is kept for the footer and accents. The homepage opens on a grainy
+sky-blue gradient hero with two slowly drifting noise-cloud layers, then plain
+surface-colored sections: a thumbnail grid of work, then About. It ends at a pixel
+coral-and-crab seabed, scoped to `.site-footer-ocean`. The navy homepage
+footer uses a light green accent for contrast. The top-right theme control follows
+the system initially, then remembers an explicit light/dark choice locally.
 
-**Motion** uses no animation library. Word reveals, figure rise-ins and the
-reading-progress bar are CSS — the hero is the LCP element, and gating it on a JS
-library delayed the largest paint until hydration. Page transitions and the
-cover→hero morph use the native View Transitions API via React's `<ViewTransition>`.
-The one exception is the cursor-tracked preview on the work index, which runs a
-small hand-rolled spring in `work-index.tsx`.
+**Motion** is CSS, apart from smooth scrolling. Word reveals, figure rise-ins, the
+cloud drift and the reading-progress bar are all CSS — the hero is the LCP element,
+and gating it on a JS library delayed the largest paint until hydration. Page
+transitions and the cover→hero morph use the native View Transitions API via React's
+`<ViewTransition>`. The one library is Lenis (`smooth-scroll.tsx`, ~4kB), which
+eases wheel scrolling site-wide. On pages that mark sections with `data-snap`, it
+settles onto a section start when scrolling stops near one, and scrolls freely
+elsewhere. Touch keeps native scrolling; reduced motion disables both easing and
+snapping.
+
+Work thumbnails use the project cover when one exists. Otherwise they use a flat
+brand color. The homepage name is a single line whose font size is derived from the
+hero's width (`--name-em`, the name's width in ems), so it spans the viewport edge
+to edge. Hovering it lets a warm sunlight follow the pointer, using a halo behind
+the letters and a radial gradient clipped to the glyphs. `NameSunlight` only feeds
+the pointer position to CSS; the heading stays solid ink without JS or on touch.
+The crab makes one small arrival movement, which is disabled for reduced motion.
 
 Everything positional degrades under `prefers-reduced-motion`, and the
 scroll-driven effects are wrapped in `@supports` so unsupported browsers get

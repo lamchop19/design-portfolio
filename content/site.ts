@@ -10,7 +10,7 @@ export type SiteLink = {
  * the case studies so everything editorial lives in one place.
  */
 export const site = {
-  name: 'Marc Alam',
+  name: 'Marc Andre Lam',
   domain: 'marcalam.com',
   url: 'https://marcalam.com',
 

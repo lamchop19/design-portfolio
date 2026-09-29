@@ -27,10 +27,14 @@
   --ink-faint: #6b7391;
   --rule: #e3e7ef;
 
-  /* The interactive accent. Blue is the only brand color that clears AA for
-     body-sized text on white, so links and hovers are always blue. */
+  /* Blue is the interactive accent on the primary white surface. */
   --accent: var(--brand-blue);
   --on-accent: #ffffff;
+
+  --ocean-zenith: #8dcbf2;
+  --ocean-sky: #cde9f8;
+  --ocean-shallows: #d7f1f5;
+  --ocean-floor: #add4e6;
 
   /* Motion — every animated surface reads from these so timing stays coherent. */
   --dur-fast: 150ms;
@@ -63,7 +67,7 @@
    surface goes near-black and blue lifts to #4d8cff, since #0059ff only reaches
    3.58:1 against it. Pink and green already clear AA on this surface unchanged. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --surface: #0b0d14;
     --surface-raised: #161a26;
     --ink: #f5f7fa;
@@ -73,7 +77,26 @@
 
     --accent: #4d8cff;
     --on-accent: #0a0f1f;
+    --ocean-zenith: #08131f;
+    --ocean-sky: #0f2433;
+    --ocean-shallows: #102d3b;
+    --ocean-floor: #0c2639;
   }
+}
+
+:root[data-theme='dark'] {
+  --surface: #0b0d14;
+  --surface-raised: #161a26;
+  --ink: #f5f7fa;
+  --ink-muted: #a8b0c4;
+  --ink-faint: #8a93ab;
+  --rule: #262c3d;
+  --accent: #4d8cff;
+  --on-accent: #0a0f1f;
+  --ocean-zenith: #08131f;
+  --ocean-sky: #0f2433;
+  --ocean-shallows: #102d3b;
+  --ocean-floor: #0c2639;
 }
 
 @theme inline {
@@ -103,6 +126,14 @@
 
 html {
   color-scheme: light dark;
+}
+
+html[data-theme='light'] {
+  color-scheme: light;
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
 }
 
 body {
@@ -229,6 +260,312 @@ body {
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Name wordmark
+   One line sized to span the hero edge to edge: --name-em is the name's width
+   in ems at these settings, measured in Bricolage and re-measured at runtime by
+   NameSunlight in case the name changes. On hover, a warm light follows the
+   pointer — a halo behind the letters plus a gradient clipped to the glyphs.
+   Without JS, or on touch, the heading is simply solid ink.
+   --------------------------------------------------------------------------- */
+
+@property --sun-x {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --sun-y {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --sun-r {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+.name-hero-wrap {
+  --name-em: 8.22;
+  --sun-core: #ffb429;
+  --sun-warm: #e8740c;
+  --sun-edge: #8a3b0c;
+  --sun-halo: 255 236 196;
+  position: relative;
+  font-size: calc(100cqi / var(--name-em));
+  /* The light trails the pointer slightly, like a lens catching up. */
+  transition:
+    --sun-x 380ms var(--ease-out),
+    --sun-y 380ms var(--ease-out);
+}
+
+.name-hero {
+  position: relative;
+  font-size: 1em;
+  font-weight: 600;
+  line-height: 0.9;
+  letter-spacing: -0.055em;
+  white-space: nowrap;
+  text-align: center;
+  animation: name-settle 560ms var(--ease-out) both;
+  transition: --sun-r 520ms var(--ease-out);
+}
+
+.name-hero-wrap[data-sun] .name-hero {
+  --sun-r: 1.5em;
+}
+
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .name-hero {
+    color: transparent;
+    /* A zero radius renders as the final stop, so at rest this is plain ink. */
+    background-image: radial-gradient(
+      circle var(--sun-r) at var(--sun-x) var(--sun-y),
+      var(--sun-core),
+      var(--sun-warm) 30%,
+      var(--sun-edge) 62%,
+      var(--ink)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+}
+
+.name-sun-glow {
+  position: absolute;
+  left: var(--sun-x);
+  top: var(--sun-y);
+  width: 3.4em;
+  height: 1.9em;
+  translate: -50% -50%;
+  pointer-events: none;
+  background: radial-gradient(
+    closest-side,
+    rgb(var(--sun-halo) / 0.95),
+    rgb(var(--sun-halo) / 0.45) 38%,
+    rgb(var(--sun-halo) / 0) 80%
+  );
+  mix-blend-mode: screen;
+  opacity: 0;
+  scale: 0.6;
+  transition:
+    opacity 520ms var(--ease-out),
+    scale 520ms var(--ease-out);
+}
+
+.name-hero-wrap[data-sun] .name-sun-glow {
+  opacity: 1;
+  scale: 1;
+}
+
+@keyframes name-settle {
+  from {
+    transform: translateY(16px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .name-hero-wrap {
+    --sun-core: #fff1c7;
+    --sun-warm: #ffc868;
+    --sun-edge: #f3a45a;
+    --sun-halo: 255 190 110;
+  }
+}
+
+:root[data-theme='dark'] .name-hero-wrap {
+  --sun-core: #fff1c7;
+  --sun-warm: #ffc868;
+  --sun-edge: #f3a45a;
+  --sun-halo: 255 190 110;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .name-hero {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Homepage. A grainy sky hero over plain surface-colored content sections; the
+   footer seabed is the only pixel scenery. Scenery never captures input.
+   --------------------------------------------------------------------------- */
+
+.sky-hero {
+  position: relative;
+  container-type: inline-size;
+  overflow: clip;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: clamp(18rem, 40svh + 20vw, 46rem);
+  padding-bottom: clamp(1.5rem, 5cqi, 5rem);
+  background: linear-gradient(var(--ocean-zenith), var(--ocean-sky) 72%, var(--ocean-shallows));
+}
+
+/* Two soft cloud layers, each a seamless noise tile drifting one tile-width per
+   loop. The nearer layer is smaller and faster, which reads as depth. They are
+   composited transforms only, and fade out above the name. */
+.sky-clouds {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: var(--cloud-opacity, 0.9);
+  mask-image: linear-gradient(#000 15%, transparent 78%);
+}
+
+.sky-clouds > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(100% + var(--tile));
+  background: var(--cloud) 0 0 / var(--tile) 100% repeat-x;
+  animation: cloud-drift var(--drift) linear var(--delay, 0s) infinite;
+}
+
+.sky-cloud-far {
+  --tile: 1600px;
+  --drift: 240s;
+  --cloud: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='700'%3E%3Cfilter id='c' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.0016 .0052' numOctaves='5' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 2.6 0 0 0 -1.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23c%29'/%3E%3C/svg%3E");
+  opacity: 0.85;
+}
+
+.sky-cloud-near {
+  --tile: 1100px;
+  --drift: 120s;
+  --cloud: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1100' height='600'%3E%3Cfilter id='c' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.0026 .0085' numOctaves='5' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 2.4 0 0 0 -1.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23c%29'/%3E%3C/svg%3E");
+  opacity: 0.6;
+  --delay: -40s;
+}
+
+@keyframes cloud-drift {
+  to {
+    translate: calc(-1 * var(--tile)) 0;
+  }
+}
+
+/* Film grain over everything in the hero, including the name. */
+.sky-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23g%29'/%3E%3C/svg%3E") 0 0 / 180px;
+  mix-blend-mode: overlay;
+  opacity: 0.9;
+}
+
+.home-section {
+  padding-block: clamp(5rem, 12vh, 9rem);
+}
+
+.home-section-label {
+  margin-bottom: clamp(2rem, 5vh, 3.5rem);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* The about panel fills most of a screen so snapping onto it frames it. */
+.home-about {
+  min-height: 80svh;
+}
+
+.work-thumb {
+  transition: scale 700ms var(--ease-out);
+}
+
+@media (hover: hover) {
+  .group:hover .work-thumb {
+    scale: 1.035;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .sky-clouds {
+    --cloud-opacity: 0.16;
+  }
+}
+
+:root[data-theme='dark'] .sky-clouds {
+  --cloud-opacity: 0.16;
+}
+
+.site-footer-ocean {
+  --ink: #f2f8fa;
+  --ink-muted: #c6dce5;
+  --accent: #a1e7be;
+  --on-accent: #102d3b;
+  background: #10364b;
+}
+
+.ocean-seabed {
+  position: relative;
+  height: clamp(140px, 18vw, 260px);
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--ocean-floor);
+}
+
+.ocean-reef {
+  position: absolute;
+  bottom: 0;
+  width: clamp(180px, 28vw, 390px);
+  height: auto;
+}
+
+.ocean-reef-left {
+  left: 0;
+}
+
+.ocean-reef-right {
+  right: 0;
+  transform: scaleX(-1);
+  width: clamp(170px, 25vw, 360px);
+}
+
+.ocean-sand {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 8px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 36px, #cbded6 36px 84px, transparent 84px 132px) top / 264px 4px repeat-x,
+    linear-gradient(#cbded6, #cbded6) bottom / 100% 4px repeat-x;
+}
+
+.ocean-crab {
+  position: absolute;
+  bottom: 7px;
+  right: clamp(4rem, 12vw, 11rem);
+  width: 44px;
+}
+
+.ocean-crab[data-arrived='true'] {
+  animation: crab-arrival 700ms steps(2, end) both;
+}
+
+@keyframes crab-arrival {
+  from { transform: translateX(16px); }
+  to { transform: translateX(0); }
+}
+
+@media (max-width: 767px) {
+  .ocean-reef-left { left: -30px; }
+  .ocean-reef-right { right: -40px; }
+  .ocean-crab { width: 33px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ocean-crab[data-arrived='true'] { animation: none; }
 }
 
 /* ---------------------------------------------------------------------------

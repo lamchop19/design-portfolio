@@ -1,6 +1,10 @@
+'use client'
+
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 import { PixelGrid } from '@/components/brand/pixel-grid'
+import { OceanSeabed } from '@/components/brand/ocean-scenery'
 import { asset } from '@/lib/paths'
 import { site } from '@/../content/site'
 
@@ -12,9 +16,11 @@ import { site } from '@/../content/site'
  * globals.css.
  */
 export function SiteFooter() {
+  const isHome = usePathname() === '/'
+
   return (
-    <footer style={{ viewTransitionName: 'site-footer' }} className="mt-[10vh]">
-      <PixelGrid />
+    <footer style={{ viewTransitionName: 'site-footer' }} className={isHome ? 'site-footer-ocean' : 'mt-[10vh]'}>
+      {isHome ? <OceanSeabed /> : <PixelGrid />}
       <nav className="flex flex-wrap items-baseline gap-x-8 gap-y-3 px-(--page-margin) py-8 font-mono text-xs tracking-wide uppercase">
         <Link
           href="/"

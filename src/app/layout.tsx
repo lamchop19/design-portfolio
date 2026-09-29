@@ -4,7 +4,10 @@ import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
 
 import { SiteFooter } from '@/components/layout/site-footer'
+import { SmoothScroll } from '@/components/layout/smooth-scroll'
+import { ThemeToggle } from '@/components/layout/theme-toggle'
 import { ogImage } from '@/lib/og'
+import { themeInitScript } from '@/lib/theme'
 import { site } from '@/../content/site'
 
 import './globals.css'
@@ -36,8 +39,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       className={`${display.variable} ${GeistSans.variable} ${GeistMono.variable}`}
+      suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body className="flex min-h-dvh flex-col">
+        <SmoothScroll />
+        <ThemeToggle />
         <main className="flex-1">{children}</main>
         <SiteFooter />
       </body>
