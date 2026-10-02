@@ -1,0 +1,1152 @@
+@import 'tailwindcss';
+
+/* ---------------------------------------------------------------------------
+   Tokens
+
+   Palette derives from the footer grid artwork: blue, pink and green on white.
+   White is the primary surface; the brand colors are accents on top of it.
+
+   The three brand colors are NOT interchangeable — their contrast on white
+   decides what each is allowed to do:
+     blue  #0059FF  5.42:1  carries text and links
+     pink  #F551AB  3.16:1  large text only, or a fill with dark ink on it
+     green #81DB89  1.69:1  decorative fills only, never text on white
+   --------------------------------------------------------------------------- */
+
+:root {
+  /* Brand constants. Same value in both themes — these are the marks themselves,
+     not theme-dependent surfaces. */
+  --brand-blue: #0059ff;
+  --brand-pink: #f551ab;
+  --brand-green: #81db89;
+
+  --surface: #ffffff;
+  --surface-raised: #f2f4f8;
+  --ink: #0a0f1f;
+  --ink-muted: #4a5169;
+  --ink-faint: #6b7391;
+  --rule: #e3e7ef;
+
+  /* Blue is the interactive accent on the primary white surface. */
+  --accent: var(--brand-blue);
+  --on-accent: #ffffff;
+
+  --ocean-zenith: #8dcbf2;
+  --ocean-sky: #cde9f8;
+  --ocean-shallows: #d7f1f5;
+  --ocean-floor: #add4e6;
+
+  /* Motion — every animated surface reads from these so timing stays coherent. */
+  --dur-fast: 150ms;
+  --dur-base: 320ms;
+  --dur-slow: 640ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* View transition timings, referenced by the ::view-transition rules below. */
+  --duration-exit: 150ms;
+  --duration-enter: 210ms;
+  --duration-move: 400ms;
+
+  --page-margin: 1.5rem;
+
+  /* One cell of the footer grid. The artwork is 60x38 at 1440 wide. */
+  --cell-w: 40px;
+  --cell-h: 25px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --page-margin: 3rem;
+    --cell-w: 60px;
+    --cell-h: 38px;
+  }
+}
+
+/* Dark is a translation of the white-primary brand, not a second brand: the
+   surface goes near-black and blue lifts to #4d8cff, since #0059ff only reaches
+   3.58:1 against it. Pink and green already clear AA on this surface unchanged. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --surface: #0b0d14;
+    --surface-raised: #161a26;
+    --ink: #f5f7fa;
+    --ink-muted: #a8b0c4;
+    --ink-faint: #8a93ab;
+    --rule: #262c3d;
+
+    --accent: #4d8cff;
+    --on-accent: #0a0f1f;
+    --ocean-zenith: #08131f;
+    --ocean-sky: #0f2433;
+    --ocean-shallows: #102d3b;
+    --ocean-floor: #0c2639;
+  }
+}
+
+:root[data-theme='dark'] {
+  --surface: #0b0d14;
+  --surface-raised: #161a26;
+  --ink: #f5f7fa;
+  --ink-muted: #a8b0c4;
+  --ink-faint: #8a93ab;
+  --rule: #262c3d;
+  --accent: #4d8cff;
+  --on-accent: #0a0f1f;
+  --ocean-zenith: #08131f;
+  --ocean-sky: #0f2433;
+  --ocean-shallows: #102d3b;
+  --ocean-floor: #0c2639;
+}
+
+@theme inline {
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-rule: var(--rule);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-pink: var(--brand-pink);
+  --color-brand-green: var(--brand-green);
+
+  --font-display: var(--font-display), Georgia, serif;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --ease-out-expo: var(--ease-out);
+}
+
+/* ---------------------------------------------------------------------------
+   Base
+   --------------------------------------------------------------------------- */
+
+html {
+  color-scheme: light dark;
+}
+
+html[data-theme='light'] {
+  color-scheme: light;
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   View transitions
+   --------------------------------------------------------------------------- */
+
+/* The transition overlay swallows clicks mid-animation; let them through. */
+::view-transition {
+  pointer-events: none;
+}
+
+/* Shared-element morph: work index cover -> case study hero. The blur keyframe
+   hides pixel interpolation artifacts while the image is being rescaled. */
+::view-transition-group(.morph) {
+  animation-duration: var(--duration-move);
+  animation-timing-function: var(--ease-in-out);
+}
+::view-transition-image-pair(.morph) {
+  animation-name: via-blur;
+}
+@keyframes via-blur {
+  30% {
+    filter: blur(3px);
+  }
+}
+
+/* Directional page slides. Old content leaves fast so it stops competing for
+   attention; new content arrives more slowly so it can be read. */
+::view-transition-old(.nav-forward) {
+  --slide-offset: -60px;
+  animation:
+    var(--duration-exit) ease-in both vt-fade reverse,
+    var(--duration-move) var(--ease-in-out) both vt-slide reverse;
+}
+::view-transition-new(.nav-forward) {
+  --slide-offset: 60px;
+  animation:
+    var(--duration-enter) ease-out var(--duration-exit) both vt-fade,
+    var(--duration-move) var(--ease-in-out) both vt-slide;
+}
+::view-transition-old(.nav-back) {
+  --slide-offset: 60px;
+  animation:
+    var(--duration-exit) ease-in both vt-fade reverse,
+    var(--duration-move) var(--ease-in-out) both vt-slide reverse;
+}
+::view-transition-new(.nav-back) {
+  --slide-offset: -60px;
+  animation:
+    var(--duration-enter) ease-out var(--duration-exit) both vt-fade,
+    var(--duration-move) var(--ease-in-out) both vt-slide;
+}
+
+@keyframes vt-fade {
+  from {
+    opacity: 0;
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+@keyframes vt-slide {
+  from {
+    translate: var(--slide-offset);
+  }
+  to {
+    translate: 0;
+  }
+}
+
+/* The footer nav is the site's fixed spatial anchor — it must not slide with the
+   content, or the user loses their reference point. */
+::view-transition-group(site-footer) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(site-footer) {
+  display: none;
+}
+::view-transition-new(site-footer) {
+  animation: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Reduced motion
+   Positional movement is the main trigger for motion sensitivity, so we collapse
+   every transition to an instant swap — the browser's un-animated default.
+   --------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Split-flap
+
+   Each tile stacks four copies of its character, each clipped to one half: the
+   static top (next character) and bottom (current), and two leaves that
+   SplitFlap rotates — the upper one falls away, the lower one swings down onto
+   the stop. Everything is sized from --cell, the tile width.
+
+   Two looks share that mechanism. `tile` draws the physical board: card,
+   shading and a hinge line. `bare` (the default) draws nothing but the glyphs,
+   so a row reads as plain monospaced text until it moves.
+
+   With motion allowed, the head script marks the page `data-flap="pending"`
+   and tiles draw blank until their component is ready. If it never becomes
+   ready, the letters appear after 3s anyway.
+   --------------------------------------------------------------------------- */
+
+.flap-row {
+  --flap-gap: calc(var(--cell) * 0.1);
+  --flap-ink: #f3efe4;
+  display: inline-flex;
+  gap: var(--flap-gap);
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.flap {
+  position: relative;
+  flex: none;
+  width: var(--cell);
+  height: calc(var(--cell) * 1.42);
+  perspective: calc(var(--cell) * 5);
+}
+
+.flap-half {
+  position: absolute;
+  inset: 0;
+  color: var(--flap-ink);
+  font-size: calc(var(--cell) * 1.18);
+  line-height: calc(var(--cell) * 1.42);
+  letter-spacing: 0;
+  text-align: center;
+  white-space: pre;
+  backface-visibility: hidden;
+}
+
+.flap-top,
+.flap-leaf-top {
+  clip-path: inset(0 0 50% 0);
+}
+
+.flap-bottom,
+.flap-leaf-bottom {
+  clip-path: inset(50% 0 0 0);
+}
+
+.flap-leaf-top {
+  z-index: 1;
+}
+
+.flap-leaf-bottom {
+  z-index: 2;
+}
+
+/* The hinge line between the two halves. */
+.flap::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  z-index: 3;
+  translate: 0 -50%;
+}
+
+html[data-flap='pending'] .flap-row:not([data-flap-ready]) .flap-half {
+  color: transparent;
+  animation: flap-failsafe 0s 3s forwards;
+}
+
+@keyframes flap-failsafe {
+  to {
+    color: var(--flap-ink);
+  }
+}
+
+/* Tile: the physical board. */
+.flap-row[data-variant='tile'] {
+  --tile-hi: #252b3c;
+  --tile: #1a1f2e;
+  --tile-lo: #151926;
+}
+
+.flap-row[data-variant='tile'] .flap {
+  border-radius: calc(var(--cell) * 0.07);
+  box-shadow: 0 calc(var(--cell) * 0.05) calc(var(--cell) * 0.12) rgb(0 0 0 / 0.5);
+}
+
+.flap-row[data-variant='tile'] .flap-half {
+  border-radius: inherit;
+  /* The lower half sits a shade darker, as if lit from above. */
+  background: linear-gradient(var(--tile-hi), var(--tile) 50%, var(--tile-lo) 50%, var(--tile));
+}
+
+.flap-row[data-variant='tile'] .flap::after {
+  height: max(1px, calc(var(--cell) * 0.03));
+  background: rgb(0 0 0 / 0.75);
+}
+
+/* Bare: one tile is exactly one character of Geist Mono (a 0.6em advance), so
+   a row sets like ordinary text at the surrounding size. Geist Mono's caps sit
+   centred in the line box at any line-height, so the hinge halves them cleanly.
+   The leaves are only drawn while a tile turns, backed by the surface so the
+   falling half hides the letter behind it. No hinge line is drawn. */
+.flap-row[data-variant='bare'] {
+  --cell: 0.6em;
+  --flap-gap: 0px;
+  --flap-ink: currentColor;
+  --flap-lh: 1.25;
+  vertical-align: top;
+  font-weight: inherit;
+}
+
+.flap-row[data-variant='bare'] .flap {
+  height: calc(var(--cell) / 0.6 * var(--flap-lh));
+}
+
+.flap-row[data-variant='bare'] .flap-half {
+  font-size: calc(var(--cell) / 0.6);
+  line-height: calc(var(--cell) / 0.6 * var(--flap-lh));
+}
+
+.flap-row[data-variant='bare'] .flap-leaf {
+  background: var(--flap-bg, var(--surface));
+}
+
+/* At rest a bare tile draws its letter once, whole: two clipped halves leave a
+   hairline seam where they meet. */
+.flap-row[data-variant='bare'] .flap:not([data-moving]) :is(.flap-leaf, .flap-top) {
+  visibility: hidden;
+}
+
+.flap-row[data-variant='bare'] .flap:not([data-moving]) .flap-bottom {
+  clip-path: none;
+}
+
+.flap-row[data-variant='bare'] .flap::after {
+  content: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Window shade
+
+   The theme control is a plane window: sky behind, a blind in front. --pull
+   runs from 0 (blind up, light) to 1 (blind down, dark); the blind always keeps
+   a lip showing at the top, and when shut leaves a sliver of sky at the sill.
+   --------------------------------------------------------------------------- */
+
+.window-shade {
+  touch-action: none;
+  user-select: none;
+}
+
+.window {
+  position: relative;
+  flex: none;
+  width: 14px;
+  height: 20px;
+  overflow: hidden;
+  border: 1.5px solid currentColor;
+  border-radius: 7px;
+  /* The inner frame: a ring of surface between the pane and the outline. */
+  box-shadow: inset 0 0 0 1.5px var(--surface);
+}
+
+.window-sky {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(var(--ocean-zenith), var(--ocean-sky));
+}
+
+.window-cloud {
+  position: absolute;
+  top: 55%;
+  left: -6px;
+  width: 6px;
+  height: 2.5px;
+  border-radius: 2px;
+  background: #fff;
+  opacity: 0.9;
+  animation: window-cloud 9s linear infinite;
+}
+
+@keyframes window-cloud {
+  to {
+    translate: 20px 0;
+  }
+}
+
+.window-blind {
+  position: absolute;
+  inset: 0 0 12% 0;
+  /* Slats, and a darker pull tab along the bottom edge. */
+  background:
+    linear-gradient(currentColor, currentColor) bottom / 100% 1.5px no-repeat,
+    repeating-linear-gradient(
+      color-mix(in srgb, currentColor 34%, var(--surface)) 0 2px,
+      color-mix(in srgb, currentColor 26%, var(--surface)) 2px 3px
+    );
+  translate: 0 calc((var(--pull) - 1) * 78%);
+  transition: translate 520ms var(--ease-in-out);
+}
+
+.window[data-dragging] .window-blind {
+  transition: none;
+}
+
+@media (hover: hover) {
+  /* A tug on hover: the blind gives a little in the direction it would go. */
+  .window-shade:hover .window-blind {
+    translate: 0 calc((var(--pull) - 1) * 78% + (0.5 - var(--pull)) * 3px);
+  }
+}
+
+/* The theme change itself. The new theme is revealed behind a moving edge:
+   closing draws it down from the top, opening lifts the old one off upward. */
+:root[data-shade]::view-transition-old(root) {
+  animation: none;
+}
+
+:root[data-shade='closing']::view-transition-new(root) {
+  animation: shade-close 700ms var(--ease-in-out) both;
+}
+
+:root[data-shade='opening']::view-transition-new(root) {
+  animation: shade-open 700ms var(--ease-in-out) both;
+}
+
+@keyframes shade-close {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes shade-open {
+  from {
+    clip-path: inset(100% 0 0 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .window-cloud {
+    animation: none;
+    left: 3px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Boarding pass
+
+   Two pieces of card: the ticket (accent band, optional thumbnail, body) and
+   the stub, joined along a dotted perforation. Each piece masks two half-circle
+   notches out of its own edge, so they read as cut paper on any surface.
+
+   Upright is the default — the case study rail, and the homepage card on
+   phones. From tablet up the homepage card lies on its side.
+   --------------------------------------------------------------------------- */
+
+.pass {
+  --notch: 7px;
+  --pass-fill: var(--surface-raised);
+  display: flex;
+  flex-direction: column;
+  color: var(--ink);
+}
+
+.pass-main,
+.pass-stub {
+  background: var(--pass-fill);
+  mask-composite: intersect;
+}
+
+.pass-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+  mask-image:
+    radial-gradient(circle var(--notch) at 0 100%, #0000 97%, #000),
+    radial-gradient(circle var(--notch) at 100% 100%, #0000 97%, #000);
+}
+
+.pass-stub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px 16px;
+  padding: 16px 20px 20px;
+  border-radius: 0 0 8px 8px;
+  /* The perforation: a row of dots along the join. */
+  background:
+    radial-gradient(circle, color-mix(in srgb, var(--ink) 30%, transparent) 1px, transparent 1.5px) top / 6px 3px repeat-x,
+    var(--pass-fill);
+  mask-image:
+    radial-gradient(circle var(--notch) at 0 0, #0000 97%, #000),
+    radial-gradient(circle var(--notch) at 100% 0, #0000 97%, #000);
+  transition: translate var(--dur-base) var(--ease-out);
+}
+
+.pass-band {
+  flex: none;
+  height: 6px;
+}
+
+.pass-thumb {
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+}
+
+.pass-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 20px;
+}
+
+.pass-title {
+  display: block;
+  font-size: 24px;
+  --flap-lh: 1;
+}
+
+.pass-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: 12px 16px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.pass-seat {
+  display: block;
+  font-size: 32px;
+  --flap-lh: 1;
+}
+
+.pass-barcode {
+  width: 112px;
+  height: 36px;
+}
+
+@media (min-width: 768px) {
+  .pass-card {
+    flex-direction: row;
+    min-height: 272px;
+  }
+
+  .pass-card .pass-main {
+    flex-direction: row;
+    border-radius: 8px 0 0 8px;
+    mask-image:
+      radial-gradient(circle var(--notch) at 100% 0, #0000 97%, #000),
+      radial-gradient(circle var(--notch) at 100% 100%, #0000 97%, #000);
+  }
+
+  .pass-card .pass-band {
+    width: 6px;
+    height: auto;
+  }
+
+  .pass-card .pass-thumb {
+    flex: none;
+    width: 34%;
+    aspect-ratio: auto;
+  }
+
+  .pass-card .pass-body {
+    padding: 16px 20px;
+  }
+
+  .pass-card .pass-stub {
+    flex: none;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: start;
+    width: 112px;
+    padding: 16px;
+    border-radius: 0 8px 8px 0;
+    background:
+      radial-gradient(circle, color-mix(in srgb, var(--ink) 30%, transparent) 1px, transparent 1.5px) left / 3px 6px repeat-y,
+      var(--pass-fill);
+    mask-image:
+      radial-gradient(circle var(--notch) at 0 0, #0000 97%, #000),
+      radial-gradient(circle var(--notch) at 0 100%, #0000 97%, #000);
+  }
+
+  .pass-card .pass-barcode {
+    width: 100%;
+    height: 48px;
+  }
+}
+
+@media (hover: hover) {
+  /* The stub starts to tear away along the perforation. */
+  .pass-card:hover .pass-stub {
+    translate: 0 3px;
+  }
+
+  .pass-card:hover .pass-title {
+    color: var(--accent);
+  }
+}
+
+@media (hover: hover) and (min-width: 768px) {
+  .pass-card:hover .pass-stub {
+    translate: 3px 0;
+    rotate: 0.6deg;
+  }
+}
+
+/* The homepage work section shows the index table or the passes. A head
+   script sets data-work-view before paint (see src/lib/work-view.ts); without
+   JS it never appears, so the index shows and the switch stays hidden. */
+.work-view-passes,
+html:not([data-work-view]) .work-view-switch,
+html[data-work-view='passes'] .work-view-index {
+  display: none;
+}
+
+html[data-work-view='passes'] .work-view-passes {
+  display: grid;
+}
+
+/* ---------------------------------------------------------------------------
+   Load choreography
+
+   Hairline rules draw in left to right, like runway lights coming on in
+   sequence: those on the first screen on load, staggered by --i, and those
+   further down (data-scroll) as they scroll into view. Passes print in when
+   their view is shown, top to bottom in printer-like steps, barcode last.
+   The finished states are the defaults, so no-JS and reduced motion get them.
+   --------------------------------------------------------------------------- */
+
+.rule-draw {
+  position: relative;
+}
+
+.rule-draw::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: var(--rule);
+  transform-origin: left;
+}
+
+.rule-draw-bottom::before {
+  top: auto;
+  bottom: 0;
+}
+
+@keyframes rule-draw {
+  from {
+    scale: 0 1;
+  }
+}
+
+@keyframes pass-print {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes barcode-print {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* data-flap marks a page where JS is on and motion allowed. */
+  html[data-flap] .rule-draw::before {
+    animation: rule-draw 900ms var(--ease-out) both;
+    animation-delay: calc(150ms + var(--i, 0) * 180ms);
+  }
+
+  @supports (animation-timeline: view()) {
+    html[data-flap] .rule-draw[data-scroll]::before {
+      animation: rule-draw linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 80%;
+      animation-delay: 0s;
+    }
+  }
+
+  /* Backwards fill only: once printed the clip is dropped, so the stub can
+     still slip past the ticket's edge on hover. */
+  html[data-work-view='passes'] .pass-card {
+    animation: pass-print 560ms steps(7, end) backwards;
+    animation-delay: calc(var(--i, 0) * 140ms);
+  }
+
+  html[data-work-view='passes'] .pass-card .pass-barcode {
+    animation: barcode-print 360ms steps(6, end) backwards;
+    animation-delay: calc(var(--i, 0) * 140ms + 560ms);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Grid
+
+   A 12-column grid on an 8px baseline (4 columns on phones). Layouts place
+   things with Tailwind's col-span/col-start utilities on `.swiss-grid`, and
+   nested blocks keep the same columns with `grid-cols-subgrid`. Press G to
+   draw the columns over the page.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --grid-cols: 4;
+  --gutter: 16px;
+  --baseline: 8px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --grid-cols: 12;
+    --gutter: 24px;
+  }
+}
+
+.swiss-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
+  column-gap: var(--gutter);
+  padding-inline: var(--page-margin);
+}
+
+/* Small uppercase mono: labels, metadata, anything that flips. The flap line
+   box matches the text's, so flipping and static labels share a baseline. */
+.t-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 16px;
+  text-transform: uppercase;
+  --flap-lh: calc(16 / 11);
+}
+
+@media (min-width: 768px) {
+  .t-label {
+    font-size: 12px;
+    --flap-lh: calc(16 / 12);
+  }
+}
+
+.grid-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: none;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 calc(var(--baseline) - 1px),
+    color-mix(in srgb, var(--accent) 10%, transparent) calc(var(--baseline) - 1px) var(--baseline)
+  );
+}
+
+html[data-grid] .grid-overlay {
+  display: grid;
+}
+
+.grid-overlay > span {
+  background: color-mix(in srgb, var(--brand-pink) 12%, transparent);
+  box-shadow: inset 1px 0 color-mix(in srgb, var(--brand-pink) 45%, transparent),
+    inset -1px 0 color-mix(in srgb, var(--brand-pink) 45%, transparent);
+}
+
+@media (max-width: 767px) {
+  .grid-overlay > span:nth-child(n + 5) {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Homepage: the index.
+   --------------------------------------------------------------------------- */
+
+/* The wordmark: one row of tiles spanning its container, sized from the
+   container width so it always fills the columns it is given. */
+.flap-wordmark {
+  container-type: inline-size;
+}
+
+.flap-wordmark .flap-row {
+  --cols: var(--n);
+  --cell: calc(100cqi / var(--cols));
+  --flap-lh: 0.92;
+  display: flex;
+  font-weight: 500;
+}
+
+/* Stacked: one word per row, each padded to the longest (MARC / ANDRE / LAM). */
+.flap-wordmark .flap-wordmark-stack {
+  --cols: var(--stack-cols);
+  flex-wrap: wrap;
+}
+
+.flap-wordmark[data-stack='narrow'] .flap-wordmark-stack {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .flap-wordmark[data-stack='narrow'] .flap-wordmark-row {
+    display: none;
+  }
+
+  .flap-wordmark[data-stack='narrow'] .flap-wordmark-stack {
+    display: flex;
+  }
+}
+
+/* A — rows of the work index invert under the pointer. The flap leaves take
+   the row's colour so a turning tile stays invisible. */
+.work-row {
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .work-row:hover {
+    --flap-bg: var(--ink);
+    background: var(--ink);
+    color: var(--surface);
+  }
+
+  .work-row:hover .text-ink-faint {
+    color: color-mix(in srgb, var(--surface) 60%, transparent);
+  }
+}
+
+.work-preview-image {
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+
+
+.site-footer-ocean {
+  --ink: #f2f8fa;
+  --ink-muted: #c6dce5;
+  --accent: #a1e7be;
+  --on-accent: #102d3b;
+  background: #10364b;
+}
+
+.ocean-seabed {
+  position: relative;
+  height: clamp(140px, 18vw, 260px);
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--ocean-floor);
+}
+
+.ocean-reef {
+  position: absolute;
+  bottom: 0;
+  width: clamp(180px, 28vw, 390px);
+  height: auto;
+}
+
+.ocean-reef-left {
+  left: 0;
+}
+
+.ocean-reef-right {
+  right: 0;
+  transform: scaleX(-1);
+  width: clamp(170px, 25vw, 360px);
+}
+
+.ocean-sand {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 8px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 36px, #cbded6 36px 84px, transparent 84px 132px) top / 264px 4px repeat-x,
+    linear-gradient(#cbded6, #cbded6) bottom / 100% 4px repeat-x;
+}
+
+.ocean-crab {
+  position: absolute;
+  bottom: 7px;
+  right: clamp(4rem, 12vw, 11rem);
+  width: 44px;
+}
+
+.ocean-crab[data-arrived='true'] {
+  animation: crab-arrival 700ms steps(2, end) both;
+}
+
+@keyframes crab-arrival {
+  from { transform: translateX(16px); }
+  to { transform: translateX(0); }
+}
+
+@media (max-width: 767px) {
+  .ocean-reef-left { left: -30px; }
+  .ocean-reef-right { right: -40px; }
+  .ocean-crab { width: 33px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ocean-crab[data-arrived='true'] { animation: none; }
+}
+
+/* ---------------------------------------------------------------------------
+   Word reveal
+   Driven entirely by CSS. The hero is the LCP element, so gating it on a JS
+   animation library would delay the largest paint until hydration; keeping it in
+   CSS means it paints and animates with the first frame.
+   --------------------------------------------------------------------------- */
+
+.reveal-word {
+  display: inline-flex;
+  vertical-align: bottom;
+  /* `clip` rather than `hidden`, with a margin: a plain clip box cuts off glyph
+     overhang that extends past the advance width — Bricolage's ampersand tail
+     loses its flourish otherwise. The margin is far smaller than the 110% rise,
+     so the masked word still stays hidden. */
+  overflow: clip;
+  overflow-clip-margin: 0.18em;
+}
+
+.reveal-word > span {
+  display: inline-block;
+  translate: 0 110%;
+  animation: reveal-rise var(--dur-slow) var(--ease-out) forwards;
+  animation-delay: calc(var(--i) * 45ms);
+}
+
+@keyframes reveal-rise {
+  to {
+    translate: 0 0;
+  }
+}
+
+/* Tie the reveal to scroll position where the browser supports it. Elsewhere the
+   words simply start in place — the section is below the fold either way. */
+.reveal-on-scroll > .reveal-word > span {
+  translate: 0 0;
+  animation: none;
+}
+
+@supports (animation-timeline: view()) {
+  .reveal-on-scroll > .reveal-word > span {
+    translate: 0 110%;
+    animation: reveal-rise 1ms linear forwards;
+    animation-timeline: view();
+    animation-delay: 0s;
+    /* Staggering by range rather than delay, since view timelines are driven by
+       scroll offset rather than elapsed time. */
+    animation-range: entry calc(12% + var(--i) * 3%) entry calc(58% + var(--i) * 3%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-word > span {
+    translate: 0 0 !important;
+    animation: none !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Scroll-linked effects
+   Both are progressive enhancement via scroll-driven animations: where the
+   browser lacks them, figures are simply visible and the progress bar is hidden.
+   --------------------------------------------------------------------------- */
+
+@supports (animation-timeline: view()) {
+  .rise-in {
+    animation: rise-in 1ms linear both;
+    animation-timeline: view();
+    animation-range: entry 5% entry 45%;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    translate: 0 28px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+.scroll-progress {
+  display: none;
+}
+
+@supports (animation-timeline: scroll()) {
+  .scroll-progress {
+    display: block;
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 50;
+    height: 2px;
+    background: var(--accent);
+    transform-origin: 0 50%;
+    animation: scroll-progress linear;
+    animation-timeline: scroll(root block);
+  }
+}
+
+@keyframes scroll-progress {
+  from {
+    scale: 0 1;
+  }
+  to {
+    scale: 1 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise-in {
+    animation: none !important;
+    opacity: 1 !important;
+    translate: none !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Brand grid band
+
+   The two rows of the artwork, each as one repeating gradient with a period of
+   eight cells. Blank cells are transparent so the band adopts whatever surface
+   it sits on.
+
+     row 0:  B . P . . G B .
+     row 1:  . B . P G . . B
+   --------------------------------------------------------------------------- */
+
+.pixel-row-0,
+.pixel-row-1 {
+  height: var(--cell-h);
+}
+
+.pixel-row-0 {
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--brand-blue) 0 var(--cell-w),
+    transparent var(--cell-w) calc(2 * var(--cell-w)),
+    var(--brand-pink) calc(2 * var(--cell-w)) calc(3 * var(--cell-w)),
+    transparent calc(3 * var(--cell-w)) calc(5 * var(--cell-w)),
+    var(--brand-green) calc(5 * var(--cell-w)) calc(6 * var(--cell-w)),
+    var(--brand-blue) calc(6 * var(--cell-w)) calc(7 * var(--cell-w)),
+    transparent calc(7 * var(--cell-w)) calc(8 * var(--cell-w))
+  );
+}
+
+.pixel-row-1 {
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0 var(--cell-w),
+    var(--brand-blue) var(--cell-w) calc(2 * var(--cell-w)),
+    transparent calc(2 * var(--cell-w)) calc(3 * var(--cell-w)),
+    var(--brand-pink) calc(3 * var(--cell-w)) calc(4 * var(--cell-w)),
+    var(--brand-green) calc(4 * var(--cell-w)) calc(5 * var(--cell-w)),
+    transparent calc(5 * var(--cell-w)) calc(7 * var(--cell-w)),
+    var(--brand-blue) calc(7 * var(--cell-w)) calc(8 * var(--cell-w))
+  );
+}
