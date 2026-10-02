@@ -263,241 +263,665 @@ body {
 }
 
 /* ---------------------------------------------------------------------------
-   Name wordmark
-   One line sized to span the hero edge to edge: --name-em is the name's width
-   in ems at these settings, measured in Bricolage and re-measured at runtime by
-   NameSunlight in case the name changes. On hover, a warm light follows the
-   pointer — a halo behind the letters plus a gradient clipped to the glyphs.
-   Without JS, or on touch, the heading is simply solid ink.
+   Split-flap
+
+   Each tile stacks four copies of its character, each clipped to one half: the
+   static top (next character) and bottom (current), and two leaves that
+   SplitFlap rotates — the upper one falls away, the lower one swings down onto
+   the stop. Everything is sized from --cell, the tile width.
+
+   Two looks share that mechanism. `tile` draws the physical board: card,
+   shading and a hinge line. `bare` (the default) draws nothing but the glyphs,
+   so a row reads as plain monospaced text until it moves.
+
+   With motion allowed, the head script marks the page `data-flap="pending"`
+   and tiles draw blank until their component is ready. If it never becomes
+   ready, the letters appear after 3s anyway.
    --------------------------------------------------------------------------- */
 
-@property --sun-x {
-  syntax: '<length>';
-  inherits: true;
-  initial-value: 0px;
+.flap-row {
+  --flap-gap: calc(var(--cell) * 0.1);
+  --flap-ink: #f3efe4;
+  display: inline-flex;
+  gap: var(--flap-gap);
+  font-family: var(--font-mono);
+  font-weight: 500;
 }
 
-@property --sun-y {
-  syntax: '<length>';
-  inherits: true;
-  initial-value: 0px;
-}
-
-@property --sun-r {
-  syntax: '<length>';
-  inherits: true;
-  initial-value: 0px;
-}
-
-.name-hero-wrap {
-  --name-em: 8.22;
-  --sun-core: #ffb429;
-  --sun-warm: #e8740c;
-  --sun-edge: #8a3b0c;
-  --sun-halo: 255 236 196;
+.flap {
   position: relative;
-  font-size: calc(100cqi / var(--name-em));
-  /* The light trails the pointer slightly, like a lens catching up. */
-  transition:
-    --sun-x 380ms var(--ease-out),
-    --sun-y 380ms var(--ease-out);
+  flex: none;
+  width: var(--cell);
+  height: calc(var(--cell) * 1.42);
+  perspective: calc(var(--cell) * 5);
 }
 
-.name-hero {
-  position: relative;
-  font-size: 1em;
-  font-weight: 600;
-  line-height: 0.9;
-  letter-spacing: -0.055em;
-  white-space: nowrap;
+.flap-half {
+  position: absolute;
+  inset: 0;
+  color: var(--flap-ink);
+  font-size: calc(var(--cell) * 1.18);
+  line-height: calc(var(--cell) * 1.42);
+  letter-spacing: 0;
   text-align: center;
-  animation: name-settle 560ms var(--ease-out) both;
-  transition: --sun-r 520ms var(--ease-out);
+  white-space: pre;
+  backface-visibility: hidden;
 }
 
-.name-hero-wrap[data-sun] .name-hero {
-  --sun-r: 1.5em;
+.flap-top,
+.flap-leaf-top {
+  clip-path: inset(0 0 50% 0);
 }
 
-@supports (background-clip: text) or (-webkit-background-clip: text) {
-  .name-hero {
-    color: transparent;
-    /* A zero radius renders as the final stop, so at rest this is plain ink. */
-    background-image: radial-gradient(
-      circle var(--sun-r) at var(--sun-x) var(--sun-y),
-      var(--sun-core),
-      var(--sun-warm) 30%,
-      var(--sun-edge) 62%,
-      var(--ink)
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
+.flap-bottom,
+.flap-leaf-bottom {
+  clip-path: inset(50% 0 0 0);
+}
+
+.flap-leaf-top {
+  z-index: 1;
+}
+
+.flap-leaf-bottom {
+  z-index: 2;
+}
+
+/* The hinge line between the two halves. */
+.flap::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  z-index: 3;
+  translate: 0 -50%;
+}
+
+html[data-flap='pending'] .flap-row:not([data-flap-ready]) .flap-half {
+  color: transparent;
+  animation: flap-failsafe 0s 3s forwards;
+}
+
+@keyframes flap-failsafe {
+  to {
+    color: var(--flap-ink);
   }
 }
 
-.name-sun-glow {
+/* Tile: the physical board. */
+.flap-row[data-variant='tile'] {
+  --tile-hi: #252b3c;
+  --tile: #1a1f2e;
+  --tile-lo: #151926;
+}
+
+.flap-row[data-variant='tile'] .flap {
+  border-radius: calc(var(--cell) * 0.07);
+  box-shadow: 0 calc(var(--cell) * 0.05) calc(var(--cell) * 0.12) rgb(0 0 0 / 0.5);
+}
+
+.flap-row[data-variant='tile'] .flap-half {
+  border-radius: inherit;
+  /* The lower half sits a shade darker, as if lit from above. */
+  background: linear-gradient(var(--tile-hi), var(--tile) 50%, var(--tile-lo) 50%, var(--tile));
+}
+
+.flap-row[data-variant='tile'] .flap::after {
+  height: max(1px, calc(var(--cell) * 0.03));
+  background: rgb(0 0 0 / 0.75);
+}
+
+/* Bare: one tile is exactly one character of Geist Mono (a 0.6em advance), so
+   a row sets like ordinary text at the surrounding size. Geist Mono's caps sit
+   centred in the line box at any line-height, so the hinge halves them cleanly.
+   The leaves are only drawn while a tile turns, backed by the surface so the
+   falling half hides the letter behind it. No hinge line is drawn. */
+.flap-row[data-variant='bare'] {
+  --cell: 0.6em;
+  --flap-gap: 0px;
+  --flap-ink: currentColor;
+  --flap-lh: 1.25;
+  vertical-align: top;
+  font-weight: inherit;
+}
+
+.flap-row[data-variant='bare'] .flap {
+  height: calc(var(--cell) / 0.6 * var(--flap-lh));
+}
+
+.flap-row[data-variant='bare'] .flap-half {
+  font-size: calc(var(--cell) / 0.6);
+  line-height: calc(var(--cell) / 0.6 * var(--flap-lh));
+}
+
+.flap-row[data-variant='bare'] .flap-leaf {
+  background: var(--flap-bg, var(--surface));
+}
+
+/* At rest a bare tile draws its letter once, whole: two clipped halves leave a
+   hairline seam where they meet. */
+.flap-row[data-variant='bare'] .flap:not([data-moving]) :is(.flap-leaf, .flap-top) {
+  visibility: hidden;
+}
+
+.flap-row[data-variant='bare'] .flap:not([data-moving]) .flap-bottom {
+  clip-path: none;
+}
+
+.flap-row[data-variant='bare'] .flap::after {
+  content: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Window shade
+
+   The theme control is a plane window: sky behind, a blind in front. --pull
+   runs from 0 (blind up, light) to 1 (blind down, dark); the blind always keeps
+   a lip showing at the top, and when shut leaves a sliver of sky at the sill.
+   --------------------------------------------------------------------------- */
+
+.window-shade {
+  touch-action: none;
+  user-select: none;
+}
+
+.window {
+  position: relative;
+  flex: none;
+  width: 14px;
+  height: 20px;
+  overflow: hidden;
+  border: 1.5px solid currentColor;
+  border-radius: 7px;
+  /* The inner frame: a ring of surface between the pane and the outline. */
+  box-shadow: inset 0 0 0 1.5px var(--surface);
+}
+
+.window-sky {
   position: absolute;
-  left: var(--sun-x);
-  top: var(--sun-y);
-  width: 3.4em;
-  height: 1.9em;
-  translate: -50% -50%;
-  pointer-events: none;
-  background: radial-gradient(
-    closest-side,
-    rgb(var(--sun-halo) / 0.95),
-    rgb(var(--sun-halo) / 0.45) 38%,
-    rgb(var(--sun-halo) / 0) 80%
-  );
-  mix-blend-mode: screen;
-  opacity: 0;
-  scale: 0.6;
-  transition:
-    opacity 520ms var(--ease-out),
-    scale 520ms var(--ease-out);
+  inset: 0;
+  background: linear-gradient(var(--ocean-zenith), var(--ocean-sky));
 }
 
-.name-hero-wrap[data-sun] .name-sun-glow {
-  opacity: 1;
-  scale: 1;
+.window-cloud {
+  position: absolute;
+  top: 55%;
+  left: -6px;
+  width: 6px;
+  height: 2.5px;
+  border-radius: 2px;
+  background: #fff;
+  opacity: 0.9;
+  animation: window-cloud 9s linear infinite;
 }
 
-@keyframes name-settle {
+@keyframes window-cloud {
+  to {
+    translate: 20px 0;
+  }
+}
+
+.window-blind {
+  position: absolute;
+  inset: 0 0 12% 0;
+  /* Slats, and a darker pull tab along the bottom edge. */
+  background:
+    linear-gradient(currentColor, currentColor) bottom / 100% 1.5px no-repeat,
+    repeating-linear-gradient(
+      color-mix(in srgb, currentColor 34%, var(--surface)) 0 2px,
+      color-mix(in srgb, currentColor 26%, var(--surface)) 2px 3px
+    );
+  translate: 0 calc((var(--pull) - 1) * 78%);
+  transition: translate 520ms var(--ease-in-out);
+}
+
+.window[data-dragging] .window-blind {
+  transition: none;
+}
+
+@media (hover: hover) {
+  /* A tug on hover: the blind gives a little in the direction it would go. */
+  .window-shade:hover .window-blind {
+    translate: 0 calc((var(--pull) - 1) * 78% + (0.5 - var(--pull)) * 3px);
+  }
+}
+
+/* The theme change itself. The new theme is revealed behind a moving edge:
+   closing draws it down from the top, opening lifts the old one off upward. */
+:root[data-shade]::view-transition-old(root) {
+  animation: none;
+}
+
+:root[data-shade='closing']::view-transition-new(root) {
+  animation: shade-close 700ms var(--ease-in-out) both;
+}
+
+:root[data-shade='opening']::view-transition-new(root) {
+  animation: shade-open 700ms var(--ease-in-out) both;
+}
+
+@keyframes shade-close {
   from {
-    transform: translateY(16px);
+    clip-path: inset(0 0 100% 0);
   }
   to {
-    transform: translateY(0);
+    clip-path: inset(0);
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .name-hero-wrap {
-    --sun-core: #fff1c7;
-    --sun-warm: #ffc868;
-    --sun-edge: #f3a45a;
-    --sun-halo: 255 190 110;
+@keyframes shade-open {
+  from {
+    clip-path: inset(100% 0 0 0);
   }
-}
-
-:root[data-theme='dark'] .name-hero-wrap {
-  --sun-core: #fff1c7;
-  --sun-warm: #ffc868;
-  --sun-edge: #f3a45a;
-  --sun-halo: 255 190 110;
+  to {
+    clip-path: inset(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .name-hero {
+  .window-cloud {
     animation: none;
+    left: 3px;
   }
 }
 
 /* ---------------------------------------------------------------------------
-   Homepage. A grainy sky hero over plain surface-colored content sections; the
-   footer seabed is the only pixel scenery. Scenery never captures input.
+   Boarding pass
+
+   Two pieces of card: the ticket (accent band, optional thumbnail, body) and
+   the stub, joined along a dotted perforation. Each piece masks two half-circle
+   notches out of its own edge, so they read as cut paper on any surface.
+
+   Upright is the default — the case study rail, and the homepage card on
+   phones. From tablet up the homepage card lies on its side.
    --------------------------------------------------------------------------- */
 
-.sky-hero {
-  position: relative;
-  container-type: inline-size;
-  overflow: clip;
+.pass {
+  --notch: 7px;
+  --pass-fill: var(--surface-raised);
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  min-height: clamp(18rem, 40svh + 20vw, 46rem);
-  padding-bottom: clamp(1.5rem, 5cqi, 5rem);
-  background: linear-gradient(var(--ocean-zenith), var(--ocean-sky) 72%, var(--ocean-shallows));
+  color: var(--ink);
 }
 
-/* Two soft cloud layers, each a seamless noise tile drifting one tile-width per
-   loop. The nearer layer is smaller and faster, which reads as depth. They are
-   composited transforms only, and fade out above the name. */
-.sky-clouds {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: var(--cloud-opacity, 0.9);
-  mask-image: linear-gradient(#000 15%, transparent 78%);
+.pass-main,
+.pass-stub {
+  background: var(--pass-fill);
+  mask-composite: intersect;
 }
 
-.sky-clouds > span {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: calc(100% + var(--tile));
-  background: var(--cloud) 0 0 / var(--tile) 100% repeat-x;
-  animation: cloud-drift var(--drift) linear var(--delay, 0s) infinite;
+.pass-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+  mask-image:
+    radial-gradient(circle var(--notch) at 0 100%, #0000 97%, #000),
+    radial-gradient(circle var(--notch) at 100% 100%, #0000 97%, #000);
 }
 
-.sky-cloud-far {
-  --tile: 1600px;
-  --drift: 240s;
-  --cloud: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='700'%3E%3Cfilter id='c' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.0016 .0052' numOctaves='5' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 2.6 0 0 0 -1.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23c%29'/%3E%3C/svg%3E");
-  opacity: 0.85;
+.pass-stub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px 16px;
+  padding: 16px 20px 20px;
+  border-radius: 0 0 8px 8px;
+  /* The perforation: a row of dots along the join. */
+  background:
+    radial-gradient(circle, color-mix(in srgb, var(--ink) 30%, transparent) 1px, transparent 1.5px) top / 6px 3px repeat-x,
+    var(--pass-fill);
+  mask-image:
+    radial-gradient(circle var(--notch) at 0 0, #0000 97%, #000),
+    radial-gradient(circle var(--notch) at 100% 0, #0000 97%, #000);
+  transition: translate var(--dur-base) var(--ease-out);
 }
 
-.sky-cloud-near {
-  --tile: 1100px;
-  --drift: 120s;
-  --cloud: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1100' height='600'%3E%3Cfilter id='c' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.0026 .0085' numOctaves='5' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 2.4 0 0 0 -1.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23c%29'/%3E%3C/svg%3E");
-  opacity: 0.6;
-  --delay: -40s;
+.pass-band {
+  flex: none;
+  height: 6px;
 }
 
-@keyframes cloud-drift {
-  to {
-    translate: calc(-1 * var(--tile)) 0;
+.pass-thumb {
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+}
+
+.pass-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 20px;
+}
+
+.pass-title {
+  display: block;
+  font-size: 24px;
+  --flap-lh: 1;
+}
+
+.pass-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: 12px 16px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.pass-seat {
+  display: block;
+  font-size: 32px;
+  --flap-lh: 1;
+}
+
+.pass-barcode {
+  width: 112px;
+  height: 36px;
+}
+
+@media (min-width: 768px) {
+  .pass-card {
+    flex-direction: row;
+    min-height: 272px;
   }
-}
 
-/* Film grain over everything in the hero, including the name. */
-.sky-hero::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23g%29'/%3E%3C/svg%3E") 0 0 / 180px;
-  mix-blend-mode: overlay;
-  opacity: 0.9;
-}
+  .pass-card .pass-main {
+    flex-direction: row;
+    border-radius: 8px 0 0 8px;
+    mask-image:
+      radial-gradient(circle var(--notch) at 100% 0, #0000 97%, #000),
+      radial-gradient(circle var(--notch) at 100% 100%, #0000 97%, #000);
+  }
 
-.home-section {
-  padding-block: clamp(5rem, 12vh, 9rem);
-}
+  .pass-card .pass-band {
+    width: 6px;
+    height: auto;
+  }
 
-.home-section-label {
-  margin-bottom: clamp(2rem, 5vh, 3.5rem);
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
-  color: var(--ink-faint);
-}
+  .pass-card .pass-thumb {
+    flex: none;
+    width: 34%;
+    aspect-ratio: auto;
+  }
 
-/* The about panel fills most of a screen so snapping onto it frames it. */
-.home-about {
-  min-height: 80svh;
-}
+  .pass-card .pass-body {
+    padding: 16px 20px;
+  }
 
-.work-thumb {
-  transition: scale 700ms var(--ease-out);
+  .pass-card .pass-stub {
+    flex: none;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: start;
+    width: 112px;
+    padding: 16px;
+    border-radius: 0 8px 8px 0;
+    background:
+      radial-gradient(circle, color-mix(in srgb, var(--ink) 30%, transparent) 1px, transparent 1.5px) left / 3px 6px repeat-y,
+      var(--pass-fill);
+    mask-image:
+      radial-gradient(circle var(--notch) at 0 0, #0000 97%, #000),
+      radial-gradient(circle var(--notch) at 0 100%, #0000 97%, #000);
+  }
+
+  .pass-card .pass-barcode {
+    width: 100%;
+    height: 48px;
+  }
 }
 
 @media (hover: hover) {
-  .group:hover .work-thumb {
-    scale: 1.035;
+  /* The stub starts to tear away along the perforation. */
+  .pass-card:hover .pass-stub {
+    translate: 0 3px;
+  }
+
+  .pass-card:hover .pass-title {
+    color: var(--accent);
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .sky-clouds {
-    --cloud-opacity: 0.16;
+@media (hover: hover) and (min-width: 768px) {
+  .pass-card:hover .pass-stub {
+    translate: 3px 0;
+    rotate: 0.6deg;
   }
 }
 
-:root[data-theme='dark'] .sky-clouds {
-  --cloud-opacity: 0.16;
+/* The homepage work section shows the index table or the passes. A head
+   script sets data-work-view before paint (see src/lib/work-view.ts); without
+   JS it never appears, so the index shows and the switch stays hidden. */
+.work-view-passes,
+html:not([data-work-view]) .work-view-switch,
+html[data-work-view='passes'] .work-view-index {
+  display: none;
 }
+
+html[data-work-view='passes'] .work-view-passes {
+  display: grid;
+}
+
+/* ---------------------------------------------------------------------------
+   Load choreography
+
+   Hairline rules draw in left to right, like runway lights coming on in
+   sequence: those on the first screen on load, staggered by --i, and those
+   further down (data-scroll) as they scroll into view. Passes print in when
+   their view is shown, top to bottom in printer-like steps, barcode last.
+   The finished states are the defaults, so no-JS and reduced motion get them.
+   --------------------------------------------------------------------------- */
+
+.rule-draw {
+  position: relative;
+}
+
+.rule-draw::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: var(--rule);
+  transform-origin: left;
+}
+
+.rule-draw-bottom::before {
+  top: auto;
+  bottom: 0;
+}
+
+@keyframes rule-draw {
+  from {
+    scale: 0 1;
+  }
+}
+
+@keyframes pass-print {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes barcode-print {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* data-flap marks a page where JS is on and motion allowed. */
+  html[data-flap] .rule-draw::before {
+    animation: rule-draw 900ms var(--ease-out) both;
+    animation-delay: calc(150ms + var(--i, 0) * 180ms);
+  }
+
+  @supports (animation-timeline: view()) {
+    html[data-flap] .rule-draw[data-scroll]::before {
+      animation: rule-draw linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 80%;
+      animation-delay: 0s;
+    }
+  }
+
+  /* Backwards fill only: once printed the clip is dropped, so the stub can
+     still slip past the ticket's edge on hover. */
+  html[data-work-view='passes'] .pass-card {
+    animation: pass-print 560ms steps(7, end) backwards;
+    animation-delay: calc(var(--i, 0) * 140ms);
+  }
+
+  html[data-work-view='passes'] .pass-card .pass-barcode {
+    animation: barcode-print 360ms steps(6, end) backwards;
+    animation-delay: calc(var(--i, 0) * 140ms + 560ms);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Grid
+
+   A 12-column grid on an 8px baseline (4 columns on phones). Layouts place
+   things with Tailwind's col-span/col-start utilities on `.swiss-grid`, and
+   nested blocks keep the same columns with `grid-cols-subgrid`. Press G to
+   draw the columns over the page.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --grid-cols: 4;
+  --gutter: 16px;
+  --baseline: 8px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --grid-cols: 12;
+    --gutter: 24px;
+  }
+}
+
+.swiss-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
+  column-gap: var(--gutter);
+  padding-inline: var(--page-margin);
+}
+
+/* Small uppercase mono: labels, metadata, anything that flips. The flap line
+   box matches the text's, so flipping and static labels share a baseline. */
+.t-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 16px;
+  text-transform: uppercase;
+  --flap-lh: calc(16 / 11);
+}
+
+@media (min-width: 768px) {
+  .t-label {
+    font-size: 12px;
+    --flap-lh: calc(16 / 12);
+  }
+}
+
+.grid-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: none;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 calc(var(--baseline) - 1px),
+    color-mix(in srgb, var(--accent) 10%, transparent) calc(var(--baseline) - 1px) var(--baseline)
+  );
+}
+
+html[data-grid] .grid-overlay {
+  display: grid;
+}
+
+.grid-overlay > span {
+  background: color-mix(in srgb, var(--brand-pink) 12%, transparent);
+  box-shadow: inset 1px 0 color-mix(in srgb, var(--brand-pink) 45%, transparent),
+    inset -1px 0 color-mix(in srgb, var(--brand-pink) 45%, transparent);
+}
+
+@media (max-width: 767px) {
+  .grid-overlay > span:nth-child(n + 5) {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Homepage: the index.
+   --------------------------------------------------------------------------- */
+
+/* The wordmark: one row of tiles spanning its container, sized from the
+   container width so it always fills the columns it is given. */
+.flap-wordmark {
+  container-type: inline-size;
+}
+
+.flap-wordmark .flap-row {
+  --cols: var(--n);
+  --cell: calc(100cqi / var(--cols));
+  --flap-lh: 0.92;
+  display: flex;
+  font-weight: 500;
+}
+
+/* Stacked: one word per row, each padded to the longest (MARC / ANDRE / LAM). */
+.flap-wordmark .flap-wordmark-stack {
+  --cols: var(--stack-cols);
+  flex-wrap: wrap;
+}
+
+.flap-wordmark[data-stack='narrow'] .flap-wordmark-stack {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .flap-wordmark[data-stack='narrow'] .flap-wordmark-row {
+    display: none;
+  }
+
+  .flap-wordmark[data-stack='narrow'] .flap-wordmark-stack {
+    display: flex;
+  }
+}
+
+/* A — rows of the work index invert under the pointer. The flap leaves take
+   the row's colour so a turning tile stays invisible. */
+.work-row {
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .work-row:hover {
+    --flap-bg: var(--ink);
+    background: var(--ink);
+    color: var(--surface);
+  }
+
+  .work-row:hover .text-ink-faint {
+    color: color-mix(in srgb, var(--surface) 60%, transparent);
+  }
+}
+
+.work-preview-image {
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+
 
 .site-footer-ocean {
   --ink: #f2f8fa;

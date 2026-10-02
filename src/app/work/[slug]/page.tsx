@@ -75,7 +75,7 @@ export default async function WorkPage(props: PageProps<'/work/[slug]'>) {
         ) : null}
 
         <div className="mt-16 grid gap-12 md:grid-cols-[16rem_minmax(0,68ch)] md:gap-20">
-          <MetaRail meta={meta} />
+          <MetaRail meta={meta} index={work.indexOf(meta)} />
           <div className="min-w-0">
             <p className="mb-14 font-display text-[clamp(1.75rem,4vw,2.75rem)] leading-[1.1] tracking-tight text-balance">
               {meta.headline}
