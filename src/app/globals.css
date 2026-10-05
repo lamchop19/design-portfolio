@@ -898,6 +898,28 @@ html[data-grid] .grid-overlay {
   }
 }
 
+/* A tile that turns lights up like selected text: a blue block with its letter
+   reversed out. On load the whole name turns at once and reads as one
+   highlight, which clears tile by tile as the letters land. Instant on, slow off. */
+.flap-wordmark .flap-row[data-flap-ready] .flap {
+  transition: background-color var(--dur-slow) var(--ease-out);
+}
+
+.flap-wordmark .flap-row[data-flap-ready] .flap-half {
+  transition: color var(--dur-slow) var(--ease-out);
+}
+
+.flap-wordmark .flap[data-moving] {
+  --flap-bg: var(--accent);
+  background-color: var(--accent);
+  transition-duration: 0ms;
+}
+
+.flap-wordmark .flap[data-moving] .flap-half {
+  color: var(--on-accent);
+  transition-duration: 0ms;
+}
+
 /* A — rows of the work index invert under the pointer. The flap leaves take
    the row's colour so a turning tile stays invisible. */
 .work-row {
