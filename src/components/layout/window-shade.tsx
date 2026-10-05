@@ -5,7 +5,7 @@ import { useRef, useState, useSyncExternalStore } from 'react'
 import { flushSync } from 'react-dom'
 
 import { FlapText } from '@/components/split-flap/split-flap'
-import { isHome } from '@/lib/paths'
+import { placesOwnShade } from '@/lib/paths'
 import { THEME_STORAGE_KEY } from '@/lib/theme'
 
 type Theme = 'light' | 'dark'
@@ -90,7 +90,7 @@ export function WindowShade({ inline = false }: { inline?: boolean }) {
 
   // Avoid exposing a non-working control before hydration or without JS.
   if (theme === null) return null
-  if (!inline && isHome(pathname)) return null
+  if (!inline && placesOwnShade(pathname)) return null
 
   const closed = theme === 'dark'
   const next: Theme = closed ? 'light' : 'dark'

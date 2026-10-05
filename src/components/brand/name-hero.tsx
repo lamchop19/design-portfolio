@@ -1,4 +1,5 @@
 import { SplitFlap } from '@/components/split-flap/split-flap'
+import type { FlapMotion } from '@/lib/flap-motion'
 
 type Stack = 'never' | 'narrow' | 'always'
 
@@ -14,10 +15,15 @@ type Stack = 'never' | 'narrow' | 'always'
 export function NameHero({
   name,
   stack = 'narrow',
+  motion,
+  intro,
   className,
 }: {
   name: string
   stack?: Stack
+  /** Flip timing, for trying alternatives (see /prototypes/flip). */
+  motion?: FlapMotion
+  intro?: 'auto' | 'quick' | 'full'
   className?: string
 }) {
   // Stacked, each word is padded to the longest so every row starts flush left.
@@ -39,11 +45,21 @@ export function NameHero({
           trigger="load"
           delay={250}
           ripple
+          motion={motion}
+          intro={intro}
           className="flap-wordmark-row"
         />
       )}
       {stack !== 'never' && (
-        <SplitFlap text={stacked} trigger="load" delay={250} ripple className="flap-wordmark-stack" />
+        <SplitFlap
+          text={stacked}
+          trigger="load"
+          delay={250}
+          ripple
+          motion={motion}
+          intro={intro}
+          className="flap-wordmark-stack"
+        />
       )}
     </h1>
   )

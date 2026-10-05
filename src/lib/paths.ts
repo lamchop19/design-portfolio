@@ -14,3 +14,13 @@ export function asset(path: string) {
 export function isHome(pathname: string) {
   return (pathname.replace(/\/+$/, '') || '/') === '/'
 }
+
+/** Pages that close with their own footer, or none: the homepage and the layout prototypes. */
+export function drawsOwnFooter(pathname: string) {
+  return isHome(pathname) || pathname.replace(/^\/+/, '').startsWith('prototypes')
+}
+
+/** Pages whose header carries the theme control, so the floating one stands aside. */
+export function placesOwnShade(pathname: string) {
+  return isHome(pathname) || pathname.replace(/^\/+/, '').startsWith('prototypes/flight-')
+}

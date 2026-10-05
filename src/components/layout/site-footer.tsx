@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 import { PixelGrid } from '@/components/brand/pixel-grid'
-import { asset, isHome } from '@/lib/paths'
+import { asset, drawsOwnFooter } from '@/lib/paths'
 import { site } from '@/../content/site'
 
 /**
@@ -16,7 +16,7 @@ import { site } from '@/../content/site'
  */
 export function SiteFooter() {
   // The homepage closes with its own colophon.
-  if (isHome(usePathname())) return null
+  if (drawsOwnFooter(usePathname())) return null
 
   return (
     <footer style={{ viewTransitionName: 'site-footer' }} className="mt-[10vh]">

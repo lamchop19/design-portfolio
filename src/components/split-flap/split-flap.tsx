@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { FLAP_DRUM } from '@/lib/flap'
+import { FLAP_LAND_MS, FLAP_STEP_MS, fallKeyframes, type FlapMotion } from '@/lib/flap-motion'
 
 type SplitFlapProps = {
   text: string
@@ -30,15 +31,20 @@ type SplitFlapProps = {
    * `tile` draws the physical board, card and shading included.
    */
   variant?: 'bare' | 'tile'
-  /** `auto` plays the full cascade once per session; `quick` always lands in a few flips. */
-  intro?: 'auto' | 'quick'
+  /**
+   * `auto` plays the full cascade once per session; `quick` always lands in a
+   * few flips; `full` always plays it (and the preroll), for comparing timings.
+   */
+  intro?: 'auto' | 'quick' | 'full'
   /** How a change of `text` travels: forward along the drum, or straight there. */
   swap?: 'drum' | 'quick'
+  /** Flip duration and fall curve. Omit for the stock timing. */
+  motion?: FlapMotion
   className?: string
 }
 
-const STEP_MS = 55
-const LAND_MS = 130
+const STEP_MS = FLAP_STEP_MS
+const LAND_MS = FLAP_LAND_MS
 const STAGGER_MS = 35
 const SEEN_KEY = 'flap-seen'
 const PREROLL_HOLD_MS = 700
@@ -72,6 +78,7 @@ export function SplitFlap({
   variant = 'bare',
   intro = 'auto',
   swap = 'drum',
+  motion,
   className,
 }: SplitFlapProps) {
   const rootRef = useRef<HTMLSpanElement>(null)
@@ -89,6 +96,7 @@ export function SplitFlap({
       ripple,
       intro,
       swap,
+      motion,
       shade: variant === 'tile',
     })
     boardRef.current = board
@@ -198,6 +206,7 @@ function createBoard(
     ripple,
     intro: introSetting,
     swap,
+    motion,
     shade,
   }: {
     trigger: SplitFlapProps['trigger']
@@ -206,6 +215,7 @@ function createBoard(
     ripple: boolean
     intro: NonNullable<SplitFlapProps['intro']>
     swap: NonNullable<SplitFlapProps['swap']>
+    motion: FlapMotion | undefined
     /** Darken the leaves as they turn. Only a tile has a face to darken. */
     shade: boolean
   },
@@ -245,6 +255,17 @@ function createBoard(
 
     // The upper leaf falls away and darkens as it turns from the light; the
     // lower leaf swings down to meet the stop, and on landing bounces off it.
+    if (motion?.ease) {
+      const frames = fallKeyframes(motion.ease, land, shade)
+      leafTop.animate(frames.top, ms)
+      const fall = leafBottom.animate(frames.bottom, ms)
+      await fall.finished
+      bottom.textContent = next
+      leafTop.textContent = next
+      cell.ch = next
+      return
+    }
+
     const lit = (b: number) => (shade ? { filter: `brightness(${b})` } : {})
     leafTop.animate(
       [
@@ -286,7 +307,7 @@ function createBoard(
         const next = cell.queue.shift() ?? stepToward(drum, cell.ch, cell.goal)
         const land = next === cell.goal && !cell.queue.length
         // Each flip runs a little fast or slow so the board never ticks in sync.
-        const ms = land ? LAND_MS : STEP_MS * (0.88 + Math.random() * 0.24)
+        const ms = land ? (motion?.land ?? LAND_MS) : (motion?.step ?? STEP_MS) * (0.88 + Math.random() * 0.24)
         await flip(cell, next, ms, land)
       }
     } catch {
@@ -334,7 +355,7 @@ function createBoard(
   }
 
   function intro() {
-    const mode = introSetting === 'quick' ? 'quick' : takeIntroMode()
+    const mode = introSetting === 'auto' ? takeIntroMode() : introSetting
     const greet = mode === 'full' && preroll !== undefined
     if (greet) cells.forEach((cell, i) => (cell.goal = preroll[i] ?? ' '))
     // A greeting starts part-way along the drum, so the name isn't kept waiting.

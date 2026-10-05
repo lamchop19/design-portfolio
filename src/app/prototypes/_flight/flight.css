@@ -1,0 +1,589 @@
+/* ---------------------------------------------------------------------------
+   The Flight prototypes
+
+   Each leg re-points the colour tokens for its own sky, so everything inside
+   (split-flap leaves, rules, labels, passes) picks up the right ink without
+   knowing which leg it is in. The gate keeps the site theme.
+   --------------------------------------------------------------------------- */
+
+/* Each leg's sky, one solid colour per theme. Declared on the root so a blend
+   between two legs can read both. `light-dark()` follows the window shade. */
+:root {
+  --leg-gate: var(--surface);
+  --leg-departures: light-dark(#0059ff, #0a2a7a);
+  --leg-cruise: light-dark(#8dcbf2, #0f2433);
+  --leg-layover: light-dark(#f551ab, #4a1438);
+  --leg-arrival: light-dark(#0b0d14, #05060a);
+}
+
+.leg {
+  color: var(--ink);
+}
+
+.leg-departures {
+  --surface: var(--leg-departures);
+  --ink: #ffffff;
+  --ink-muted: rgb(255 255 255 / 0.86);
+  --ink-faint: rgb(255 255 255 / 0.74);
+  --rule: rgb(255 255 255 / 0.32);
+  --accent: #ffffff;
+  --on-accent: var(--leg-departures);
+}
+
+.leg-cruise {
+  --surface: var(--leg-cruise);
+  --ink: light-dark(#0a0f1f, #f5f7fa);
+  --ink-muted: light-dark(#1f3247, #c6d6e2);
+  --ink-faint: light-dark(#33506a, #9fb6c8);
+  --rule: light-dark(rgb(10 15 31 / 0.16), rgb(255 255 255 / 0.16));
+  --accent: light-dark(#0045c7, #8dcbf2);
+  --on-accent: light-dark(#ffffff, #0a0f1f);
+}
+
+.leg-layover {
+  --surface: var(--leg-layover);
+  --ink: light-dark(#0a0f1f, #fde7f2);
+  --ink-muted: light-dark(#2a0f20, #f3c4dc);
+  --ink-faint: light-dark(#4a1a34, #e3a6c6);
+  --rule: light-dark(rgb(10 15 31 / 0.22), rgb(255 255 255 / 0.18));
+  --accent: light-dark(#0a0f1f, #f551ab);
+  --on-accent: light-dark(#f551ab, #0a0f1f);
+}
+
+.leg-arrival {
+  --surface: var(--leg-arrival);
+  --surface-raised: #161a26;
+  --ink: #f5f7fa;
+  --ink-muted: #a8b0c4;
+  --ink-faint: #8a93ab;
+  --rule: #262c3d;
+  --accent: #81db89;
+  --on-accent: #0b0d14;
+}
+
+/* Printed matter on a coloured sky (the passes): white card by day, raised dark card by night. */
+.leg-paper {
+  --surface: light-dark(#ffffff, #161a26);
+  --surface-raised: light-dark(#ffffff, #161a26);
+  --ink: light-dark(#0a0f1f, #f5f7fa);
+  --ink-muted: light-dark(#4a5169, #a8b0c4);
+  --ink-faint: light-dark(#6b7391, #8a93ab);
+  --rule: light-dark(#e3e7ef, #262c3d);
+  --accent: light-dark(#0059ff, #4d8cff);
+  --on-accent: light-dark(#ffffff, #0a0f1f);
+  color: var(--ink);
+}
+
+.flight-h {
+  --pane-w: 100vw;
+}
+
+/* The vertical rail sits in the right margin; sections leave room for it. */
+.flight-v {
+  --rail-space: 28px;
+}
+
+@media (min-width: 768px) {
+  .flight-v {
+    --rail-space: 132px;
+  }
+}
+
+.flight-v section .swiss-grid {
+  padding-right: calc(var(--page-margin) + var(--rail-space));
+}
+
+/* ---- Top strip ---- */
+
+.flight-strip {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 40;
+  background: var(--surface);
+  transition:
+    background-color 500ms var(--ease-out),
+    color 500ms var(--ease-out);
+}
+
+.flight-strip::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 1px;
+  background: var(--rule);
+}
+
+/* ---- Progress rail ---- */
+
+.flight-rail {
+  position: fixed;
+  z-index: 40;
+  pointer-events: none;
+  transition: color 500ms var(--ease-out);
+}
+
+.flight-rail button {
+  pointer-events: auto;
+}
+
+.flight-rail-readout {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  white-space: nowrap;
+}
+
+.flight-rail-readings {
+  display: flex;
+  gap: 8px;
+}
+
+.flight-rail[data-orientation='h'] .flight-rail-readings > span + span::before {
+  content: '· ';
+}
+
+.flight-rail[data-orientation='v'] .flight-rail-readings {
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0;
+}
+
+.flight-rail-track {
+  position: relative;
+}
+
+.flight-rail-line,
+.flight-rail-flown {
+  position: absolute;
+}
+
+.flight-rail-stop {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--dur-fast);
+}
+
+.flight-rail-stop:hover {
+  color: var(--accent);
+}
+
+.flight-rail-dot {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  background: var(--surface);
+  transition: background-color var(--dur-base);
+}
+
+.flight-rail-stop[data-passed] .flight-rail-dot {
+  background: currentColor;
+}
+
+.flight-rail-stop:not([data-passed]) .flight-rail-label {
+  opacity: 0.6;
+}
+
+.flight-rail-label {
+  display: flex;
+  gap: 6px;
+}
+
+.flight-rail-plane {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+}
+
+.flight-rail-plane svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
+/* Horizontal: along the bottom edge, flying left to right. */
+.flight-rail[data-orientation='h'] {
+  inset: auto var(--page-margin) 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.flight-rail[data-orientation='h'] .flight-rail-track {
+  height: 30px;
+}
+
+.flight-rail[data-orientation='h'] .flight-rail-line {
+  inset: 4px 0 auto;
+  border-top: 1px dashed currentColor;
+  opacity: 0.5;
+}
+
+.flight-rail[data-orientation='h'] .flight-rail-flown {
+  inset: 3.5px 0 auto;
+  height: 2px;
+  background: currentColor;
+  transform-origin: left;
+  scale: var(--flight-p, 0) 1;
+}
+
+.flight-rail[data-orientation='h'] .flight-rail-stop {
+  top: 0;
+  left: calc(var(--at) * 100%);
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  translate: -50% 0;
+}
+
+.flight-rail[data-orientation='h'] .flight-rail-stop:first-of-type {
+  align-items: flex-start;
+  translate: -4px 0;
+}
+
+.flight-rail[data-orientation='h'] .flight-rail-stop:last-of-type {
+  align-items: flex-end;
+  translate: calc(-100% + 4px) 0;
+}
+
+.flight-rail[data-orientation='h'] .flight-rail-plane {
+  top: -4px;
+  left: calc(var(--flight-p, 0) * 100%);
+  translate: -50% 0;
+  rotate: 90deg;
+}
+
+/* Vertical: down the right margin, flying top to bottom. */
+.flight-rail[data-orientation='v'] {
+  top: 76px;
+  bottom: 28px;
+  right: var(--page-margin);
+  width: 112px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.flight-rail[data-orientation='v'] .flight-rail-readout {
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  white-space: normal;
+  text-align: right;
+}
+
+.flight-rail[data-orientation='v'] .flight-rail-track {
+  flex: 1;
+}
+
+.flight-rail[data-orientation='v'] .flight-rail-line {
+  inset: 0 4px 0 auto;
+  border-right: 1px dashed currentColor;
+  opacity: 0.5;
+}
+
+.flight-rail[data-orientation='v'] .flight-rail-flown {
+  inset: 0 3.5px 0 auto;
+  width: 2px;
+  background: currentColor;
+  transform-origin: top;
+  scale: 1 var(--flight-p, 0);
+}
+
+.flight-rail[data-orientation='v'] .flight-rail-stop {
+  right: 0;
+  top: calc(var(--at) * 100%);
+  flex-direction: row-reverse;
+  translate: 0 -50%;
+  text-align: right;
+}
+
+.flight-rail[data-orientation='v'] .flight-rail-label {
+  flex-direction: column;
+  gap: 0;
+}
+
+.flight-rail[data-orientation='v'] .flight-rail-plane {
+  right: -4.5px;
+  top: calc(var(--flight-p, 0) * 100%);
+  translate: 0 -50%;
+  rotate: 180deg;
+}
+
+@media (max-width: 767px) {
+  .flight-rail[data-orientation='v'] {
+    width: 18px;
+    right: 8px;
+  }
+
+  .flight-rail[data-orientation='v'] :is(.flight-rail-readout, .flight-rail-label),
+  .flight-rail[data-orientation='h'] .flight-rail-readout {
+    display: none;
+  }
+
+  /* Phones scroll the horizontal prototype downwards too: the rail becomes a
+     bar along the bottom, labelled only at the current leg. */
+  .flight-rail[data-orientation='h'] {
+    inset: auto 0 0;
+    padding: 10px var(--page-margin) 4px;
+    background: var(--surface);
+    border-top: 1px solid var(--rule);
+    transition:
+      color 500ms var(--ease-out),
+      background-color 500ms var(--ease-out);
+  }
+
+  .flight-rail[data-orientation='h'] .flight-rail-stop:not([aria-current]) .flight-rail-label {
+    visibility: hidden;
+  }
+}
+
+/* ---- Placeholders ---- */
+
+.flight-hatch {
+  background:
+    repeating-linear-gradient(45deg, light-dark(rgb(10 15 31 / 0.1), rgb(255 255 255 / 0.08)) 0 1px, transparent 1px 9px),
+    light-dark(#eef1f6, #161a26);
+  color: light-dark(#4a5169, #a8b0c4);
+}
+
+.flight-ph {
+  border: 1px dashed currentColor;
+}
+
+/* ---- Cruise: the window and the clouds ---- */
+
+.flight-window {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  max-height: min(60svh, 560px);
+  overflow: hidden;
+  border: 14px solid light-dark(#f4f6f9, #1c2333);
+  border-radius: 46% / 32%;
+  box-shadow:
+    0 0 0 1.5px var(--ink),
+    inset 0 0 0 1.5px rgb(10 15 31 / 0.2),
+    0 40px 70px -40px rgb(10 15 31 / 0.5);
+}
+
+.flight-window-blind {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 18%;
+  background: repeating-linear-gradient(light-dark(#dfe4ec, #2a3245) 0 6px, light-dark(#cfd6e1, #222839) 6px 8px);
+  border-bottom: 2px solid var(--ink);
+  transition: height var(--dur-slow) var(--ease-in-out);
+}
+
+.flight-window:hover .flight-window-blind {
+  height: 6%;
+}
+
+.flight-cloud {
+  position: absolute;
+  height: var(--h, 28px);
+  width: var(--w, 140px);
+  border-radius: 999px;
+  background: light-dark(rgb(255 255 255 / 0.85), rgb(255 255 255 / 0.07));
+  /* Drift is centred on mid-route, roughly where the cruise leg sits. */
+  translate: calc((var(--flight-p, 0) - 0.55) * var(--drift, 30vw)) 0;
+  pointer-events: none;
+}
+
+.flight-cloud::before {
+  content: '';
+  position: absolute;
+  left: 22%;
+  bottom: 40%;
+  width: 44%;
+  height: 130%;
+  border-radius: 50%;
+  background: inherit;
+}
+
+/* ---- Layover: passport stamps ---- */
+
+.flight-stamp {
+  position: absolute;
+  display: grid;
+  place-content: center;
+  gap: 2px;
+  width: var(--size, 156px);
+  aspect-ratio: 1;
+  padding: 12px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  text-align: center;
+  rotate: var(--r, 0deg);
+}
+
+.flight-stamp::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 1px solid currentColor;
+  border-radius: inherit;
+}
+
+.flight-stamp[data-shape='rect'] {
+  aspect-ratio: 1.6;
+  border-radius: 6px;
+}
+
+.flight-stamp[data-shape='dashed'],
+.flight-stamp[data-shape='dashed']::before {
+  border-style: dashed;
+}
+
+.flight-stamp b {
+  font-size: calc(var(--size, 156px) * 0.2);
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+@keyframes stamp-in {
+  from {
+    opacity: 0;
+    scale: 1.7;
+  }
+  60% {
+    opacity: 1;
+    scale: 0.94;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html[data-flap] .flight-stamp:not([data-seen]) {
+    opacity: 0;
+  }
+
+  html[data-flap] .flight-stamp[data-seen] {
+    animation: stamp-in 420ms var(--ease-out) backwards;
+    animation-delay: var(--d, 0ms);
+  }
+}
+
+/* ---- Arrival: city lights ---- */
+
+.flight-city {
+  position: absolute;
+  inset: auto 0 0;
+  height: 26%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle, #ffd27a 0 1px, transparent 1.6px) 0 0 / 23px 17px,
+    radial-gradient(circle, #ffffff 0 1px, transparent 1.6px) 9px 6px / 31px 23px,
+    radial-gradient(circle, #81db89 0 1px, transparent 1.6px) 4px 11px / 53px 41px;
+  mask-image: linear-gradient(transparent, #000 70%);
+  opacity: 0.55;
+}
+
+.flight-board {
+  --cell: 13px;
+}
+
+@media (min-width: 768px) {
+  .flight-board {
+    --cell: 20px;
+  }
+}
+
+.flight-board-status .flap-row {
+  --flap-ink: #81db89;
+}
+
+/* ---- Chrome density ---- */
+
+.flight-strip[data-ui='minimal'] {
+  background: transparent;
+}
+
+.flight-strip[data-ui='minimal']::after {
+  content: none;
+}
+
+.flight-rail:is([data-ui='lean'], [data-ui='minimal']) :is(.flight-rail-readout, .flight-rail-section) {
+  display: none;
+}
+
+.flight-rail[data-ui='minimal'] .flight-rail-stop:not([aria-current]) .flight-rail-label {
+  visibility: hidden;
+}
+
+.flight-rail[data-orientation='v']:is([data-ui='lean'], [data-ui='minimal']) {
+  width: 84px;
+}
+
+@media (min-width: 768px) {
+  .flight-v:is([data-ui='lean'], [data-ui='minimal']) {
+    --rail-space: 100px;
+  }
+}
+
+/* Minimal also drops the secondary labels inside the legs. */
+.flight[data-ui='minimal'] [data-detail] {
+  display: none;
+}
+
+/* ---- Prototype switches (not part of the design) ---- */
+
+.proto-controls {
+  position: fixed;
+  left: 0;
+  top: 50%;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  translate: 0 -50%;
+}
+
+.proto-controls-tab {
+  writing-mode: vertical-rl;
+  rotate: 180deg;
+  padding: 12px 6px;
+  background: var(--ink);
+  color: var(--surface);
+  order: 2;
+}
+
+.proto-controls-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 300px;
+  padding: 16px;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  border-left: 0;
+  box-shadow: 0 20px 40px -24px rgb(10 15 31 / 0.5);
+}
+
+/* ---- Vertical: solid skies joined by gradients, and fewer labels ---- */
+
+.flight-blend {
+  height: 36svh;
+}
+
+.flight-v [data-detail] {
+  display: none;
+}
+
+/* Without its From and Flight columns, the arrivals board is passenger and status side by side. */
+.flight-v .flight-board {
+  grid-template-columns: auto auto;
+  justify-content: start;
+}
+
+/* Phones keep the window shade but drop its label. */
+@media (max-width: 767px) {
+  .flight-strip .window-shade > :last-child {
+    display: none;
+  }
+}
