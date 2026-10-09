@@ -1,0 +1,398 @@
+/* ---------------------------------------------------------------------------
+   The Flight — signs: the docking wordmark, the sign-plate strip and the
+   tagged covers.
+   --------------------------------------------------------------------------- */
+
+.flight-signs {
+  --rail-space: 0px;
+  position: relative;
+  isolation: isolate;
+}
+
+/* ---- The sky: one eased gradient down the whole trip (see soft-sky.ts), under a fine print grain ---- */
+
+.signs-sky {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  isolation: isolate;
+  pointer-events: none;
+  background-color: var(--leg-gate);
+}
+
+.signs-sky::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 220px;
+  mix-blend-mode: soft-light;
+  opacity: 0.4;
+}
+
+/* ---- Intro: a blank page and the name, which then docks ---- */
+
+.signs-dock {
+  width: 75%;
+  margin-inline: auto;
+  transform-origin: 0 0;
+}
+
+.flight-signs[data-intro='stage'] .signs-dock {
+  position: fixed;
+  z-index: 50;
+  top: 50%;
+  left: var(--page-margin);
+  right: var(--page-margin);
+  width: auto;
+  margin: 0;
+  translate: 0 -50%;
+}
+
+/* Everything but the name waits for it, then arrives as it lands. */
+.flight-signs :is(.signs-strap, .signs-after, .sign-plate, .sign-plate-shade, .sign-strip > div > :not(nav)) {
+  transition:
+    opacity 600ms var(--ease-out) var(--reveal, 0ms),
+    translate 600ms var(--ease-out) var(--reveal, 0ms),
+    visibility 0s linear var(--reveal, 0ms);
+}
+
+.flight-signs .sign-strip > div > :not(nav) {
+  --reveal: 350ms;
+}
+
+.flight-signs :is(.sign-plate, .sign-plate-shade) {
+  --reveal: calc(420ms + var(--i, 0) * 60ms);
+}
+
+.flight-signs .signs-strap {
+  --reveal: 520ms;
+}
+
+.flight-signs .signs-after {
+  --reveal: 640ms;
+}
+
+.flight-signs[data-intro='stage'] :is(.signs-strap, .signs-after, .sign-plate, .sign-plate-shade, .sign-strip > div > :not(nav)) {
+  opacity: 0;
+  visibility: hidden;
+  transition-duration: 0s;
+  transition-delay: 0s;
+}
+
+.flight-signs[data-intro='stage'] :is(.sign-plate, .sign-plate-shade) {
+  translate: 0 -10px;
+}
+
+/* The strip's bar and rule stay out of sight until the plates come down. */
+.flight-signs .sign-strip {
+  transition:
+    background-color 500ms var(--ease-out),
+    color 500ms var(--ease-out),
+    opacity 400ms var(--ease-out) 300ms;
+}
+
+.flight-signs[data-intro='stage'] .sign-strip {
+  opacity: 0;
+  transition-duration: 0s;
+  transition-delay: 0s;
+}
+
+/* The strap lines up under the docked name. */
+@media (min-width: 768px) {
+  .signs-strap {
+    width: 75%;
+    margin-inline: auto;
+  }
+}
+
+/* ---- Sign-plate strip ---- */
+
+/* Plates are pictograms until pointed at, focused, or naming the leg in view;
+   then they open out to the section name (and, if it lies elsewhere, an arrow). */
+.sign-plate {
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 7px;
+  border-radius: 4px;
+  background: var(--ink);
+  color: var(--surface);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.flight-signs .sign-plate {
+  transition:
+    opacity 600ms var(--ease-out) var(--reveal, 0ms),
+    translate 600ms var(--ease-out) var(--reveal, 0ms),
+    visibility 0s linear var(--reveal, 0ms),
+    background-color 300ms var(--ease-out),
+    color 300ms var(--ease-out),
+    box-shadow 200ms var(--ease-out);
+}
+
+.sign-plate:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--surface),
+    0 0 0 3.5px var(--ink);
+}
+
+.sign-picto {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+
+/* The folding part: a one-column grid that opens from 0fr to 1fr. */
+.sign-plate-more {
+  display: grid;
+  grid-template-columns: 0fr;
+  transition: grid-template-columns 320ms var(--ease-out);
+}
+
+.sign-plate-more > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  overflow: hidden;
+  padding-left: 0;
+  opacity: 0;
+  transition:
+    opacity 220ms var(--ease-out),
+    padding 320ms var(--ease-out);
+}
+
+.sign-plate-label {
+  padding-top: 1px;
+}
+
+.sign-arrow {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  fill: currentColor;
+  transition: rotate 360ms var(--ease-out);
+}
+
+.sign-arrow[data-dir='up'] {
+  rotate: 180deg;
+}
+
+/* Where you are needs no arrow. */
+.sign-plate[data-here] .sign-arrow {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .sign-plate:is(:hover, :focus-visible, [data-here]) .sign-plate-more {
+    grid-template-columns: 1fr;
+  }
+
+  .sign-plate:is(:hover, :focus-visible, [data-here]) .sign-plate-more > span {
+    opacity: 1;
+    padding-left: 8px;
+    transition-delay: 60ms, 0ms;
+  }
+}
+
+/* Phones have no hover: every plate stays a pictogram, and the one for the leg
+   in view turns over to a white plate ringed in ink. */
+@media (max-width: 767px) {
+  .sign-plate[data-here] {
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: inset 0 0 0 2px var(--ink);
+  }
+}
+
+/* The window shade keeps its window and drops its label. */
+.sign-strip .window-shade > :last-child {
+  display: none;
+}
+
+.sign-plate-shade {
+  display: inline-flex;
+  margin-left: 6px;
+}
+
+@media (min-width: 768px) {
+  .sign-plate-shade {
+    margin-left: 12px;
+  }
+}
+
+/* ---- Route pills ---- */
+
+.route-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px 2px;
+  border-radius: 99px;
+  font-weight: 500;
+}
+
+/* A pill on a sky of its own colour gets a white edge so it doesn't sink in. */
+.leg-departures .route-pill {
+  box-shadow: 0 0 0 1.5px #ffffff;
+}
+
+/* ---- Tagged covers ---- */
+
+.tag-card {
+  position: relative;
+  display: block;
+}
+
+.tag-card-cover {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.tag-card-cover > * {
+  transition: scale 700ms var(--ease-out);
+}
+
+.tag-card:hover .tag-card-cover > *,
+.tag-card:focus-visible .tag-card-cover > * {
+  scale: 1.015;
+}
+
+.tag-card:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 6px;
+}
+
+/* The tag hangs off a strap from just above the cover's corner and turns about that point. */
+.luggage-tag {
+  --w: 104px;
+  position: absolute;
+  z-index: 1;
+  top: -22px;
+  right: 22px;
+  width: var(--w);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform-origin: 50% 0;
+  rotate: -7deg;
+  filter: drop-shadow(0 8px 10px rgb(10 15 31 / 0.22));
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .luggage-tag {
+    --w: 124px;
+    right: 32px;
+  }
+}
+
+/* Drawn in the sky's ink, so it reads where it crosses the gap above the cover. */
+.luggage-strap {
+  width: 16px;
+  height: 40px;
+  margin-bottom: -20px;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.5;
+  position: relative;
+  z-index: 1;
+}
+
+.luggage-tag-body {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 26px 10px 10px;
+  background: var(--surface);
+  border-radius: 3px;
+  clip-path: polygon(24% 0, 76% 0, 100% 13%, 100% 100%, 0 100%, 0 13%);
+  /* The punched hole the strap runs through. */
+  mask: radial-gradient(circle at 50% 12px, transparent 4.5px, #000 5px);
+}
+
+.luggage-tag-routes {
+  display: flex;
+  width: 100%;
+  height: 10px;
+  margin-bottom: 8px;
+  gap: 2px;
+}
+
+.luggage-tag-routes > span {
+  flex: 1;
+}
+
+.luggage-tag-code {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 1.1;
+  --flap-lh: 1.1;
+  margin-bottom: 2px;
+}
+
+@media (min-width: 768px) {
+  .luggage-tag-code {
+    font-size: 28px;
+  }
+}
+
+.luggage-tag-barcode {
+  width: 100%;
+  height: 22px;
+  margin-top: 8px;
+}
+
+/* Pointed at, the tag swings out and settles back. */
+@keyframes luggage-swing {
+  0% {
+    rotate: -7deg;
+  }
+  22% {
+    rotate: 9deg;
+  }
+  44% {
+    rotate: -4deg;
+  }
+  64% {
+    rotate: 3deg;
+  }
+  82% {
+    rotate: -8deg;
+  }
+  100% {
+    rotate: -7deg;
+  }
+}
+
+.tag-card:is(:hover, :focus-visible) .luggage-tag {
+  animation: luggage-swing 1.1s var(--ease-in-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flight-signs *,
+  .flight-signs .sign-strip {
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
+
+  .tag-card .luggage-tag {
+    animation: none !important;
+  }
+}

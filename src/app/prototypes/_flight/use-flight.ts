@@ -109,12 +109,17 @@ export function usePinnedTrack(
   return metrics
 }
 
-/** Progress through a page of stacked `[data-leg]` sections, read from the window's scroll. */
+/**
+ * Progress through a page of stacked `[data-leg]` sections, read from the
+ * window's scroll. A leg is current once its top passes `line`, a fraction of
+ * the way down the viewport.
+ */
 export function useDocumentTracker(
   rootRef: React.RefObject<HTMLElement | null>,
   enabled: boolean,
   report: (progress: number, leg: number) => void,
   setStops: (stops: number[]) => void,
+  line = 0.5,
 ) {
   useEffect(() => {
     const root = rootRef.current
@@ -128,7 +133,7 @@ export function useDocumentTracker(
       const y = window.scrollY
       let leg = 0
       tops.forEach((top, i) => {
-        if (top <= y + window.innerHeight / 2) leg = i
+        if (top <= y + window.innerHeight * line) leg = i
       })
       report(clamp01(y / max), leg)
     }
@@ -154,7 +159,7 @@ export function useDocumentTracker(
       window.removeEventListener('resize', measure)
       window.removeEventListener('scroll', onScroll)
     }
-  }, [rootRef, enabled, report, setStops])
+  }, [rootRef, enabled, report, setStops, line])
 }
 
 export function useMediaQuery(query: string) {

@@ -17,6 +17,7 @@ export function NameHero({
   stack = 'narrow',
   motion,
   intro,
+  onSettle,
   className,
 }: {
   name: string
@@ -24,6 +25,8 @@ export function NameHero({
   /** Flip timing, for trying alternatives (see /prototypes/flip). */
   motion?: FlapMotion
   intro?: 'auto' | 'quick' | 'full'
+  /** Called once the name has landed (after the greeting, on a first visit). */
+  onSettle?: () => void
   className?: string
 }) {
   // Stacked, each word is padded to the longest so every row starts flush left.
@@ -47,6 +50,7 @@ export function NameHero({
           ripple
           motion={motion}
           intro={intro}
+          onSettle={onSettle}
           className="flap-wordmark-row"
         />
       )}

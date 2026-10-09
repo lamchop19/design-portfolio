@@ -40,6 +40,8 @@ type SplitFlapProps = {
   swap?: 'drum' | 'quick'
   /** Flip duration and fall curve. Omit for the stock timing. */
   motion?: FlapMotion
+  /** Called once the opening cascade (and any preroll) has landed, or straight away when there is none. */
+  onSettle?: () => void
   className?: string
 }
 
@@ -79,10 +81,16 @@ export function SplitFlap({
   intro = 'auto',
   swap = 'drum',
   motion,
+  onSettle,
   className,
 }: SplitFlapProps) {
   const rootRef = useRef<HTMLSpanElement>(null)
   const boardRef = useRef<ReturnType<typeof createBoard> | null>(null)
+  // The board is made once at mount; it calls whichever callback is current.
+  const settleRef = useRef(onSettle)
+  useEffect(() => {
+    settleRef.current = onSettle
+  })
   const target = pad(text, length)
   // The markup keeps its first characters for good; later text arrives through
   // the board so React never overwrites a tile mid-flip.
@@ -98,6 +106,7 @@ export function SplitFlap({
       swap,
       motion,
       shade: variant === 'tile',
+      onSettle: () => settleRef.current?.(),
     })
     boardRef.current = board
     return () => {
@@ -208,6 +217,7 @@ function createBoard(
     swap,
     motion,
     shade,
+    onSettle,
   }: {
     trigger: SplitFlapProps['trigger']
     delay: NonNullable<SplitFlapProps['delay']>
@@ -218,6 +228,7 @@ function createBoard(
     motion: FlapMotion | undefined
     /** Darken the leaves as they turn. Only a tile has a face to darken. */
     shade: boolean
+    onSettle: () => void
   },
 ) {
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -344,14 +355,23 @@ function createBoard(
 
   /** After a preroll: the whole row turns over, left to right, in a few flicks each. */
   function turnOver() {
-    cells.forEach((cell, i) =>
-      later(() => {
-        cell.goal = shown[i] ?? ' '
-        if (cell.ch === cell.goal) return
-        cell.queue = [stray(), stray(), cell.goal]
-        void run(cell)
-      }, i * STAGGER_MS),
+    return Promise.all(
+      cells.map(
+        (cell, i) =>
+          new Promise<void>((resolve) =>
+            later(() => {
+              cell.goal = shown[i] ?? ' '
+              if (cell.ch === cell.goal) return resolve()
+              cell.queue = [stray(), stray(), cell.goal]
+              void run(cell).then(resolve)
+            }, i * STAGGER_MS),
+          ),
+      ),
     )
+  }
+
+  function settled() {
+    if (alive) onSettle()
   }
 
   function intro() {
@@ -369,7 +389,10 @@ function createBoard(
             later(() => void run(cell).then(resolve), wait + i * STAGGER_MS * (mode === 'full' ? 1 : 0.4)),
           ),
       )
-      if (greet) void Promise.all(landed).then(() => later(turnOver, PREROLL_HOLD_MS))
+      void Promise.all(landed).then(() => {
+        if (!greet) return settled()
+        later(() => void turnOver().then(settled), PREROLL_HOLD_MS)
+      })
     }
     if (trigger === 'load') return begin()
     const observer = new IntersectionObserver(
@@ -385,7 +408,10 @@ function createBoard(
   }
 
   const stopIntro = !reduced && trigger !== 'none' ? intro() : undefined
-  if (reduced || trigger === 'none') root.dataset.flapReady = ''
+  if (reduced || trigger === 'none') {
+    root.dataset.flapReady = ''
+    later(settled, 0)
+  }
 
   // Ripple: a tile the pointer crosses flicks over twice and lands back on its
   // letter. Sweeping across the row sends a run of clacks along it.

@@ -154,20 +154,23 @@ const clouds = [
   { top: '8%', left: '84%', w: '90px', h: '18px', drift: '60vw' },
 ]
 
-export function CruiseLeg() {
+/** `bins` off leaves out the overhead bins and their carry-on button; `drift` off leaves out the clouds. */
+export function CruiseLeg({ bins = true, drift = true }: { bins?: boolean; drift?: boolean } = {}) {
   const [binOpen, setBinOpen] = useState(false)
   const toggleBin = () => setBinOpen(!binOpen)
   return (
     <div className="relative h-full min-h-[inherit] overflow-hidden">
-      <OverheadBin open={binOpen} onToggle={toggleBin} />
-      {clouds.map((c, i) => (
-        <span
-          key={i}
-          aria-hidden="true"
-          className="flight-cloud"
-          style={{ top: c.top, left: c.left, '--w': c.w, '--h': c.h, '--drift': c.drift } as React.CSSProperties}
-        />
-      ))}
+      {bins ? <OverheadBin open={binOpen} onToggle={toggleBin} /> : null}
+      {drift
+        ? clouds.map((c, i) => (
+            <span
+              key={i}
+              aria-hidden="true"
+              className="flight-cloud"
+              style={{ top: c.top, left: c.left, '--w': c.w, '--h': c.h, '--drift': c.drift } as React.CSSProperties}
+            />
+          ))
+        : null}
       <div className="swiss-grid relative h-full min-h-[inherit] content-center items-center gap-y-10 pt-24 pb-28">
         <div className="col-span-3 md:col-span-4">
           <div className="flight-window">
@@ -186,14 +189,16 @@ export function CruiseLeg() {
           </h2>
           <p className="mt-6 max-w-[52ch] text-lg leading-7 text-ink-muted">{site.bio}</p>
           <dl className="t-label mt-10 grid grid-cols-2 gap-x-(--gutter) gap-y-6">
-            <div className="col-span-2">
-              <dt className="text-ink-faint">Carry-on</dt>
-              <dd className="mt-2">
-                <button type="button" aria-expanded={binOpen} onClick={toggleBin} className="border border-current px-2 py-1 transition-colors hover:bg-ink hover:text-surface">
-                  {binOpen ? `${carryOn.length} items out · Stow them ↑` : `${carryOn.length} items stowed overhead · Open bin ↑`}
-                </button>
-              </dd>
-            </div>
+            {bins ? (
+              <div className="col-span-2">
+                <dt className="text-ink-faint">Carry-on</dt>
+                <dd className="mt-2">
+                  <button type="button" aria-expanded={binOpen} onClick={toggleBin} className="border border-current px-2 py-1 transition-colors hover:bg-ink hover:text-surface">
+                    {binOpen ? `${carryOn.length} items out · Stow them ↑` : `${carryOn.length} items stowed overhead · Open bin ↑`}
+                  </button>
+                </dd>
+              </div>
+            ) : null}
             <div data-detail>
               <dt className="text-ink-faint">Home base</dt>
               <dd>New York City</dd>

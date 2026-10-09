@@ -36,8 +36,19 @@ export function Segmented<T extends string | number>({
   )
 }
 
-/** A tab on the left edge that opens the prototype switches. Not part of the design. */
-export function PrototypeControls({ onReplay }: { onReplay: () => void }) {
+/**
+ * A tab on the left edge that opens the prototype switches. Not part of the
+ * design. `chrome={false}` leaves out the strip density, for layouts with their own.
+ */
+export function PrototypeControls({
+  onReplay,
+  chrome = true,
+  replayLabel = 'Replay wordmark',
+}: {
+  onReplay: () => void
+  chrome?: boolean
+  replayLabel?: string
+}) {
   const settings = useSettings()
   const [open, setOpen] = useState(false)
 
@@ -48,7 +59,9 @@ export function PrototypeControls({ onReplay }: { onReplay: () => void }) {
       </button>
       {open ? (
         <div className="proto-controls-panel">
-          <Segmented label="Chrome" options={densities} value={settings.ui} onChange={(ui) => updateSettings({ ui })} />
+          {chrome ? (
+            <Segmented label="Chrome" options={densities} value={settings.ui} onChange={(ui) => updateSettings({ ui })} />
+          ) : null}
           <Segmented label="Wordmark flip" options={flips} value={settings.flip} onChange={(flip) => updateSettings({ flip })} />
           <Segmented
             label="Flip duration"
@@ -65,7 +78,7 @@ export function PrototypeControls({ onReplay }: { onReplay: () => void }) {
                 onReplay()
               }}
             >
-              Replay wordmark ↺
+              {replayLabel} ↺
             </button>
             <Link href="/prototypes/flip" className="transition-colors hover:text-accent">
               Flip lab →
