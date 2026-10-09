@@ -1,0 +1,523 @@
+/* ---------------------------------------------------------------------------
+   Baggage claim belt (prototype)
+
+   The bed clips a track that the belt loop slides; the slats are painted on the
+   track so they travel with the bags. Each style re-skins the bed, the rails,
+   the bags' shadows and the tags.
+   --------------------------------------------------------------------------- */
+
+.bc-belt {
+  --bed-h: 232px;
+  position: relative;
+  user-select: none;
+}
+
+@media (max-width: 767px) {
+  .bc-belt {
+    --bed-h: 156px;
+  }
+}
+
+.bc-bed {
+  position: relative;
+  height: var(--bed-h);
+  overflow: hidden;
+  background: var(--bed);
+  cursor: grab;
+  /* Vertical swipes still scroll the page; sideways ones spin the belt. */
+  touch-action: pan-y;
+}
+
+.bc-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+.bc-set {
+  position: absolute;
+  top: 0;
+  width: 2048px;
+  height: 100%;
+}
+
+.bc-bag {
+  position: absolute;
+}
+
+.bc-bag[data-gone] {
+  visibility: hidden;
+}
+
+.bc-bag-hit {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  rotate: var(--r);
+  cursor: grab;
+  touch-action: none;
+  -webkit-user-drag: none;
+}
+
+:root[data-bc-grabbing],
+:root[data-bc-grabbing] * {
+  cursor: grabbing !important;
+  user-select: none;
+}
+
+/* Bags carried off the belt: a layer over the whole page, and the one in hand. */
+.bc-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 50;
+}
+
+.bc-free-scale {
+  transform-origin: 0 0;
+}
+
+.bc-ghost {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 70;
+  pointer-events: none;
+  will-change: translate;
+}
+
+.bc-ghost .bc-bag-art {
+  translate: 0 -10px;
+  scale: 1.08;
+}
+
+.bc-bag-art {
+  display: block;
+  transition:
+    translate var(--dur-base) var(--ease-out),
+    scale var(--dur-base) var(--ease-out);
+}
+
+/* Baked bag images carry PAD (16px) of room for shadows and handles on every side. */
+.bc-img {
+  display: block;
+  max-width: none;
+  height: auto;
+  margin: -16px;
+}
+
+.bc-img-dark {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .bc-img-light {
+    display: none;
+  }
+
+  :root:not([data-theme='light']) .bc-img-dark {
+    display: block;
+  }
+}
+
+:root[data-theme='dark'] .bc-img-light {
+  display: none;
+}
+
+:root[data-theme='dark'] .bc-img-dark {
+  display: block;
+}
+
+a.bc-bag-hit:is(:hover, :focus-visible) .bc-bag-art {
+  translate: 0 -6px;
+  scale: 1.05;
+}
+
+a.bc-bag-hit:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 6px;
+}
+
+/* A luggage tag tied to the bag's corner, with a punched hole. */
+.bc-tag {
+  position: absolute;
+  top: -14px;
+  right: -22px;
+  padding: 4px 7px 4px 16px;
+  border-radius: 3px;
+  background: #fbefe2;
+  color: #0a0f1f;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 14px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  rotate: 7deg;
+  transition: opacity var(--dur-fast);
+}
+
+.bc-tag::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 6px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--bed);
+  translate: 0 -50%;
+}
+
+.bc-tag b {
+  font-weight: 600;
+}
+
+[data-tags='hover'] .bc-tag {
+  opacity: 0;
+}
+
+[data-tags='hover'] a.bc-bag-hit:is(:hover, :focus-visible) .bc-tag {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bc-bag-art {
+    transition: none;
+  }
+}
+
+/* ---- Riso: deep teal belt, painted bags with grain, brand-colour rails ---- */
+
+[data-style='riso'] {
+  --bed: #123c3a;
+}
+
+[data-style='riso'] .bc-track {
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgb(0 0 0 / 0.45) 0 3px,
+    rgb(255 255 255 / 0.06) 3px 4px,
+    transparent 4px 32px
+  );
+}
+
+/* Depth: the belt dips under the rails and picks up blue toward the front edge. */
+[data-style='riso'] .bc-bed::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(rgb(0 0 0 / 0.35), transparent 14%, transparent 86%, rgb(0 0 0 / 0.35)),
+    linear-gradient(transparent 45%, rgb(0 89 255 / 0.4));
+}
+
+[data-style='riso'] .bc-rail {
+  height: 12px;
+}
+
+[data-style='riso'] .bc-rail-top {
+  background: linear-gradient(90deg, var(--brand-pink), #f9b4d8 50%, var(--brand-green));
+}
+
+[data-style='riso'] .bc-rail-bottom {
+  background: var(--brand-blue);
+}
+
+/* ---- Pixel: the footer's brand grid band split open, with the belt between ---- */
+
+.bc-pixel-cells {
+  --cell-w: 32px;
+  --cell-h: 16px;
+}
+
+[data-style='pixel'] {
+  --bed: #10364b;
+}
+
+[data-style='pixel'] .bc-track {
+  background-image: repeating-linear-gradient(90deg, rgb(0 0 0 / 0.4) 0 4px, transparent 4px 32px);
+}
+
+/* Pixels don't scale; they hop a whole cell. */
+[data-style='pixel'] a.bc-bag-hit:is(:hover, :focus-visible) .bc-bag-art {
+  translate: 0 -8px;
+  scale: 1;
+}
+
+[data-style='pixel'] .bc-ghost .bc-bag-art {
+  translate: 0 -16px;
+  scale: 1;
+}
+
+[data-style='pixel'] .bc-img {
+  image-rendering: pixelated;
+}
+
+[data-style='pixel'] .bc-tag {
+  border-radius: 0;
+  background: #ffffff;
+  box-shadow: 0 0 0 2px #0a0f1f;
+  rotate: 0deg;
+  top: -12px;
+}
+
+[data-style='pixel'] .bc-tag::before {
+  border-radius: 0;
+}
+
+/* ---- Swiss line: outlines on the page surface; colour lives on the tags ---- */
+
+[data-style='line'] {
+  --bed: var(--surface);
+  color: var(--ink);
+}
+
+[data-style='line'] .bc-track {
+  background-image: repeating-linear-gradient(90deg, var(--rule) 0 1px, transparent 1px 32px);
+}
+
+[data-style='line'] .bc-rail {
+  height: 6px;
+  border-block: 1px solid var(--ink);
+}
+
+[data-style='line'] .bc-tag[data-tone='blue'] {
+  background: var(--brand-blue);
+  color: #ffffff;
+}
+
+[data-style='line'] .bc-tag[data-tone='pink'] {
+  background: var(--brand-pink);
+}
+
+[data-style='line'] .bc-tag[data-tone='green'] {
+  background: var(--brand-green);
+}
+
+/* ---- Sign-off: the wordmark's tiles, in a choice of face ---- */
+
+.bc-signoff[data-font='helvetica'] .flap-row {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.bc-signoff[data-font='sans'] .flap-row {
+  font-family: var(--font-sans);
+}
+
+/* Once measured, each tile takes its letter's advance (--w, in em) and the
+   row's font size makes its total advance (--adv) fill the width. */
+.bc-signoff[data-measured] .flap-row {
+  --fs: calc(100cqi / var(--adv));
+}
+
+.bc-signoff[data-measured] .flap-row .flap {
+  width: calc(var(--w) * var(--fs));
+  height: calc(var(--fs) * var(--flap-lh));
+}
+
+.bc-signoff[data-measured] .flap-row .flap-half {
+  font-size: var(--fs);
+  line-height: calc(var(--fs) * var(--flap-lh));
+}
+
+/* Stacked, a phrase is a row of its own. */
+.bc-signoff .flap-wordmark-stack {
+  flex-wrap: nowrap;
+}
+
+/* ---- Backdrops: scenery behind the sign-off, clipped to the footer ---- */
+
+.bc-hall {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+}
+
+.bc-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Arrivals board, ghosted. */
+.bc-board {
+  position: absolute;
+  inset: 6rem 0 auto;
+  color: var(--ink-faint);
+  opacity: 0.6;
+}
+
+/* Carousel sign, hung on two rods from the ceiling. */
+.bc-sign {
+  position: absolute;
+  top: 3.5rem;
+  left: var(--page-margin);
+  display: flex;
+  transform-origin: top left;
+}
+
+.bc-sign::before,
+.bc-sign::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  width: 2px;
+  height: 3.5rem;
+  background: var(--ink-faint);
+}
+
+.bc-sign::before {
+  left: 18%;
+}
+
+.bc-sign::after {
+  right: 18%;
+}
+
+.bc-sign-pict,
+.bc-sign-no {
+  display: grid;
+  place-items: center;
+  width: 88px;
+  height: 88px;
+}
+
+.bc-sign-pict {
+  background: var(--ink);
+  color: var(--surface);
+}
+
+.bc-sign-pict svg {
+  width: 56px;
+  height: 56px;
+}
+
+.bc-sign-no {
+  background: var(--brand-blue);
+  color: #ffffff;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+@media (max-width: 767px) {
+  .bc-sign {
+    scale: 0.7;
+  }
+}
+
+/* Terminal window: tinted glass, slim mullions centred on the grid's gutters, the apron outside. */
+.bc-window {
+  --frame: color-mix(in srgb, var(--ink) 14%, var(--surface));
+  position: absolute;
+  inset: 0 0 auto;
+  height: 56%;
+  container-type: size;
+  background: linear-gradient(
+    color-mix(in srgb, var(--brand-blue) 9%, var(--surface)),
+    color-mix(in srgb, var(--brand-blue) 3%, var(--surface)) 74%,
+    color-mix(in srgb, var(--ink) 4%, var(--surface)) 74%
+  );
+  border-bottom: 3px solid var(--frame);
+}
+
+.bc-window::after {
+  content: '';
+  position: absolute;
+  inset: 0 var(--page-margin);
+  z-index: 1;
+  background: linear-gradient(
+      90deg,
+      transparent calc(100% - var(--gutter) / 2 - 2px),
+      var(--frame) 0 calc(100% - var(--gutter) / 2 + 2px),
+      transparent 0
+    )
+    0 0 / calc((100% + var(--gutter)) / var(--grid-cols)) 100% repeat-x;
+}
+
+.bc-window-apron {
+  position: absolute;
+  inset: 74% 0 auto;
+  border-top: 1px dashed color-mix(in srgb, var(--ink) 22%, transparent);
+}
+
+.bc-window-plane {
+  position: absolute;
+  bottom: 23%;
+  left: 0;
+  width: 120px;
+  color: color-mix(in srgb, var(--ink) 40%, var(--surface));
+  transform-origin: 85% 100%;
+  animation: bc-takeoff 32s infinite;
+}
+
+@keyframes bc-takeoff {
+  0% {
+    translate: -140px 0;
+    rotate: 0deg;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.9, 0.6);
+  }
+  62% {
+    translate: 62cqw 0;
+    rotate: 0deg;
+    animation-timing-function: ease-in;
+  }
+  74% {
+    translate: 84cqw -4cqh;
+    rotate: -9deg;
+    animation-timing-function: linear;
+  }
+  100% {
+    translate: calc(100cqw + 160px) -80cqh;
+    rotate: -12deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bc-window-plane {
+    animation: none;
+    translate: 64cqw 0;
+  }
+}
+
+/* Terrazzo floor, and the line to wait behind. */
+.bc-terrazzo {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--ink) 3%, var(--surface));
+}
+
+.bc-terrazzo span {
+  position: absolute;
+  opacity: 0.4;
+}
+
+.bc-terrazzo [data-tone='blue'] {
+  background: var(--brand-blue);
+}
+
+.bc-terrazzo [data-tone='pink'] {
+  background: var(--brand-pink);
+}
+
+.bc-terrazzo [data-tone='green'] {
+  background: var(--brand-green);
+}
+
+.bc-terrazzo [data-tone='ink'] {
+  background: var(--ink-faint);
+}
+
+.bc-wait-line {
+  position: absolute;
+  inset: auto 0 28px;
+  height: 10px;
+  background: repeating-linear-gradient(-45deg, var(--ink) 0 6px, transparent 6px 14px);
+  opacity: 0.85;
+}
