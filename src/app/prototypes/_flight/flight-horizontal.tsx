@@ -67,6 +67,19 @@ export function FlightHorizontal({ items }: { items: WorkItem[] }) {
     [wide, metrics],
   )
 
+  /** The dragged rail plane's progress as a scroll position: through the pinned track when wide, down the page when stacked. */
+  const fly = useCallback(
+    (p: number) => {
+      if (wide) {
+        const top = outerRef.current!.getBoundingClientRect().top + window.scrollY
+        scrollToY(top + p * metrics.current.max, { immediate: true })
+        return
+      }
+      scrollToY(p * (document.documentElement.scrollHeight - window.innerHeight), { immediate: true })
+    },
+    [wide, metrics],
+  )
+
   const content: Record<Leg['id'], React.ReactNode> = {
     gate,
     departures: (
@@ -107,7 +120,16 @@ export function FlightHorizontal({ items }: { items: WorkItem[] }) {
         </div>
       </div>
 
-      <FlightRail orientation="h" active={active} stops={stops} onJump={jump} readoutRef={readoutRef} ui={settings.ui} />
+      <FlightRail
+        orientation="h"
+        active={active}
+        stops={stops}
+        onJump={jump}
+        onFly={fly}
+        onLand={jump}
+        readoutRef={readoutRef}
+        ui={settings.ui}
+      />
       <PrototypeControls onReplay={() => jump(0)} />
       <GridOverlay />
     </div>

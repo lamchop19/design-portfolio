@@ -7,12 +7,19 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 
 let active: Lenis | null = null
+let activeSnap: Snap | null = null
 
-/** Scrolls the page to `y`, eased through Lenis when it is running. */
-export function scrollToY(y: number) {
-  if (active) return active.scrollTo(y, { duration: 1.4 })
+/** Scrolls the page to `y`, eased through Lenis when it is running; `immediate` jumps there (for dragging). */
+export function scrollToY(y: number, { immediate = false }: { immediate?: boolean } = {}) {
+  if (active) return active.scrollTo(y, immediate ? { immediate: true, force: true } : { duration: 1.4 })
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  window.scrollTo({ top: y, behavior: reduced ? 'auto' : 'smooth' })
+  window.scrollTo({ top: y, behavior: immediate || reduced ? 'auto' : 'smooth' })
+}
+
+/** Holds section snapping off while something else drives the scroll, like a dragged control. */
+export function holdSnap(held: boolean) {
+  if (held) activeSnap?.stop()
+  else activeSnap?.start()
 }
 
 /**
@@ -53,7 +60,11 @@ export function SmoothScroll() {
       easing: (t) => 1 - Math.pow(1 - t, 4),
     })
     snap.addElements(sections, { align: ['start'] })
-    return () => snap.destroy()
+    activeSnap = snap
+    return () => {
+      snap.destroy()
+      activeSnap = null
+    }
   }, [pathname])
 
   return null

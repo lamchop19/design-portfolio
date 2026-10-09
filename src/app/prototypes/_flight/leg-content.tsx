@@ -11,6 +11,7 @@ import type { WorkItem } from '@/lib/work-items'
 import { site } from '@/../content/site'
 
 import { carryOn, results, roles } from './legs'
+import { OverheadBin } from './overhead-bin'
 import { useSeen } from './use-flight'
 
 type Dir = 'v' | 'h'
@@ -154,8 +155,11 @@ const clouds = [
 ]
 
 export function CruiseLeg() {
+  const [binOpen, setBinOpen] = useState(false)
+  const toggleBin = () => setBinOpen(!binOpen)
   return (
     <div className="relative h-full min-h-[inherit] overflow-hidden">
+      <OverheadBin open={binOpen} onToggle={toggleBin} />
       {clouds.map((c, i) => (
         <span
           key={i}
@@ -184,12 +188,10 @@ export function CruiseLeg() {
           <dl className="t-label mt-10 grid grid-cols-2 gap-x-(--gutter) gap-y-6">
             <div className="col-span-2">
               <dt className="text-ink-faint">Carry-on</dt>
-              <dd className="mt-2 flex flex-wrap gap-2">
-                {carryOn.map((skill) => (
-                  <span key={skill} className="border border-current px-2 py-1">
-                    {skill}
-                  </span>
-                ))}
+              <dd className="mt-2">
+                <button type="button" aria-expanded={binOpen} onClick={toggleBin} className="border border-current px-2 py-1 transition-colors hover:bg-ink hover:text-surface">
+                  {binOpen ? `${carryOn.length} items out · Stow them ↑` : `${carryOn.length} items stowed overhead · Open bin ↑`}
+                </button>
               </dd>
             </div>
             <div data-detail>

@@ -206,6 +206,47 @@
   fill: currentColor;
 }
 
+/* The plane as a grab handle: a bigger hit area than its 18px, and it turns to face the way it is flown. */
+.flight-rail-plane[data-grabbable] {
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: none;
+  transition:
+    rotate var(--dur-base) var(--ease-out),
+    scale var(--dur-fast) var(--ease-out);
+}
+
+.flight-rail-plane[data-grabbable]::before {
+  content: '';
+  position: absolute;
+  inset: -14px;
+}
+
+.flight-rail-plane[data-grabbable]:hover,
+:root[data-flight-flying] .flight-rail-plane {
+  scale: 1.3;
+}
+
+:root[data-flight-flying],
+:root[data-flight-flying] * {
+  cursor: grabbing !important;
+  user-select: none;
+}
+
+/* A tag beside the plane naming the leg it is over; the stop labels step back while it flies. */
+:root[data-flight-flying] .flight-rail-label {
+  opacity: 0.2;
+}
+
+.flight-rail-bubble {
+  position: absolute;
+  padding: 3px 7px;
+  background: var(--ink);
+  color: var(--surface);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
 /* Horizontal: along the bottom edge, flying left to right. */
 .flight-rail[data-orientation='h'] {
   inset: auto var(--page-margin) 14px;
@@ -256,6 +297,16 @@
   left: calc(var(--flight-p, 0) * 100%);
   translate: -50% 0;
   rotate: 90deg;
+}
+
+.flight-rail[data-orientation='h'] .flight-rail-plane[data-heading='back'] {
+  rotate: -90deg;
+}
+
+.flight-rail[data-orientation='h'] .flight-rail-bubble {
+  bottom: calc(100% + 10px);
+  left: calc(var(--flight-p, 0) * 100%);
+  translate: -50% 0;
 }
 
 /* Vertical: down the right margin, flying top to bottom. */
@@ -313,6 +364,16 @@
   top: calc(var(--flight-p, 0) * 100%);
   translate: 0 -50%;
   rotate: 180deg;
+}
+
+.flight-rail[data-orientation='v'] .flight-rail-plane[data-heading='back'] {
+  rotate: 0deg;
+}
+
+.flight-rail[data-orientation='v'] .flight-rail-bubble {
+  right: 26px;
+  top: calc(var(--flight-p, 0) * 100%);
+  translate: 0 -50%;
 }
 
 @media (max-width: 767px) {
@@ -586,4 +647,196 @@
   .flight-strip .window-shade > :last-child {
     display: none;
   }
+}
+
+/* ---- Cruise: overhead bins and the carry-on ---- */
+
+.bin-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.bin-row {
+  position: absolute;
+  top: 68px;
+  left: var(--page-margin);
+  right: calc(var(--page-margin) + var(--rail-space, 0px));
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  perspective: 900px;
+}
+
+@media (max-width: 767px) {
+  .bin-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .bin:is(:first-child, :last-child) {
+    display: none;
+  }
+}
+
+/* The bin's dark inside, seen when the door swings up. */
+.bin {
+  position: relative;
+  height: 64px;
+  border-radius: 6px 6px 18px 18px;
+  background: #0a0f1f;
+}
+
+.bin-door {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 10px;
+  border: 1.5px solid var(--ink);
+  border-radius: inherit;
+  background: linear-gradient(light-dark(#f6f8fb, #1f2638), light-dark(#dfe5ee, #151b2a));
+  transform-origin: top;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+button.bin-door {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.bin[data-open] .bin-door {
+  transform: rotateX(68deg);
+}
+
+.bin-placard {
+  position: absolute;
+  top: 7px;
+  left: 10px;
+  color: light-dark(#4a5169, #a8b0c4);
+}
+
+.bin[data-carry] .bin-placard {
+  padding: 0 5px;
+  background: var(--brand-pink);
+  color: #0a0f1f;
+}
+
+.bin-latch {
+  width: 44px;
+  height: 8px;
+  border-radius: 4px;
+  background: light-dark(#0a0f1f, #f5f7fa);
+}
+
+/* The carry-on bin gives a little rattle now and then, until it has been opened. */
+@media (prefers-reduced-motion: no-preference) {
+  .bin[data-carry]:not([data-open]) .bin-door {
+    animation: bin-rattle 5s var(--ease-in-out) 2s infinite;
+  }
+}
+
+@keyframes bin-rattle {
+  0%,
+  88%,
+  100% {
+    rotate: 0deg;
+  }
+
+  91% {
+    rotate: -1.5deg;
+  }
+
+  94% {
+    rotate: 1.5deg;
+  }
+
+  97% {
+    rotate: -0.5deg;
+  }
+}
+
+.bin-chips {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bin-chip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1.5px #0a0f1f;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 16px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  visibility: hidden;
+}
+
+.bin-chip[data-live] {
+  visibility: visible;
+}
+
+@media (max-width: 767px) {
+  .bin-chip {
+    padding: 6px 9px;
+    font-size: 11px;
+    line-height: 14px;
+  }
+}
+
+.bin-chip[data-tone='blue'] {
+  background: var(--brand-blue);
+  color: #ffffff;
+}
+
+.bin-chip[data-tone='pink'] {
+  background: var(--brand-pink);
+  color: #0a0f1f;
+}
+
+.bin-chip[data-tone='green'] {
+  background: var(--brand-green);
+  color: #0a0f1f;
+}
+
+.bin-chip[data-tone='paper'] {
+  background: #ffffff;
+  color: #0a0f1f;
+}
+
+.bin-chip[data-tone='ink'] {
+  background: #0a0f1f;
+  color: #ffffff;
+  box-shadow: inset 0 0 0 1.5px #ffffff;
+}
+
+:root[data-bin-grab],
+:root[data-bin-grab] * {
+  cursor: grabbing !important;
+}
+
+/* Reduced motion: no tumbling, the carry-on just lies in a row along the floor. */
+.bin-chips[data-still] {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-end;
+  gap: 8px;
+  padding: 0 calc(var(--page-margin) + var(--rail-space, 0px)) 20px var(--page-margin);
+}
+
+.bin-chips[data-still] .bin-chip {
+  position: static;
+  visibility: visible;
 }

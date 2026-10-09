@@ -63,7 +63,16 @@ export function FlightVertical({ items }: { items: WorkItem[] }) {
         </Fragment>
       ))}
 
-      <FlightRail orientation="v" active={active} stops={stops} onJump={jump} readoutRef={readoutRef} ui={settings.ui} />
+      <FlightRail
+        orientation="v"
+        active={active}
+        stops={stops}
+        onJump={jump}
+        onFly={(p) => scrollToY(p * (document.documentElement.scrollHeight - window.innerHeight), { immediate: true })}
+        onLand={jump}
+        readoutRef={readoutRef}
+        ui={settings.ui}
+      />
       <PrototypeControls onReplay={() => jump(0)} />
       <GridOverlay />
     </div>

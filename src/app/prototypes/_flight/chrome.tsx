@@ -1,6 +1,9 @@
 'use client'
 
+import { useRef, useState } from 'react'
+
 import { LiveClock } from '@/components/brand/live-clock'
+import { holdSnap } from '@/components/layout/smooth-scroll'
 import { WindowShade } from '@/components/layout/window-shade'
 import { FlapText } from '@/components/split-flap/split-flap'
 
@@ -85,6 +88,11 @@ export function FlightStrip({
  * plane as the visitor travels. `stops` place each leg along the route (0–1);
  * the plane follows `--flight-p`. `lean` drops the readout and the section
  * names; `minimal` labels only the leg in view.
+ *
+ * The plane can be grabbed and flown: the page follows it (`onFly`, with the
+ * route progress under the pointer), it turns to face the way it is dragged,
+ * a tag names the leg below it, and let go it lands on the nearest stop
+ * (`onLand`). The stop buttons stay the keyboard route.
  */
 export function FlightRail({
   orientation,
@@ -93,6 +101,8 @@ export function FlightRail({
   onJump,
   readoutRef,
   ui,
+  onFly,
+  onLand,
 }: {
   orientation: 'h' | 'v'
   active: number
@@ -100,7 +110,53 @@ export function FlightRail({
   onJump: (leg: number) => void
   readoutRef: React.RefObject<HTMLSpanElement | null>
   ui: ChromeDensity
+  onFly?: (progress: number) => void
+  onLand?: (leg: number) => void
 }) {
+  const trackRef = useRef<HTMLDivElement>(null)
+  const [flying, setFlying] = useState<number | null>(null)
+
+  const nearest = (p: number) => stops.reduce((best, stop, i) => (Math.abs(stop - p) < Math.abs(stops[best] - p) ? i : best), 0)
+
+  const grab = (e: React.PointerEvent<HTMLSpanElement>) => {
+    const track = trackRef.current
+    if (e.button !== 0 || !track || !onFly) return
+    e.preventDefault()
+    const plane = e.currentTarget
+    const vertical = orientation === 'v'
+    const at = (ev: PointerEvent | React.PointerEvent) => {
+      const r = track.getBoundingClientRect()
+      const p = vertical ? (ev.clientY - r.top) / r.height : (ev.clientX - r.left) / r.width
+      return Math.min(1, Math.max(0, p))
+    }
+    let last = at(e)
+    holdSnap(true)
+    document.documentElement.dataset.flightFlying = ''
+    setFlying(nearest(last))
+
+    const move = (ev: PointerEvent) => {
+      const p = at(ev)
+      // Turn to face the way it is being flown; small jitters keep the last heading.
+      if (Math.abs(p - last) > 0.002) plane.dataset.heading = p < last ? 'back' : 'forward'
+      last = p
+      onFly(p)
+      setFlying(nearest(p))
+    }
+    const up = (ev: PointerEvent) => {
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', up)
+      window.removeEventListener('pointercancel', up)
+      delete document.documentElement.dataset.flightFlying
+      delete plane.dataset.heading
+      holdSnap(false)
+      setFlying(null)
+      onLand?.(nearest(at(ev)))
+    }
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', up)
+    window.addEventListener('pointercancel', up)
+  }
+
   return (
     <nav
       aria-label="Flight progress"
@@ -115,7 +171,7 @@ export function FlightRail({
           <span>0% flown</span>
         </span>
       </p>
-      <div className="flight-rail-track">
+      <div ref={trackRef} className="flight-rail-track">
         <span className="flight-rail-line" />
         <span className="flight-rail-flown" />
         {legs.map((leg, i) => (
@@ -136,11 +192,16 @@ export function FlightRail({
             </span>
           </button>
         ))}
-        <span className="flight-rail-plane" aria-hidden="true">
+        <span className="flight-rail-plane" aria-hidden="true" data-grabbable={onFly ? '' : undefined} onPointerDown={grab}>
           <svg viewBox="0 0 24 24">
             <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" />
           </svg>
         </span>
+        {flying !== null ? (
+          <span className="flight-rail-bubble" aria-hidden="true">
+            {legs[flying].no} {legs[flying].code} · {legs[flying].section}
+          </span>
+        ) : null}
       </div>
     </nav>
   )
