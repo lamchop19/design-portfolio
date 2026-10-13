@@ -20,7 +20,7 @@ export function drawsOwnFooter(pathname: string) {
   return isHome(pathname) || pathname.replace(/^\/+/, '').startsWith('prototypes')
 }
 
-const OWN_SHADE = ['flight-', 'seatback', 'blacklight', 'tone-on-tone', 'layout-', 'dot-matrix', 'logo']
+const OWN_SHADE = ['flight-', 'hero-load', 'seatback', 'blacklight', 'tone-on-tone', 'layout-', 'dot-matrix', 'logo']
 
 /** Pages whose header carries the theme control, so the floating one stands aside. */
 export function placesOwnShade(pathname: string) {

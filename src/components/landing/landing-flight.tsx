@@ -22,8 +22,24 @@ import '@/app/prototypes/_flight/flight.css'
 import '@/app/prototypes/_flight/signs.css'
 import '@/app/prototypes/_baggage/baggage.css'
 import './baggage-hall.css'
+import './hero-intro.css'
 
 const ANCHOR_OFFSET = 88
+
+/**
+ * How the hero arrives on load. Each runs the parts in a different order;
+ * hero-intro.css has the choreography, and these are the parts JS starts.
+ */
+export type HeroIntro = 'cascade' | 'lights' | 'belt' | 'shade' | 'none'
+
+/** When the wordmark starts resolving and the route pills flap in, in ms, per intro. */
+const INTRO_TIMING: Record<HeroIntro, { wordmark: number; pills: number }> = {
+  cascade: { wordmark: 250, pills: 1550 },
+  lights: { wordmark: 0, pills: 2150 },
+  belt: { wordmark: 950, pills: 2250 },
+  shade: { wordmark: 750, pills: 1950 },
+  none: { wordmark: 0, pills: 1500 },
+}
 
 const wordmarkMotion = {
   step: FLAP_STEP_MS * 2,
@@ -34,7 +50,7 @@ const wordmarkMotion = {
 /**
  * The wordmark and baggage hall lead into the selected work and Flight sections.
  */
-export function LandingFlight({ items }: { items: WorkItem[] }) {
+export function LandingFlight({ items, intro = 'lights' }: { items: WorkItem[]; intro?: HeroIntro }) {
   const rootRef = useRef<HTMLDivElement>(null)
   const skyRef = useRef<HTMLDivElement>(null)
   const active = useActiveLeg(rootRef, 0.3)
@@ -56,18 +72,28 @@ export function LandingFlight({ items }: { items: WorkItem[] }) {
   }
 
   return (
-    <div ref={rootRef} id="top" className="flight flight-v flight-signs landing-hall" data-intro="done">
+    <div ref={rootRef} id="top" className="flight flight-v flight-signs landing-hall" data-intro="done" data-seq={intro}>
       <div ref={skyRef} className="signs-sky" aria-hidden="true" />
       <SignStrip active={active} onJump={jump} />
 
       <section data-leg="gate" className={`${legClass('gate')} landing-gate`}>
-        <div className="swiss-grid landing-heading">
-          <div className="landing-wordmark col-span-full">
-            <NameHero name={site.name} face="led" motion={wordmarkMotion} intro="auto" />
+        {/* Above the fold: the wordmark and the baggage hall fill the first screen between them. */}
+        <div className="landing-fold">
+          <div className="swiss-grid landing-heading">
+            <div className="landing-wordmark col-span-full">
+              <NameHero
+                name={site.name}
+                face="led"
+                motion={wordmarkMotion}
+                intro="auto"
+                loadDelay={INTRO_TIMING[intro].wordmark}
+              />
+            </div>
+            <Strap pillsAt={INTRO_TIMING[intro].pills} />
           </div>
-          <Strap />
+          <BaggageHall items={items} />
+          {intro === 'shade' ? <div className="landing-shade" aria-hidden="true" /> : null}
         </div>
-        <BaggageHall items={items} />
         <div className="swiss-grid landing-departures"><DeparturesHeader items={items} /></div>
       </section>
 
@@ -93,15 +119,18 @@ export function LandingFlight({ items }: { items: WorkItem[] }) {
   )
 }
 
-function Strap() {
+function Strap({ pillsAt }: { pillsAt: number }) {
   return (
     <div className="signs-strap rule-draw col-span-full mt-5 flex flex-col gap-3 pt-4 md:mt-6 md:flex-row md:items-center md:justify-between">
       <p className="text-[20px] leading-7 font-medium tracking-[-0.02em] md:text-[24px]">{site.headline}</p>
       <p className="t-label flex flex-wrap items-center gap-1.5">
-        <span className="mr-1.5 text-ink-faint">Now boarding</span>
         {(Object.keys(routes) as Route[]).map((route, i) => (
-          <span key={route} className="route-pill" style={{ background: routes[route].fill, color: routes[route].ink }}>
-            <FlapText text={route} intro="quick" delay={{ first: 1500 + i * 90, repeat: 450 + i * 90 }} />
+          <span
+            key={route}
+            className="route-pill"
+            style={{ background: routes[route].fill, color: routes[route].ink, '--i': i } as React.CSSProperties}
+          >
+            <FlapText text={route} intro="quick" delay={pillsAt + i * 90} />
           </span>
         ))}
       </p>

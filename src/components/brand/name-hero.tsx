@@ -1,4 +1,4 @@
-import { Led } from '@/components/brand/led-matrix'
+import { LedWordmark } from '@/components/brand/led-wordmark/led-wordmark'
 import { SplitFlap } from '@/components/split-flap/split-flap'
 import type { FlapMotion } from '@/lib/flap-motion'
 
@@ -14,9 +14,10 @@ type Face = 'flap' | 'led'
  * the same fourteen tiles — then turns over to the name. The heading's
  * accessible text is the plain name; the tiles are decorative.
  *
- * `face="led"` draws the name on a 5 × 7 lamp matrix instead: the lamps light
- * left to right on load and a letter re-lights under the pointer. It skips
- * the greeting and doesn't call `onSettle`.
+ * `face="led"` draws the name on a 5 × 7 lamp board instead (see
+ * `LedWordmark`): it resolves lamp by lamp on load, reacts to the pointer and
+ * runs its own idle sequence. It skips the greeting and doesn't call
+ * `onSettle`.
  */
 export function NameHero({
   name,
@@ -25,6 +26,7 @@ export function NameHero({
   motion,
   intro,
   onSettle,
+  loadDelay,
   className,
 }: {
   name: string
@@ -35,6 +37,8 @@ export function NameHero({
   intro?: 'auto' | 'quick' | 'full'
   /** Called once the name has landed (after the greeting, on a first visit). */
   onSettle?: () => void
+  /** LED face: wait before resolving on load, in ms. */
+  loadDelay?: number
   className?: string
 }) {
   // Stacked, each word is padded to the longest so every row starts flush left.
@@ -51,11 +55,11 @@ export function NameHero({
       <span className="sr-only">{name}</span>
       {face === 'led' ? (
         <>
-          {stack !== 'always' && <Led text={name} label={null} relight className="flap-wordmark-row" />}
+          {stack !== 'always' && <LedWordmark text={name} field spill loadDelay={loadDelay} className="flap-wordmark-row" />}
           {stack !== 'never' && (
             <span className="flap-wordmark-stack led-wordmark-stack">
               {words.map((word) => (
-                <Led key={word} text={word.padEnd(width)} label={null} relight />
+                <LedWordmark key={word} text={word.padEnd(width)} loadDelay={loadDelay} />
               ))}
             </span>
           )}

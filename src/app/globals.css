@@ -63,28 +63,12 @@
   }
 }
 
-/* Dark is a translation of the white-primary brand, not a second brand: the
-   surface goes near-black and blue lifts to #4d8cff, since #0059ff only reaches
-   3.58:1 against it. Pink and green already clear AA on this surface unchanged. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --surface: #0b0d14;
-    --surface-raised: #161a26;
-    --ink: #f5f7fa;
-    --ink-muted: #a8b0c4;
-    --ink-faint: #8a93ab;
-    --rule: #262c3d;
-
-    --accent: #4d8cff;
-    --on-accent: #0a0f1f;
-    --ocean-zenith: #08131f;
-    --ocean-sky: #0f2433;
-    --ocean-shallows: #102d3b;
-    --ocean-floor: #0c2639;
-  }
-}
-
-:root[data-theme='dark'] {
+/* Dark is the default surface. It is a translation of the white-primary brand,
+   not a second brand: the surface goes near-black and blue lifts to #4d8cff,
+   since #0059ff only reaches 3.58:1 against it. Pink and green already clear AA
+   on this surface unchanged. The light tokens above apply only once the window
+   shade is opened (data-theme='light'). */
+:root:not([data-theme='light']) {
   --surface: #0b0d14;
   --surface-raised: #161a26;
   --ink: #f5f7fa;
@@ -113,9 +97,14 @@
   --color-brand-pink: var(--brand-pink);
   --color-brand-green: var(--brand-green);
 
-  --font-display: var(--font-display), Georgia, serif;
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  /* One face for everything: Paper Mono (SIL OFL, src/fonts/paper-mono). The
+     LED wordmark is lamps, not type, so it isn't affected. */
+  --font-display: var(--font-paper-mono), ui-monospace, monospace;
+  --font-sans: var(--font-paper-mono), ui-monospace, monospace;
+  --font-mono: var(--font-paper-mono), ui-monospace, monospace;
+
+  /* Weights: text 400, labels 500, headings and emphasis 600. */
+  --font-weight-medium: 600;
 
   --ease-out-expo: var(--ease-out);
 }
@@ -125,15 +114,16 @@
    --------------------------------------------------------------------------- */
 
 html {
-  color-scheme: light dark;
+  color-scheme: dark;
 }
 
 html[data-theme='light'] {
   color-scheme: light;
 }
 
-html[data-theme='dark'] {
-  color-scheme: dark;
+/* Headings and emphasis carry the heading weight. */
+:where(h1, h2, h3, h4, strong, b) {
+  font-weight: 600;
 }
 
 body {
@@ -818,6 +808,7 @@ html[data-work-view='passes'] .work-view-passes {
    box matches the text's, so flipping and static labels share a baseline. */
 .t-label {
   font-family: var(--font-mono);
+  font-weight: 500;
   font-size: 11px;
   line-height: 16px;
   text-transform: uppercase;
@@ -1183,22 +1174,39 @@ html[data-grid] .grid-overlay {
    LED matrix (components/brand/led-matrix.tsx)
 
    Lit lamps take the ink, unlit ones a faint tint of it; a container can
-   re-point --lamp-on / --lamp-off. Lamps sweep on left to right, and a
-   letter re-lights under the pointer.
+   re-point --lamp-on / --lamp-off. The ghost grid is drawn once underneath,
+   and a dark lamp is simply transparent over it. Lamps sweep on left to
+   right, and a letter re-lights under the pointer. With `glow`, a blurred
+   copy of the lit lamps sits behind them at --led-halo strength.
    --------------------------------------------------------------------------- */
 
 .led {
   display: block;
   width: 100%;
   height: auto;
+  /* Let the glow spill past the board instead of clipping at its edges. */
+  overflow: visible;
 }
 
-.led-on {
+.led-lamp {
   fill: var(--lamp-on, var(--ink));
+  opacity: 0;
+}
+
+.led-lamp.led-on {
+  opacity: 1;
 }
 
 .led-off {
   fill: var(--lamp-off, color-mix(in oklch, var(--ink) 9%, transparent));
+}
+
+.led-halo {
+  opacity: var(--led-halo, 0.55);
+}
+
+.led[data-glow='bloom'] .led-halo {
+  opacity: var(--led-halo, 0.9);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -1208,19 +1216,13 @@ html[data-grid] .grid-overlay {
   }
 
   .led .led-glyph[data-relight] .led-on {
-    animation: led-relight 220ms steps(2, end) both;
+    animation: led-on 220ms steps(2, end) both;
     animation-delay: calc(var(--x) * 35ms);
   }
 }
 
 @keyframes led-on {
   from {
-    fill: var(--lamp-off, color-mix(in oklch, var(--ink) 9%, transparent));
-  }
-}
-
-@keyframes led-relight {
-  from {
-    fill: var(--lamp-off, color-mix(in oklch, var(--ink) 9%, transparent));
+    opacity: 0;
   }
 }
