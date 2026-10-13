@@ -1,0 +1,243 @@
+.landing-hall {
+  overflow-x: clip;
+}
+
+.landing-hall .landing-heading {
+  padding-top: 100px;
+  padding-bottom: 20px;
+}
+
+.landing-wordmark {
+  width: min(100%, 1280px);
+  margin-inline: auto;
+}
+
+.landing-hall .signs-strap {
+  width: 100%;
+  letter-spacing: 0;
+}
+
+.landing-hall .signs-strap > p {
+  letter-spacing: 0;
+}
+
+.landing-hall .landing-departures {
+  padding-block: 28px 40px;
+}
+
+.terminal-hall {
+  --conveyor-height: 220px;
+  position: relative;
+  isolation: isolate;
+  height: 366px;
+  overflow: clip;
+}
+
+.terminal-wall {
+  position: absolute;
+  inset: 0 0 74px;
+  border-bottom: 1px solid var(--rule);
+  background: repeating-linear-gradient(90deg, transparent 0 calc(25% - 1px), var(--rule) calc(25% - 1px) 25%);
+}
+
+.terminal-planter {
+  position: absolute;
+  right: 11%;
+  bottom: 6px;
+  width: 160px;
+  height: 280px;
+}
+
+.terminal-conveyor {
+  position: absolute;
+  z-index: 3;
+  inset: auto 0 54px;
+}
+
+.bc-belt[data-view='front'] {
+  --bed-h: var(--conveyor-height);
+}
+
+.bc-belt[data-view='front'] .bc-bed {
+  background: transparent;
+}
+
+.bc-belt[data-view='front'] .bc-track {
+  background: none;
+}
+
+/* Only the narrow surface under the bags moves; the fascia stays fixed. */
+.bc-belt[data-view='front'] .bc-track::before {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 16px;
+  background: repeating-linear-gradient(90deg, #526963 0 30px, #203f3b 30px 32px);
+  border-top: 2px solid #24423d;
+}
+
+.bc-belt[data-view='front'] .bc-bed::after,
+.bc-belt[data-view='front'] .bc-rail-top {
+  display: none;
+}
+
+.bc-belt[data-view='front'] .bc-rail-bottom {
+  height: 32px;
+  border-top: 4px solid #8aa7a0;
+  border-bottom: 4px solid #173b35;
+  background: #35574e;
+  box-shadow: 0 6px 0 rgb(10 15 31 / 0.1);
+}
+
+.terminal-floor {
+  position: absolute;
+  inset: auto 0 0;
+  height: 86px;
+  border-bottom: 1px solid var(--rule);
+  background: color-mix(in srgb, var(--ink) 3%, var(--surface));
+}
+
+.terminal-floor-label {
+  position: absolute;
+  bottom: 17px;
+  left: var(--page-margin);
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 14px;
+  text-transform: uppercase;
+}
+
+.terminal-motion {
+  position: absolute;
+  z-index: 4;
+  right: var(--page-margin);
+  bottom: 6px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+
+.terminal-motion:hover {
+  color: var(--accent);
+}
+
+.terminal-motion:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -4px;
+}
+
+@media (min-width: 1600px) {
+  .terminal-hall {
+    height: 400px;
+    --conveyor-height: 246px;
+  }
+
+}
+
+@media (max-width: 767px) {
+  .landing-hall .landing-heading {
+    padding-top: 82px;
+    padding-bottom: 14px;
+  }
+
+  .landing-wordmark {
+    max-width: 280px;
+    margin-inline: 0;
+  }
+
+  .landing-hall .signs-strap {
+    margin-top: 16px;
+    padding-top: 12px;
+    gap: 8px;
+  }
+
+  .landing-hall .signs-strap > p:first-child {
+    font-size: 18px;
+    line-height: 24px;
+    letter-spacing: 0;
+  }
+
+  .terminal-hall {
+    --conveyor-height: 164px;
+    height: 272px;
+  }
+
+  .terminal-planter {
+    right: 5%;
+    scale: 0.62;
+    transform-origin: bottom right;
+  }
+
+  .landing-hall .landing-departures {
+    padding-block: 20px 36px;
+  }
+}
+
+@media (max-height: 740px) and (max-width: 767px) {
+  .landing-wordmark {
+    max-width: 210px;
+  }
+
+  .terminal-hall {
+    height: 224px;
+    --conveyor-height: 144px;
+  }
+
+  .terminal-planter {
+    scale: 0.52;
+  }
+
+}
+
+@media (max-height: 640px) and (max-width: 767px) {
+  .landing-hall .landing-heading {
+    padding-top: 74px;
+    padding-bottom: 6px;
+  }
+
+  .landing-wordmark {
+    max-width: 150px;
+  }
+
+  .terminal-hall {
+    height: 184px;
+    --conveyor-height: 116px;
+  }
+
+  .terminal-planter {
+    scale: 0.4;
+  }
+
+  .landing-hall .landing-departures {
+    padding-block: 16px 24px;
+  }
+}
+
+@media (max-width: 380px) {
+  .landing-hall .sign-strip .t-label > .text-ink-faint,
+  .landing-hall .signs-strap > p:last-child > span:first-child {
+    display: none;
+  }
+}
+
+@media (max-height: 800px) and (min-width: 768px) {
+  .terminal-hall {
+    height: 300px;
+    --conveyor-height: 184px;
+  }
+
+  .terminal-planter {
+    scale: 0.78;
+    transform-origin: bottom right;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .terminal-motion {
+    display: none;
+  }
+}

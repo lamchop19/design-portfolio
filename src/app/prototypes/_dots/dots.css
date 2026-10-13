@@ -1,0 +1,69 @@
+/* ---------------------------------------------------------------------------
+   Dot-matrix wordmark candidates (prototype)
+   --------------------------------------------------------------------------- */
+
+.dm-page {
+  min-height: 100dvh;
+  padding-bottom: 64px;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.dm-face {
+  row-gap: 20px;
+  padding-block: 36px;
+  border-top: 1px solid var(--rule);
+}
+
+.dm-replay {
+  min-height: 40px;
+  padding-inline: 16px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.dm-replay:hover {
+  border-color: var(--ink-faint);
+}
+
+/* Font faces drive the real wordmark. The site sets its rows to weight 500;
+   this selector outranks it so each face gets its own weight. */
+.dm-face .flap-wordmark .flap-row,
+.dm-face .dm-small {
+  font-family: var(--dm-family), ui-monospace, monospace;
+  font-weight: var(--dm-weight);
+  font-variation-settings: var(--dm-axes);
+}
+
+.dm-small {
+  margin-top: 16px;
+  font-size: clamp(20px, 2.4vw, 28px);
+  letter-spacing: 0.06em;
+}
+
+/* LED lamps */
+.dm-led-wrap {
+  display: grid;
+  gap: 16px;
+  --lamp-on: var(--ink);
+  --lamp-off: color-mix(in oklch, var(--ink) 9%, transparent);
+}
+
+.dm-led-wrap[data-board] {
+  padding: clamp(14px, 2.4vw, 28px);
+  border-radius: 8px;
+  background: #0a0f1f;
+  box-shadow: inset 0 0 0 1px var(--rule);
+  --lamp-on: #9df0a5;
+  --lamp-off: #1a2236;
+}
+
+.dm-led-wrap[data-board] .led-on {
+  filter: drop-shadow(0 0 0.35px #9df0a5);
+}
+
+.dm-led-small {
+  width: auto;
+  height: clamp(20px, 2.4vw, 28px);
+}

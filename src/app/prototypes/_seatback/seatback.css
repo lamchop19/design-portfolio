@@ -1,0 +1,537 @@
+/* ---------------------------------------------------------------------------
+   Seatback screen (prototype)
+
+   A moulded seatback with the entertainment screen set into it. The screen
+   follows the site theme (its brightness button is the theme toggle); the
+   plastic around it does too. On phones the seat falls away and the screen
+   fills the viewport.
+   --------------------------------------------------------------------------- */
+
+.sb-cabin {
+  --plastic: light-dark(#c9ced8, #1b1f28);
+  --plastic-edge: light-dark(#b3b9c5, #12151c);
+  --screen: light-dark(#f3f6fc, #070b18);
+  --screen-raised: light-dark(#ffffff, #121a33);
+  --screen-ink: light-dark(#0a0f1f, #eef2fb);
+  --screen-dim: light-dark(#4a5169, #a8b0c4);
+  --screen-rule: light-dark(#d5dbe6, #232c48);
+  --focus-ring: light-dark(#0059ff, #6f9cff);
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 40px var(--page-margin);
+  background:
+    radial-gradient(120% 80% at 50% 0%, color-mix(in oklch, var(--plastic) 70%, white 10%), transparent 70%),
+    var(--plastic-edge);
+}
+
+.sb-seat {
+  width: min(1180px, 100%);
+  padding: clamp(18px, 3vw, 40px) clamp(18px, 3vw, 40px) 18px;
+  border-radius: 48px 48px 24px 24px;
+  background: var(--plastic);
+  box-shadow:
+    inset 0 2px 0 color-mix(in oklch, white 30%, transparent),
+    inset 0 -8px 24px color-mix(in oklch, black 18%, transparent),
+    0 30px 60px -30px color-mix(in oklch, black 50%, transparent);
+}
+
+.sb-screen {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  aspect-ratio: 16 / 10;
+  max-height: calc(100dvh - 160px);
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--screen);
+  color: var(--screen-ink);
+  box-shadow:
+    0 0 0 6px #05070c,
+    inset 0 0 0 1px color-mix(in oklch, white 8%, transparent);
+  --surface: var(--screen);
+  --surface-raised: var(--screen-raised);
+  --ink: var(--screen-ink);
+  --ink-muted: var(--screen-dim);
+  --ink-faint: var(--screen-dim);
+  --rule: var(--screen-rule);
+  --accent: var(--focus-ring);
+}
+
+@media (max-width: 767px) {
+  .sb-cabin {
+    padding: 0;
+  }
+  .sb-seat {
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .sb-screen {
+    aspect-ratio: auto;
+    height: 100dvh;
+    max-height: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .sb-hardware {
+    display: none !important;
+  }
+}
+
+.sb-screen :focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.sb-dim {
+  color: var(--screen-dim);
+}
+
+/* Top and bottom bars */
+.sb-topbar,
+.sb-statusbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px clamp(16px, 2.4vw, 28px);
+  border-color: var(--screen-rule);
+}
+
+.sb-topbar {
+  border-bottom: 1px solid var(--screen-rule);
+}
+
+.sb-statusbar {
+  border-top: 1px solid var(--screen-rule);
+  justify-content: space-between;
+}
+
+.sb-brand {
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.sb-seatbelt {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 22px;
+  border-radius: 4px;
+  background: #f5a524;
+  color: #1a1203;
+}
+
+.sb-seatbelt svg {
+  width: 16px;
+  height: 16px;
+}
+
+.sb-home,
+.sb-back {
+  min-height: 36px;
+  padding-inline: 14px;
+  border: 1px solid var(--screen-rule);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.sb-home:hover,
+.sb-back:hover {
+  border-color: var(--screen-dim);
+}
+
+.sb-brightness .window-shade {
+  color: var(--screen-dim);
+}
+
+/* Title row */
+.sb-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: clamp(14px, 2vw, 24px) clamp(16px, 2.4vw, 28px) 8px;
+}
+
+.sb-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3.6vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  min-width: 0;
+}
+
+.sb-view {
+  overflow-y: auto;
+  padding: 12px clamp(16px, 2.4vw, 28px) clamp(16px, 2.4vw, 28px);
+  overscroll-behavior: contain;
+}
+
+/* Home tiles */
+.sb-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(10px, 1.4vw, 16px);
+  height: 100%;
+  min-height: 280px;
+}
+
+@media (max-width: 767px) {
+  .sb-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    height: auto;
+  }
+}
+
+.sb-tile {
+  display: grid;
+  grid-template-rows: 1fr auto auto;
+  align-items: end;
+  gap: 4px;
+  min-height: 120px;
+  padding: clamp(12px, 1.6vw, 20px);
+  border-radius: 10px;
+  text-align: left;
+  background: var(--tile);
+  color: var(--tile-ink);
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.sb-tile:hover,
+.sb-tile:focus-visible {
+  transform: scale(1.025);
+}
+
+.sb-tile-icon {
+  align-self: start;
+}
+
+.sb-tile-icon .sign-picto {
+  width: clamp(28px, 3.4vw, 44px);
+  height: clamp(28px, 3.4vw, 44px);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+.sb-tile-label {
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 2.4vw, 2rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+/* Movies */
+.sb-posters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(10px, 1.6vw, 20px);
+}
+
+@media (max-width: 767px) {
+  .sb-posters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.sb-poster {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  text-align: left;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.sb-poster-art {
+  display: block;
+  aspect-ratio: 2 / 3;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.sb-poster:hover .sb-poster-art,
+.sb-poster:focus-visible .sb-poster-art {
+  transform: translateY(-4px);
+}
+
+.sb-poster-title {
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 1.6vw, 1.35rem);
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+.sb-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: clamp(16px, 3vw, 40px);
+}
+
+@media (max-width: 767px) {
+  .sb-detail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sb-detail-art {
+    max-width: 220px;
+  }
+}
+
+.sb-detail-art {
+  aspect-ratio: 2 / 3;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.sb-detail-headline {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 2.6vw, 2.2rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.sb-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 24px;
+}
+
+.sb-facts dd {
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.sb-play,
+.sb-call {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  min-height: 48px;
+  padding-inline: 22px;
+  border-radius: 999px;
+  background: var(--screen-ink);
+  color: var(--screen);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sb-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding-inline: 14px;
+  border: 1px solid var(--screen-rule);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.sb-chip:hover {
+  border-color: var(--screen-dim);
+}
+
+.sb-bio {
+  font-size: clamp(15px, 1.4vw, 18px);
+  line-height: 1.5;
+  max-width: 60ch;
+  color: var(--screen-ink);
+}
+
+/* Flight map */
+.sb-map-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: clamp(16px, 3vw, 36px);
+}
+
+@media (max-width: 767px) {
+  .sb-map-wrap {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sb-map {
+  margin: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: light-dark(#dbe6ff, #0b1838);
+}
+
+.sb-map svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.sb-graticule {
+  stroke: light-dark(#b5c8f0, #1d2d57);
+  stroke-width: 0.4;
+}
+
+.sb-route {
+  fill: none;
+  stroke: light-dark(#8aa6e6, #3a5394);
+  stroke-width: 1.2;
+  stroke-dasharray: 2 2;
+}
+
+.sb-route-done {
+  fill: none;
+  stroke: var(--brand-pink);
+  stroke-width: 1.8;
+  stroke-dasharray: 62 100;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .sb-route-done {
+    animation: sb-fly 2.4s var(--ease-out) both;
+  }
+}
+
+@keyframes sb-fly {
+  from {
+    stroke-dasharray: 0 100;
+  }
+}
+
+.sb-city {
+  fill: var(--screen-ink);
+}
+
+.sb-city-label {
+  fill: var(--screen-ink);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+}
+
+.sb-readout {
+  display: grid;
+  align-content: start;
+  gap: 20px;
+}
+
+/* Music */
+.sb-tracks {
+  display: grid;
+}
+
+.sb-track {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 14px 8px;
+  border-bottom: 1px solid var(--screen-rule);
+  text-align: left;
+  cursor: pointer;
+}
+
+.sb-track-no {
+  font-family: var(--font-mono);
+  color: var(--screen-dim);
+}
+
+.sb-track-title {
+  font-size: clamp(16px, 1.6vw, 20px);
+  font-weight: 600;
+}
+
+/* Duty free */
+.sb-shop {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 767px) {
+  .sb-shop {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sb-shop-item {
+  display: grid;
+  gap: 8px;
+  padding: 24px;
+  border: 1px solid var(--screen-rule);
+  border-radius: 10px;
+  background: var(--screen-raised);
+}
+
+/* Call attendant */
+.sb-attendant {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+
+@media (max-width: 767px) {
+  .sb-attendant {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sb-call-light {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: color-mix(in oklch, #f5a524 30%, var(--screen));
+}
+
+.sb-call[aria-pressed='true'] .sb-call-light {
+  background: #f5a524;
+  box-shadow: 0 0 12px #f5a524;
+}
+
+/* Hardware below the screen */
+.sb-hardware {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 6px 0;
+  color: light-dark(#4a5169, #8a93ab);
+}
+
+.sb-jack {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sb-jack i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #05070c;
+  box-shadow: inset 0 1px 2px color-mix(in oklch, white 20%, transparent);
+}
+
+.sb-jack .sb-usb {
+  width: 18px;
+  height: 7px;
+  border-radius: 2px;
+}
+
+.sb-latch {
+  width: 64px;
+  height: 10px;
+  border-radius: 6px;
+  background: var(--plastic-edge);
+  box-shadow: inset 0 2px 3px color-mix(in oklch, black 30%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sb-tile,
+  .sb-poster-art {
+    transition: none;
+  }
+}

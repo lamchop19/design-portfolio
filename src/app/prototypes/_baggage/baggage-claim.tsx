@@ -13,7 +13,7 @@ import { site } from '@/../content/site'
 import { Segmented } from '../_flight/controls'
 import { Backdrop, backdrops, type BackdropKind } from './backdrops'
 import { BakedImg, baked } from './bake'
-import { BagDocument, bagSize, type BagKind } from './bags'
+import { BagDocument, bagSize, frontBagSize, type BagKind } from './bags'
 import { LineDocument, lineSize, type LineKind } from './line-bags'
 import { PixelDocument, pixelSize, type PixelKind } from './pixel-bags'
 
@@ -34,6 +34,7 @@ const SET_W = 2048
 const BELT_H = 232
 /** Belt speed in px/s at the design height. */
 const BASE = 70
+const FRONT_BASELINE = 216
 
 type Placement<K extends string> = { kind: K; x: number; y: number; r?: number; project?: number }
 
@@ -81,11 +82,16 @@ type LooseSpot = Spot & { scale: number }
 type BagSpec = Placement<string> & { art: React.ReactNode; size: [number, number] }
 
 /** Every bag as its baked image; the line style carries a light and a dark bake and shows the one for the theme. */
-function bagsFor(style: BeltStyle): BagSpec[] {
+function bagsFor(style: BeltStyle, front: boolean): BagSpec[] {
   if (style === 'riso') {
     return riso.map((p) => {
-      const size = bagSize[p.kind]
-      return { ...p, size, art: <BakedImg src={baked(`riso-${p.kind}`, () => <BagDocument kind={p.kind} />)} size={size} /> }
+      const size = (front ? frontBagSize : bagSize)[p.kind]
+      return {
+        ...p,
+        ...(front ? { y: FRONT_BASELINE - size[1], r: 0 } : {}),
+        size,
+        art: <BakedImg src={baked(`riso-${front ? 'front-resting-' : ''}${p.kind}`, () => <BagDocument kind={p.kind} front={front} />)} size={size} />,
+      }
     })
   }
   if (style === 'pixel') {
@@ -120,6 +126,7 @@ type BeltApi = {
   scrub: (dx: number) => void
   /** Let go; `velocity` is the swipe's speed in px/s, flung on then eased back. */
   release: (velocity: number) => void
+  focus: (x: number, width: number) => void
   contains: (clientX: number, clientY: number) => boolean
   /** A screen point as a position within one set of bags. */
   toSet: (clientX: number, clientY: number) => Spot
@@ -176,6 +183,7 @@ function useBelt(
     const time = () => Number(anim.currentTime ?? origin)
 
     const target = () => {
+      if (opts.current.speed === 0) return 0
       const sign = opts.current.dir === 'right' ? 1 : -1
       return sign * ((hover.current ? 0.15 : 1) * opts.current.speed + boost)
     }
@@ -184,14 +192,14 @@ function useBelt(
       last = t
       boost *= Math.exp(-dt * 2.5)
       const goal = target()
-      rate += (goal - rate) * (1 - Math.exp(-dt * 2))
+      rate = opts.current.speed === 0 ? 0 : rate + (goal - rate) * (1 - Math.exp(-dt * 2))
       const settled = Math.abs(goal - rate) < 0.005 && boost < 0.005
       if (settled) rate = goal
       anim.playbackRate = rate
       raf = settled ? 0 : requestAnimationFrame(step)
     }
     const kick = () => {
-      if (raf || held || reduce.matches || !visible) return
+      if (raf || held || reduce.matches || !visible || document.hidden) return
       last = 0
       raf = requestAnimationFrame(step)
     }
@@ -205,7 +213,7 @@ function useBelt(
         halt()
         rate = 0
         anim.playbackRate = 0
-      } else if (visible && !held) {
+      } else if (visible && !held && !document.hidden) {
         anim.play()
         kick()
       } else {
@@ -213,6 +221,16 @@ function useBelt(
         anim.pause()
       }
     }
+
+    const onVisibility = () => {
+      if (document.hidden) {
+        halt()
+        anim.pause()
+      } else {
+        running()
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibility)
 
     // Scrolling the page gives the belt a shove, in proportion to the scroll speed.
     const onScroll = () => {
@@ -240,6 +258,15 @@ function useBelt(
         rate = reduce.matches ? 0 : Math.max(-20, Math.min(20, velocity / (BASE * scale)))
         anim.playbackRate = rate
         running()
+      },
+      focus: (x, width) => {
+        held = true
+        halt()
+        anim.pause()
+        // Keyboard focus must bring the canonical copy onto the visible belt.
+        const offset = Math.min(-1, (bed.clientWidth / scale - width) / 2 - x)
+        anim.currentTime = origin + ((offset + SET_W) / SET_W) * period
+        bed.scrollLeft = 0
       },
       contains: (cx, cy) => {
         const r = bed.getBoundingClientRect()
@@ -271,6 +298,7 @@ function useBelt(
       anim.cancel()
       api.current = null
       window.removeEventListener('scroll', onScroll)
+      document.removeEventListener('visibilitychange', onVisibility)
       resize.disconnect()
       seen.disconnect()
       reduce.removeEventListener('change', running)
@@ -320,12 +348,14 @@ export function BaggageBelt({
   speed = 1,
   dir = 'right',
   tags = 'always',
+  view = 'overhead',
 }: {
   items: WorkItem[]
   style: BeltStyle
   speed?: number
   dir?: Direction
   tags?: TagMode
+  view?: 'overhead' | 'front'
 }) {
   const bedRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
@@ -333,7 +363,8 @@ export function BaggageBelt({
   const dragged = useRef(false)
   const [copies, setCopies] = useState(2)
   const { hover, api } = useBelt(bedRef, trackRef, speed, dir, setCopies)
-  const bags = bagsFor(style)
+  const front = view === 'front' && style === 'riso'
+  const bags = bagsFor(style, front)
 
   const [onBelt, setOnBelt] = useState<Record<number, Spot>>({})
   const [loose, setLoose] = useState<Record<number, LooseSpot>>({})
@@ -348,6 +379,7 @@ export function BaggageBelt({
   const swipe = (e: React.PointerEvent) => {
     const belt = api.current
     if (e.button !== 0 || !belt) return
+    if (e.pointerType === 'mouse') e.preventDefault()
     let lastX = e.clientX
     let lastT = e.timeStamp
     let velocity = 0
@@ -400,7 +432,10 @@ export function BaggageBelt({
         if (belt.contains(ev.clientX, ev.clientY)) {
           // Back on the belt, where it was dropped, kept within the rails.
           const at = belt.toSet(x, y)
-          setOnBelt((spots) => ({ ...spots, [index]: { x: at.x, y: Math.min(Math.max(at.y, -h * 0.2), BELT_H - h * 0.8) } }))
+          setOnBelt((spots) => ({ ...spots, [index]: {
+            x: at.x,
+            y: front ? FRONT_BASELINE - h : Math.min(Math.max(at.y, -h * 0.2), BELT_H - h * 0.8),
+          } }))
           setLoose((spots) => {
             const rest = { ...spots }
             delete rest[index]
@@ -425,7 +460,20 @@ export function BaggageBelt({
     const item = bag.project !== undefined ? items[bag.project] : undefined
     const art = <span className="bc-bag-art">{bag.art}</span>
     return item ? (
-      <Link href={`/work/${item.meta.slug}`} className="bc-bag-hit" draggable={false} tabIndex={copy ? -1 : undefined} onClick={swallowDragClick}>
+      <Link
+        href={`/work/${item.meta.slug}`}
+        className="bc-bag-hit"
+        draggable={false}
+        tabIndex={copy ? -1 : undefined}
+        onClick={swallowDragClick}
+        onFocus={(event) => {
+          if (front && event.currentTarget.matches(':focus-visible')) {
+            const index = bags.indexOf(bag)
+            if (!(index in loose)) api.current?.focus((onBelt[index] ?? bag).x, bag.size[0])
+          }
+        }}
+        onBlur={() => { if (front) api.current?.release(0) }}
+      >
         {art}
         <span className="bc-tag" data-tone={TONES[bag.project! % TONES.length]}>
           <b>{flightCode(item.meta)}</b> {item.meta.title}
@@ -436,7 +484,7 @@ export function BaggageBelt({
     )
   }
 
-  const layerAttrs = { 'data-style': style, 'data-tags': tags }
+  const layerAttrs = { 'data-style': style, 'data-tags': tags, 'data-view': front ? 'front' : 'overhead' }
   const looseBags = Object.entries(loose).filter(([i]) => Number(i) !== held?.index)
 
   return (
