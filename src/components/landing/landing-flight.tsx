@@ -1,6 +1,6 @@
 'use client'
 
-import { Fragment, useCallback, useEffect, useRef } from 'react'
+import { Fragment, useCallback, useRef } from 'react'
 
 import { NameHero } from '@/components/brand/name-hero'
 import { GridOverlay } from '@/components/layout/grid-overlay'
@@ -16,13 +16,13 @@ import { SignStrip } from './sign-nav'
 import { useSoftSky } from './soft-sky'
 import { routes, TaggedCovers, type Route } from './tagged-covers'
 import { useActiveLeg } from './use-landing'
+import { BaggageHall } from './baggage-hall'
 
 import '@/app/prototypes/_flight/flight.css'
 import '@/app/prototypes/_flight/signs.css'
+import '@/app/prototypes/_baggage/baggage.css'
+import './baggage-hall.css'
 
-const DOCK_MS = 900
-const DOCK_FALLBACK_MS = 9000
-const SKIP_EVENTS = ['wheel', 'touchmove', 'keydown', 'pointerdown', 'scroll'] as const
 const ANCHOR_OFFSET = 88
 
 const wordmarkMotion = {
@@ -32,13 +32,10 @@ const wordmarkMotion = {
 }
 
 /**
- * The production landing page: a blank-stage wordmark intro that docks into
- * modular wayfinding, followed by immediate tagged-cover work and the Flight
- * route sections.
+ * The wordmark and baggage hall lead into the selected work and Flight sections.
  */
 export function LandingFlight({ items }: { items: WorkItem[] }) {
   const rootRef = useRef<HTMLDivElement>(null)
-  const dockRef = useRef<HTMLDivElement>(null)
   const skyRef = useRef<HTMLDivElement>(null)
   const active = useActiveLeg(rootRef, 0.3)
   useSoftSky(rootRef, skyRef)
@@ -52,42 +49,6 @@ export function LandingFlight({ items }: { items: WorkItem[] }) {
     if (target) scrollToY(target.getBoundingClientRect().top + window.scrollY - (anchor ? ANCHOR_OFFSET : 0))
   }, [])
 
-  const dock = useCallback(() => {
-    const root = rootRef.current
-    const el = dockRef.current
-    if (!root || !el || root.dataset.intro !== 'stage') return
-    const first = el.getBoundingClientRect()
-    root.dataset.intro = 'done'
-    const last = el.getBoundingClientRect()
-    if (!last.width) return
-    el.animate(
-      [
-        {
-          transform: `translate(${first.left - last.left}px, ${first.top - last.top}px) scale(${first.width / last.width})`,
-        },
-        { transform: 'none' },
-      ],
-      { duration: DOCK_MS, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' },
-    )
-  }, [])
-
-  useEffect(() => {
-    const root = rootRef.current
-    if (!root) return
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reduced || window.scrollY > 0) {
-      root.dataset.intro = 'done'
-      return
-    }
-    const fallback = window.setTimeout(dock, DOCK_FALLBACK_MS)
-    const frame = requestAnimationFrame(() => SKIP_EVENTS.forEach((type) => window.addEventListener(type, dock, { passive: true })))
-    return () => {
-      clearTimeout(fallback)
-      cancelAnimationFrame(frame)
-      SKIP_EVENTS.forEach((type) => window.removeEventListener(type, dock))
-    }
-  }, [dock])
-
   const content: Record<Exclude<LegId, 'gate' | 'departures'>, React.ReactNode> = {
     cruise: <CruiseLeg bins={false} drift={false} />,
     layover: <LayoverLeg />,
@@ -95,18 +56,19 @@ export function LandingFlight({ items }: { items: WorkItem[] }) {
   }
 
   return (
-    <div ref={rootRef} id="top" className="flight flight-v flight-signs" data-intro="stage">
+    <div ref={rootRef} id="top" className="flight flight-v flight-signs landing-hall" data-intro="done">
       <div ref={skyRef} className="signs-sky" aria-hidden="true" />
       <SignStrip active={active} onJump={jump} />
 
-      <section data-leg="gate" className={legClass('gate')}>
-        <div className="swiss-grid pt-[88px] pb-8 md:pt-[104px]">
-          <div ref={dockRef} className="signs-dock col-span-full">
-            <NameHero name={site.name} motion={wordmarkMotion} intro="auto" onSettle={dock} />
+      <section data-leg="gate" className={`${legClass('gate')} landing-gate`}>
+        <div className="swiss-grid landing-heading">
+          <div className="landing-wordmark col-span-full">
+            <NameHero name={site.name} face="led" motion={wordmarkMotion} intro="auto" />
           </div>
           <Strap />
-          <DeparturesHeader items={items} />
         </div>
+        <BaggageHall items={items} />
+        <div className="swiss-grid landing-departures"><DeparturesHeader items={items} /></div>
       </section>
 
       <div className="signs-after">
@@ -150,7 +112,7 @@ function Strap() {
 function DeparturesHeader({ items }: { items: WorkItem[] }) {
   const years = items.map((item) => item.meta.year)
   return (
-    <div data-anchor="departures" className="signs-after t-label col-span-full mt-14 grid grid-cols-subgrid items-baseline gap-y-2 md:mt-20">
+    <div data-anchor="departures" className="signs-after t-label col-span-full grid grid-cols-subgrid items-baseline gap-y-2">
       <p className="col-span-2 text-ink-faint md:col-span-3">02 — Departures</p>
       <h2 className="col-span-2 md:col-span-6">Selected flights</h2>
       <p className="col-span-full text-ink-faint md:col-span-3 md:text-right">

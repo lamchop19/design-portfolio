@@ -50,9 +50,15 @@ export const bagSize: Record<BagKind, [number, number]> = {
   backpack: [128, 146],
 }
 
+export const frontBagSize: Record<BagKind, [number, number]> = {
+  ...bagSize,
+  grid: [158, 120],
+}
+
 /** The bag as a standalone document: painted shapes, then riso grain, then a hard shadow. */
-export function BagDocument({ kind }: { kind: BagKind }) {
-  const [w, h] = bagSize[kind]
+export function BagDocument({ kind, front = false }: { kind: BagKind; front?: boolean }) {
+  const [w, h] = (front ? frontBagSize : bagSize)[kind]
+  const artwork = drawings[kind](`body-${kind}`)
   return (
     <Sheet w={w} h={h}>
       <defs>
@@ -72,7 +78,14 @@ export function BagDocument({ kind }: { kind: BagKind }) {
         <Shadow dx={5} dy={7} opacity={0.3} />
       </defs>
       <g filter="url(#shadow)">
-        <g filter="url(#bag-grain)">{drawings[kind](`body-${kind}`)}</g>
+        <g filter="url(#bag-grain)">
+          {front && kind === 'grid' ? (
+            <g transform="translate(158 0) rotate(90)">
+              {/* Preserve the drawing's viewport while laying the wheeled case on its side. */}
+              <svg width={bagSize.grid[0]} height={bagSize.grid[1]} overflow="visible">{artwork}</svg>
+            </g>
+          ) : artwork}
+        </g>
       </g>
     </Sheet>
   )

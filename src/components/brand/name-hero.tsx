@@ -1,7 +1,9 @@
+import { Led } from '@/components/brand/led-matrix'
 import { SplitFlap } from '@/components/split-flap/split-flap'
 import type { FlapMotion } from '@/lib/flap-motion'
 
 type Stack = 'never' | 'narrow' | 'always'
+type Face = 'flap' | 'led'
 
 /**
  * The wordmark: the name as split-flap glyphs filling the width it is given.
@@ -11,9 +13,14 @@ type Stack = 'never' | 'narrow' | 'always'
  * On a session's first visit the single row greets first — WELCOME ABOARD,
  * the same fourteen tiles — then turns over to the name. The heading's
  * accessible text is the plain name; the tiles are decorative.
+ *
+ * `face="led"` draws the name on a 5 × 7 lamp matrix instead: the lamps light
+ * left to right on load and a letter re-lights under the pointer. It skips
+ * the greeting and doesn't call `onSettle`.
  */
 export function NameHero({
   name,
+  face = 'flap',
   stack = 'narrow',
   motion,
   intro,
@@ -21,6 +28,7 @@ export function NameHero({
   className,
 }: {
   name: string
+  face?: Face
   stack?: Stack
   /** Flip timing, for trying alternatives (see /prototypes/flip). */
   motion?: FlapMotion
@@ -41,7 +49,19 @@ export function NameHero({
       style={{ '--stack-cols': width } as React.CSSProperties}
     >
       <span className="sr-only">{name}</span>
-      {stack !== 'always' && (
+      {face === 'led' ? (
+        <>
+          {stack !== 'always' && <Led text={name} label={null} relight className="flap-wordmark-row" />}
+          {stack !== 'never' && (
+            <span className="flap-wordmark-stack led-wordmark-stack">
+              {words.map((word) => (
+                <Led key={word} text={word.padEnd(width)} label={null} relight />
+              ))}
+            </span>
+          )}
+        </>
+      ) : null}
+      {face === 'flap' && stack !== 'always' && (
         <SplitFlap
           text={name}
           preroll="Welcome aboard"
@@ -54,7 +74,7 @@ export function NameHero({
           className="flap-wordmark-row"
         />
       )}
-      {stack !== 'never' && (
+      {face === 'flap' && stack !== 'never' && (
         <SplitFlap
           text={stacked}
           trigger="load"

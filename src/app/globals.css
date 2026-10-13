@@ -898,6 +898,12 @@ html[data-grid] .grid-overlay {
   }
 }
 
+/* LED face: the stacked words sit one lamp-row apart. */
+.flap-wordmark .led-wordmark-stack {
+  flex-direction: column;
+  gap: calc(100cqi / 40);
+}
+
 /* A tile that turns lights up like selected text: a blue block with its letter
    reversed out. On load the whole name turns at once and reads as one
    highlight, which clears tile by tile as the letters land. Instant on, slow off. */
@@ -1171,4 +1177,50 @@ html[data-grid] .grid-overlay {
     transparent calc(5 * var(--cell-w)) calc(7 * var(--cell-w)),
     var(--brand-blue) calc(7 * var(--cell-w)) calc(8 * var(--cell-w))
   );
+}
+
+/* ---------------------------------------------------------------------------
+   LED matrix (components/brand/led-matrix.tsx)
+
+   Lit lamps take the ink, unlit ones a faint tint of it; a container can
+   re-point --lamp-on / --lamp-off. Lamps sweep on left to right, and a
+   letter re-lights under the pointer.
+   --------------------------------------------------------------------------- */
+
+.led {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.led-on {
+  fill: var(--lamp-on, var(--ink));
+}
+
+.led-off {
+  fill: var(--lamp-off, color-mix(in oklch, var(--ink) 9%, transparent));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .led[data-sweep] .led-on {
+    animation: led-on 180ms steps(2, end) both;
+    animation-delay: calc(var(--c) * 14ms + 150ms);
+  }
+
+  .led .led-glyph[data-relight] .led-on {
+    animation: led-relight 220ms steps(2, end) both;
+    animation-delay: calc(var(--x) * 35ms);
+  }
+}
+
+@keyframes led-on {
+  from {
+    fill: var(--lamp-off, color-mix(in oklch, var(--ink) 9%, transparent));
+  }
+}
+
+@keyframes led-relight {
+  from {
+    fill: var(--lamp-off, color-mix(in oklch, var(--ink) 9%, transparent));
+  }
 }

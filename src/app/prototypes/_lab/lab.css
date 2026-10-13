@@ -1,0 +1,565 @@
+/* ---------------------------------------------------------------------------
+   Home lab (prototype)
+
+   Everything here is scoped to `.lab` and keyed off its data attributes, so
+   the live homepage underneath is unchanged until a setting is switched on.
+   --------------------------------------------------------------------------- */
+
+/* ===========================================================================
+   Type pairings
+   Both the theme variable and the Geist variable are re-pointed: CSS rules
+   read --font-sans/--font-mono, Tailwind utilities read the Geist ones.
+   =========================================================================== */
+
+.lab {
+  font-family: var(--font-sans);
+}
+
+.lab[data-type='cockpit'] {
+  --font-geist-sans: var(--lab-b612);
+  --font-geist-mono: var(--lab-b612-mono);
+  --font-sans: var(--lab-b612), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--lab-b612-mono), ui-monospace, monospace;
+}
+
+.lab[data-type='highway'] {
+  --font-geist-sans: var(--lab-overpass);
+  --font-geist-mono: var(--lab-overpass-mono);
+  --font-sans: var(--lab-overpass), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--lab-overpass-mono), ui-monospace, monospace;
+}
+
+.lab[data-type='hyperlegible'] {
+  --font-geist-sans: var(--lab-atkinson);
+  --font-geist-mono: var(--lab-atkinson-mono);
+  --font-sans: var(--lab-atkinson), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--lab-atkinson-mono), ui-monospace, monospace;
+}
+
+/* Dot matrix: only the wordmark and the arrivals board light up in dots.
+   Labels and body text keep Geist so small text stays legible. The face
+   (family, weight, axes) comes from the dock as --dm-* variables; the rows
+   are targeted directly because the site pins wordmark rows to weight 500. */
+.lab[data-type='dot-matrix'] .flap-wordmark .flap-row,
+.lab[data-type='dot-matrix'] .flight-board .flap-row,
+.lab[data-type='dot-matrix'] .lab-spec-board {
+  font-family: var(--dm-family, var(--lab-doto)), ui-monospace, monospace;
+  font-weight: var(--dm-weight, 900);
+  font-variation-settings: var(--dm-axes, 'ROND' 100);
+}
+
+/* Editorial: a serif voice for headings and the strap, Geist for the rest. */
+.lab[data-type='editorial'] .landing-hall h2,
+.lab[data-type='editorial'] .signs-strap > p:first-child,
+.lab[data-type='editorial'] .lab-spec-heading,
+.lab[data-type='editorial'] .lab-spec-strap {
+  font-family: var(--lab-instrument), Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.lab[data-type='editorial'] .landing-hall h2,
+.lab[data-type='editorial'] .lab-spec-heading {
+  font-size: clamp(2.25rem, 5.4vw, 4.5rem);
+  line-height: 1;
+}
+
+.lab[data-type='editorial'] .signs-strap > p:first-child,
+.lab[data-type='editorial'] .lab-spec-strap {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-style: italic;
+}
+
+/* ===========================================================================
+   Motion suites
+   =========================================================================== */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Mechanical: every shared easing becomes a step function, durations shorten. */
+  .lab[data-motion='mechanical'] {
+    --ease-out: steps(5, jump-end);
+    --ease-in-out: steps(4, jump-both);
+    --dur-fast: 120ms;
+    --dur-base: 240ms;
+    --dur-slow: 400ms;
+  }
+
+  .lab[data-motion='mechanical'] .tag-card,
+  .lab[data-motion='mechanical'] .landing-hall h2 {
+    animation: lab-tick linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 60%;
+    animation-timing-function: steps(6, end);
+  }
+
+  /* Editorial reveal: native scroll-driven entrances. */
+  @supports (animation-timeline: view()) {
+    .lab[data-motion='editorial'] .landing-hall h2,
+    .lab[data-motion='editorial'] [data-leg='cruise'] h2 + p,
+    .lab[data-motion='editorial'] .signs-strap > p:first-child {
+      animation: lab-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 5% entry 70%;
+    }
+
+    .lab[data-motion='editorial'] .tag-card-cover {
+      animation: lab-unmask linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 35%;
+    }
+
+    .lab[data-motion='editorial'] .luggage-tag {
+      animation: lab-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 20% cover 30%;
+    }
+  }
+}
+
+@keyframes lab-rise {
+  from {
+    opacity: 0;
+    translate: 0 1.2em;
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes lab-unmask {
+  from {
+    clip-path: inset(18% 18% 18% 18% round 6px);
+    scale: 1.08;
+  }
+  to {
+    clip-path: inset(0 0 0 0 round 0);
+    scale: 1;
+  }
+}
+
+@keyframes lab-tick {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+/* ===========================================================================
+   Micro-interactions
+   =========================================================================== */
+
+/* Stretch headings: Bricolage's width axis, on hover. */
+.lab[data-micro~='stretch'] .landing-hall h2 {
+  font-family: var(--lab-bricolage), var(--font-sans);
+  font-variation-settings: 'wdth' 75;
+  font-weight: 500;
+  transition:
+    font-variation-settings var(--dur-slow) var(--ease-out),
+    font-weight var(--dur-slow) var(--ease-out);
+}
+
+.lab[data-micro~='stretch'] .landing-hall h2:hover {
+  font-variation-settings: 'wdth' 100;
+  font-weight: 800;
+}
+
+/* Marker highlights, painted by the Custom Highlight API. */
+::highlight(lab-marker) {
+  background-color: color-mix(in oklch, var(--brand-green) 70%, transparent);
+  color: #0a0f1f;
+}
+
+/* Scan line across a cover on hover, with its readout. */
+.lab[data-micro~='scan'] .tag-card-cover {
+  position: relative;
+}
+
+.lab[data-micro~='scan'] .tag-card-cover::before,
+.lab[data-micro~='scan'] .tag-card-cover::after {
+  position: absolute;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 2;
+}
+
+.lab[data-micro~='scan'] .tag-card-cover::before {
+  content: '';
+  top: 0;
+  height: 3px;
+  background: var(--brand-pink);
+  box-shadow: 0 0 16px 4px color-mix(in oklch, var(--brand-pink) 60%, transparent);
+}
+
+.lab[data-micro~='scan'] .tag-card-cover::after {
+  content: attr(data-scan);
+  bottom: 10px;
+  left: 10px;
+  right: auto;
+  padding: 4px 8px;
+  border-radius: 3px;
+  background: #0a0f1f;
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lab[data-micro~='scan'] .tag-card:hover .tag-card-cover::before,
+.lab[data-micro~='scan'] .tag-card:focus-visible .tag-card-cover::before {
+  animation: lab-scan 900ms var(--ease-in-out) both;
+}
+
+.lab[data-micro~='scan'] .tag-card:hover .tag-card-cover::after,
+.lab[data-micro~='scan'] .tag-card:focus-visible .tag-card-cover::after {
+  opacity: 1;
+  transition: opacity var(--dur-base) var(--ease-out) 700ms;
+}
+
+@keyframes lab-scan {
+  0% {
+    top: 0;
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: calc(100% - 3px);
+    opacity: 0;
+  }
+}
+
+/* Boarding cursor */
+.lab-has-cursor .tag-card,
+.lab-has-cursor a[href^='mailto'] {
+  cursor: none;
+}
+
+.lab-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 90;
+  pointer-events: none;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--brand-blue);
+  color: #ffffff;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: translate(-50%, -50%) scale(0.4);
+  opacity: 0;
+  transition:
+    opacity 160ms ease,
+    transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lab-cursor[data-on='true'] {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Copy stamp */
+.lab-stamp {
+  position: fixed;
+  z-index: 95;
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  width: 112px;
+  height: 112px;
+  margin: -56px 0 0 -56px;
+  border: 3px double var(--brand-pink);
+  border-radius: 50%;
+  color: var(--brand-pink);
+  background: color-mix(in oklch, var(--surface) 80%, transparent);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  pointer-events: none;
+  rotate: -12deg;
+  animation: lab-stamp 2200ms var(--ease-out) both;
+}
+
+.lab-stamp b {
+  font-size: 22px;
+  letter-spacing: 0.04em;
+}
+
+@keyframes lab-stamp {
+  0% {
+    scale: 1.6;
+    opacity: 0;
+  }
+  12% {
+    scale: 1;
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Altimeter */
+.lab-altimeter {
+  position: fixed;
+  right: var(--page-margin);
+  bottom: 20px;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px 6px 6px;
+  border-radius: 999px;
+  background: var(--surface-raised);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.lab-altimeter svg {
+  width: 36px;
+  height: 36px;
+  rotate: -150deg;
+}
+
+.lab-alt-ring {
+  fill: none;
+  stroke: var(--rule);
+  stroke-width: 3;
+}
+
+.lab-alt-arc {
+  fill: none;
+  stroke: var(--brand-blue);
+  stroke-width: 3;
+  stroke-dasharray: 0 100;
+}
+
+.lab-alt-needle {
+  stroke: var(--ink);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  transform-origin: 24px 24px;
+  transition: rotate 200ms ease-out;
+}
+
+/* ===========================================================================
+   Specimen sheet
+   =========================================================================== */
+
+.lab-specimens {
+  min-height: 100dvh;
+  background: var(--surface);
+  color: var(--ink);
+  padding-bottom: 64px;
+}
+
+.lab-specimen {
+  row-gap: 20px;
+  padding-block: 40px;
+  border-top: 1px solid var(--rule);
+}
+
+.lab-spec-board {
+  padding: 14px 18px;
+  border-radius: 6px;
+  background: #0a0f1f;
+  color: #f5f7fa;
+  box-shadow: inset 0 0 0 1px var(--rule);
+  font-family: var(--font-mono);
+  font-size: clamp(1.75rem, 5vw, 3.75rem);
+  line-height: 1;
+  letter-spacing: 0.08em;
+  overflow-wrap: anywhere;
+}
+
+.lab-spec-heading {
+  font-size: clamp(1.75rem, 3.6vw, 3rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+  text-wrap: balance;
+}
+
+.lab-spec-strap {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.lab-spec-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+}
+
+/* ===========================================================================
+   Dock
+   =========================================================================== */
+
+.lab-dock {
+  position: fixed;
+  left: 12px;
+  bottom: 12px;
+  z-index: 100;
+  width: min(340px, calc(100vw - 24px));
+  max-height: min(72vh, 620px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 18px 40px -18px color-mix(in oklch, black 45%, transparent);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+.lab-dock:not([data-open]) {
+  width: auto;
+}
+
+.lab-dock-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px;
+}
+
+.lab-dock-toggle,
+.lab-dock-reset {
+  min-height: 34px;
+  padding-inline: 12px;
+  border-radius: 8px;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.lab-dock-toggle {
+  background: var(--ink);
+  color: var(--surface);
+}
+
+.lab-dock-reset {
+  border: 1px solid var(--rule);
+  color: var(--ink-muted);
+}
+
+.lab-dock-body {
+  overflow-y: auto;
+  padding: 4px 12px 12px;
+  display: grid;
+  gap: 14px;
+  overscroll-behavior: contain;
+}
+
+.lab-dock fieldset {
+  display: grid;
+  gap: 2px;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.lab-dock legend {
+  padding-bottom: 6px;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.lab-opt {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.lab-opt:hover {
+  background: var(--surface-raised);
+}
+
+.lab-opt input {
+  margin-top: 3px;
+  accent-color: var(--brand-blue);
+}
+
+.lab-opt b {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.lab-opt small {
+  display: block;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ink-muted);
+}
+
+.lab-ref {
+  white-space: nowrap;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@media (max-width: 767px) {
+  .lab-dock {
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    width: auto;
+    max-height: 55vh;
+  }
+  .lab-dock:not([data-open]) {
+    right: auto;
+  }
+}
+
+.lab-sub {
+  display: grid;
+  gap: 4px;
+  margin: 4px 8px 0 32px;
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+.lab-sub select {
+  min-height: 34px;
+  padding-inline: 8px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+}
