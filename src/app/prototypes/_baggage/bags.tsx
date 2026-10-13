@@ -109,9 +109,12 @@ const drawings: Record<BagKind, (id: string) => React.ReactNode> = {
     </>
   ),
 
-  /* Green holdall with cream polka dots and two blue grab handles. */
+  /* Green holdall with cream polka dots and two blue grab handles. The handles
+     run behind the bag, tucked under its top edge, and are stitched on with tabs. */
   duffel: (id) => (
     <>
+      <path d="M74 22 C 78 -8, 114 -8, 118 22" fill="none" stroke={C.blue} strokeWidth="5" strokeLinecap="round" />
+      <path d="M82 22 C 86 4, 106 4, 110 22" fill="none" stroke={C.blue} strokeWidth="5" strokeLinecap="round" />
       <Body id={id} fill={C.green} shape={<rect x="4" y="12" width="184" height="72" rx="36" />}>
         {[0, 1, 2, 3, 4, 5].flatMap((col) =>
           [0, 1].map((row) => (
@@ -120,8 +123,8 @@ const drawings: Record<BagKind, (id: string) => React.ReactNode> = {
         )}
         <line x1="10" y1="48" x2="182" y2="48" stroke={C.ink} strokeOpacity="0.3" strokeWidth="3" />
       </Body>
-      <path d="M72 40 C 76 4, 116 4, 120 40" fill="none" stroke={C.blue} strokeWidth="5" strokeLinecap="round" />
-      <path d="M80 40 C 84 14, 108 14, 112 40" fill="none" stroke={C.blue} strokeWidth="5" strokeLinecap="round" />
+      <rect x="69" y="10" width="18" height="9" rx="3" fill={C.blue} />
+      <rect x="105" y="10" width="18" height="9" rx="3" fill={C.blue} />
     </>
   ),
 
@@ -185,10 +188,11 @@ const drawings: Record<BagKind, (id: string) => React.ReactNode> = {
     </Body>
   ),
 
-  /* Green dome bag with blue rings, pink dashes and a cream loop handle. */
+  /* Green dome bag with blue rings, pink dashes and a cream loop handle. Both
+     ends of the loop sit just inside the dome's curve, so it reads as attached. */
   dome: (id) => (
     <>
-      <path d="M96 30 C 104 0, 140 4, 132 36" fill="none" stroke={C.cream} strokeWidth="6" strokeLinecap="round" />
+      <path d="M98 34 C 104 2, 142 6, 126 52" fill="none" stroke={C.cream} strokeWidth="6" strokeLinecap="round" />
       <Body id={id} fill={C.green} shape={<path d="M4 100 A 73 73 0 0 1 150 100 Z" />}>
         {[
           [44, 56],

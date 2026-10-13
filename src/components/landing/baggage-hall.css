@@ -25,6 +25,37 @@
   padding-block: 28px 40px;
 }
 
+/* The first screen: the heading takes what it needs and the baggage hall
+   grows to fill the rest, however tall the window. The hall is a size
+   container, so the belt scales with the height it ends up with
+   (the belt rescales its bags from the bed height on its own). The fold needs
+   a definite height, not just a min-height, or the hall's container height
+   reads as zero; the floor keeps very short windows from crushing the hall. */
+.landing-fold {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100svh;
+  min-height: 520px;
+}
+
+.landing-fold .terminal-hall {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 210px;
+  container-type: size;
+  --conveyor-height: clamp(120px, calc(100cqh - 150px), 340px);
+}
+
+
+/* Phones are narrow, so the belt stays smaller however tall the screen. */
+@media (max-width: 767px) {
+  .landing-fold .terminal-hall {
+    --conveyor-height: clamp(110px, calc(100cqh - 150px), 190px);
+  }
+}
+
+
 .terminal-hall {
   --conveyor-height: 220px;
   position: relative;
@@ -40,13 +71,6 @@
   background: repeating-linear-gradient(90deg, transparent 0 calc(25% - 1px), var(--rule) calc(25% - 1px) 25%);
 }
 
-.terminal-planter {
-  position: absolute;
-  right: 11%;
-  bottom: 6px;
-  width: 160px;
-  height: 280px;
-}
 
 .terminal-conveyor {
   position: absolute;
@@ -166,12 +190,6 @@
     height: 272px;
   }
 
-  .terminal-planter {
-    right: 5%;
-    scale: 0.62;
-    transform-origin: bottom right;
-  }
-
   .landing-hall .landing-departures {
     padding-block: 20px 36px;
   }
@@ -185,10 +203,6 @@
   .terminal-hall {
     height: 224px;
     --conveyor-height: 144px;
-  }
-
-  .terminal-planter {
-    scale: 0.52;
   }
 
 }
@@ -208,18 +222,13 @@
     --conveyor-height: 116px;
   }
 
-  .terminal-planter {
-    scale: 0.4;
-  }
-
   .landing-hall .landing-departures {
     padding-block: 16px 24px;
   }
 }
 
 @media (max-width: 380px) {
-  .landing-hall .sign-strip .t-label > .text-ink-faint,
-  .landing-hall .signs-strap > p:last-child > span:first-child {
+  .landing-hall .sign-strip .t-label > .text-ink-faint {
     display: none;
   }
 }
@@ -228,11 +237,6 @@
   .terminal-hall {
     height: 300px;
     --conveyor-height: 184px;
-  }
-
-  .terminal-planter {
-    scale: 0.78;
-    transform-origin: bottom right;
   }
 }
 

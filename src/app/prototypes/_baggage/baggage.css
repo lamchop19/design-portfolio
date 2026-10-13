@@ -113,21 +113,12 @@
   display: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .bc-img-light {
-    display: none;
-  }
-
-  :root:not([data-theme='light']) .bc-img-dark {
-    display: block;
-  }
-}
-
-:root[data-theme='dark'] .bc-img-light {
+/* Dark is the default theme; the light art shows once the shade is opened. */
+:root:not([data-theme='light']) .bc-img-light {
   display: none;
 }
 
-:root[data-theme='dark'] .bc-img-dark {
+:root:not([data-theme='light']) .bc-img-dark {
   display: block;
 }
 

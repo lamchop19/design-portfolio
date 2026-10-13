@@ -48,8 +48,9 @@ decides what each may do:
 | green `#81DB89` | 1.69:1 | decorative fills only — never text on white |
 
 The default `--accent` (links, hovers, focus rings) is blue. Pink and green appear in
-the grid band and as block fills. Dark mode lifts blue to `#4D8CFF`, since the
-original only reaches 3.58:1 on the dark surface; pink and green pass unchanged.
+the grid band and as block fills. The site opens in dark mode, which lifts blue to
+`#4D8CFF`, since the original only reaches 3.58:1 on the dark surface; pink and green
+pass unchanged.
 
 The grid band itself is `PixelGrid` — the 8-cell unit `B.P..GB.` over `.B.PG..B`,
 drawn as one repeating gradient per row. It heads the footer on case studies and
@@ -80,8 +81,8 @@ mounted element per name.
 The theme control is a plane window (`WindowShade`): closing the shade is dark
 mode, opening it light. It can be clicked or dragged, and the change sweeps
 across the page as a View Transition clipped to a moving edge (`data-shade` in
-`globals.css`). It follows the system initially, then remembers an explicit
-choice locally.
+`globals.css`). Every visitor starts with the shade closed (dark), whatever their
+system setting; opening it is remembered locally.
 
 **Motion** is CSS, apart from smooth scrolling and the split-flap tiles. Word
 reveals, figure rise-ins and the reading-progress bar are all CSS — the hero is the LCP element,
@@ -98,7 +99,7 @@ flipping labels. The server renders the finished text, so it reads correctly
 without JS. On the client each tile steps forward through a fixed character drum
 (`src/lib/flap.ts`) using the Web Animations API, so tiles further along the drum
 land later and the cascade staggers itself. Its default `bare` look draws only the
-glyphs: one tile is one Geist Mono character, so a row sets like plain text, and the
+glyphs: one tile is one Paper Mono character, so a row sets like plain text, and the
 leaves appear only while a letter turns (the `tile` variant
 still draws the physical board). Labels use a `quick` intro and swap, landing in a
 few flips. The wordmark fills its container with CSS alone, on one row or stacked

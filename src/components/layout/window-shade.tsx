@@ -10,14 +10,12 @@ import { THEME_STORAGE_KEY } from '@/lib/theme'
 
 type Theme = 'light' | 'dark'
 
+/** Dark is the default; light only once the shade has been opened. */
 function getTheme(): Theme {
-  const saved = document.documentElement.dataset.theme
-  if (saved === 'light' || saved === 'dark') return saved
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'
 }
 
 function subscribe(onChange: () => void) {
-  const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
   const onStorage = (event: StorageEvent) => {
     if (event.key !== THEME_STORAGE_KEY && event.key !== null) return
     if (event.newValue === 'light' || event.newValue === 'dark') {
@@ -28,11 +26,9 @@ function subscribe(onChange: () => void) {
     onChange()
   }
 
-  systemTheme.addEventListener('change', onChange)
   window.addEventListener('theme-change', onChange)
   window.addEventListener('storage', onStorage)
   return () => {
-    systemTheme.removeEventListener('change', onChange)
     window.removeEventListener('theme-change', onChange)
     window.removeEventListener('storage', onStorage)
   }

@@ -16,6 +16,8 @@ const prototypes = [
   { href: '/prototypes/layout-strips', title: 'Layout: flight strips', note: 'Air traffic control strip bay, one strip per project' },
   { href: '/prototypes/flight-home-lab', title: 'Home lab', note: 'The live homepage with switchable type, motion and micro-interactions' },
   { href: '/prototypes/dot-matrix', title: 'Dot-matrix wordmark', note: 'Eleven dot and LED treatments of the name at full size' },
+  { href: '/prototypes/hero-load', title: 'Hero load', note: 'Four ways for the wordmark and baggage hall to arrive on load' },
+  { href: '/prototypes/led-lab', title: 'LED lab', note: 'Glow, colour, load, hover and click treatments for the LED wordmark' },
   { href: '/prototypes/logo', title: 'Logo', note: 'MAL as a transit route, after the 1974 Greater Manchester Transport M' },
   { href: '/prototypes/type-specimens', title: 'Type specimens', note: 'Six type pairings side by side on the same content' },
 ] as const

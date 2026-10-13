@@ -1,8 +1,8 @@
 /**
- * A decorative barcode generated from a string, so each project's pass always
- * carries the same bars. Drawn in currentColor, stretched to its box.
+ * Bars for a barcode generated from a string, as [x, width] in units, plus the
+ * total width. The same string always gives the same bars.
  */
-export function Barcode({ value, className }: { value: string; className?: string }) {
+export function barcodeBars(value: string) {
   // FNV-1a seeds a small LCG; each step yields one bar or gap width of 1–3 units.
   let seed = 2166136261
   for (const ch of value) seed = Math.imul(seed ^ ch.charCodeAt(0), 16777619) >>> 0
@@ -18,6 +18,15 @@ export function Barcode({ value, className }: { value: string; className?: strin
     bars.push([x, w])
     x += w + next()
   }
+  return { bars, width: x }
+}
+
+/**
+ * A decorative barcode generated from a string, so each project's pass always
+ * carries the same bars. Drawn in currentColor, stretched to its box.
+ */
+export function Barcode({ value, className }: { value: string; className?: string }) {
+  const { bars, width: x } = barcodeBars(value)
 
   return (
     <svg
