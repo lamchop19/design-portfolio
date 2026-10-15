@@ -47,7 +47,7 @@ export default async function WorkPage(props: PageProps<'/work/[slug]'>) {
         <ScrollProgress />
         <header className="pt-[14vh] pb-12">
           <h1 className="flex flex-wrap items-baseline gap-x-5 gap-y-2">
-            <span className="font-display text-[clamp(2.5rem,8vw,6rem)] leading-[0.95] tracking-tight">
+            <span className="t-dot text-[clamp(2.5rem,8vw,6rem)] leading-[0.95]">
               {meta.title}
             </span>
             <span className="font-mono text-xs tracking-wide text-ink-faint uppercase">

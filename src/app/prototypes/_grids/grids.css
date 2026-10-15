@@ -1,0 +1,169 @@
+/* ---------------------------------------------------------------------------
+   Grid styles lab (prototypes/_grids)
+
+   Four layouts on the site's one grid. Shared type sizes first, then each
+   style under [data-grid-style]. Vertical spacing is always a multiple of
+   --baseline, so the 8px rows in the overlay (G) line up with every block.
+   --------------------------------------------------------------------------- */
+
+.gs-bar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  padding-block: calc(var(--baseline) * 1.5);
+  border-bottom: 1px solid var(--rule);
+  background: var(--surface);
+}
+
+.gs-tab {
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 160ms var(--ease-out);
+}
+
+.gs-tab:hover,
+.gs-tab[aria-pressed='true'] {
+  color: var(--ink);
+}
+
+.gs-tab[aria-pressed='true'] {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* The wordmark's glow and stray lamps reach past the page, as on the homepage. */
+.gs-page {
+  min-height: 100svh;
+  overflow-x: clip;
+}
+
+/* Type: one statement size, one title size, and .t-label for the rest. */
+.gs-statement {
+  font-size: clamp(1.5rem, 3.2vw, 2.75rem);
+  line-height: 1.12;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.gs-title {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+@media (min-width: 768px) {
+  .gs-title {
+    font-size: 24px;
+    line-height: 32px;
+  }
+}
+
+.gs-cover {
+  overflow: hidden;
+  background: var(--rule);
+}
+
+.gs-cover > * {
+  width: 100%;
+  height: 100%;
+}
+
+.gs-cover img {
+  transition: scale 600ms var(--ease-out);
+}
+
+.gs-card:hover .gs-cover img,
+.gs-card:focus-visible .gs-cover img {
+  scale: 1.03;
+}
+
+.gs-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px 1px;
+  border-radius: 99px;
+}
+
+/* ---- 1. Hanging margin: .hang-margin in globals.css ---- */
+
+/* ---- 2. Ruled index ---- */
+
+.gs-row {
+  padding-block: calc(var(--baseline) * 2);
+  border-top: 1px solid var(--rule);
+}
+
+.gs-index-title {
+  font-size: clamp(1.75rem, 4vw, 3.5rem);
+  line-height: 1.05;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  transition:
+    color 160ms var(--ease-out),
+    translate 240ms var(--ease-out);
+}
+
+.gs-index-row:hover .gs-index-title,
+.gs-index-row[data-active] .gs-index-title {
+  color: var(--accent);
+}
+
+@media (min-width: 768px) {
+  .gs-index-row[data-active] .gs-index-title {
+    translate: 1ch 0;
+  }
+
+  .gs-index-cover {
+    position: sticky;
+    top: calc(var(--baseline) * 10);
+    align-self: start;
+  }
+}
+
+/* ---- 3. Modular field ---- */
+
+/* Hairlines are the 1px gaps showing the rule colour behind the cells. */
+.gs-field {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
+  grid-auto-rows: minmax(calc(var(--baseline) * 20), auto);
+  gap: 1px;
+  margin-inline: var(--page-margin);
+  border: 1px solid var(--rule);
+  background: var(--rule);
+}
+
+@media (min-width: 768px) {
+  .gs-field {
+    grid-auto-rows: minmax(calc(var(--baseline) * 28), auto);
+  }
+}
+
+.gs-cell {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: calc(var(--baseline) * 2);
+  background: var(--surface);
+}
+
+.gs-cell-wordmark {
+  justify-content: center;
+  padding-block: calc(var(--baseline) * 6);
+}
+
+.gs-cell-work {
+  padding: 0;
+  overflow: hidden;
+}
+
+.gs-cell-work:hover .gs-cover img {
+  scale: 1.03;
+}
+
+.gs-cell-work:hover .gs-title {
+  color: var(--accent);
+}

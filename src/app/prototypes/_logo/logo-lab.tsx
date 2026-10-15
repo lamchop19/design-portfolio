@@ -8,6 +8,7 @@ import { WindowShade } from '@/components/layout/window-shade'
 import { ELSEWHERE, type Elsewhere } from './elsewhere'
 import { BANDS, COLORS, MARKS, type Bands, type Mark } from './marks'
 import { SLABS } from './slab'
+import { TailfinSheet } from './tailfin'
 import { TrackMark } from './track'
 import './logo.css'
 
@@ -195,6 +196,9 @@ export function LogoLab() {
           />
         ))}
       </div>
+
+      <h2 className="lg-section t-label">Tailfin · the Hollick marks as liveries · colour and lanes apply here</h2>
+      <TailfinSheet bands={bands} color={color} />
 
       <h2 className="lg-section t-label">Slab · after the College Misericordia CM</h2>
       <div className="lg-grid">

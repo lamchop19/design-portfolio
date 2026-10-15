@@ -45,8 +45,8 @@ function pickBeat(): Beat {
 }
 
 /**
- * The homepage's LED wordmark: the name on a lamp board, blue lamps on a field
- * of unlit ones with a pool of light beneath. It resolves lamp by lamp on load.
+ * The homepage's LED wordmark: the name in blue lamps on the bare page, with
+ * a pool of light beneath while it's pointed at. It resolves lamp by lamp on load.
  * Letters take a brand colour and flick through a few glyphs under the pointer,
  * and a click reads the name as a barcode.
  *
@@ -67,9 +67,9 @@ export function LedWordmark({
   text: string
   /** Wait before resolving on load, in ms, so a page can choreograph it. */
   loadDelay?: number
-  /** Carry the unlit grid past the name, with stray lamps blinking in it. */
+  /** Stray lamps blinking in the space around the name. */
   field?: boolean
-  /** A pool of lamp light on the surface under the board. */
+  /** A pool of lamp light on the surface under the board, on hover. */
   spill?: boolean
   className?: string
 }) {
@@ -217,6 +217,7 @@ export function LedWordmark({
       <Led
         text={shown}
         label={null}
+        ghost={false}
         sweep={false}
         onGlyphEnter={motion ? onGlyphEnter : undefined}
         className="ledw-main"

@@ -2,6 +2,7 @@ import Link from 'next/link'
 
 import { Barcode } from '@/components/brand/barcode'
 import { WorkCover } from '@/components/home/work-cover'
+import { HangMargin } from '@/components/layout/hang-margin'
 import { FlapText } from '@/components/split-flap/split-flap'
 import type { WorkMeta } from '@/lib/content'
 import { flightCode, type WorkItem } from '@/lib/work-items'
@@ -27,40 +28,38 @@ export function routesOf(meta: WorkMeta): Route[] {
 }
 
 /**
- * The work as a grid of covers, image first. Each wears a luggage tag hung
- * over its top corner (the flight code, its route and a barcode) that swings
- * when the card is pointed at.
+ * The work on the hanging margin: one project per row, its discipline, year
+ * and result in the margin and the cover from column 4, alternately wide and
+ * narrow. Each cover wears a luggage tag hung over its top corner (the flight
+ * code, its route and a barcode) that swings when the card is pointed at.
  */
 export function TaggedCovers({ items }: { items: WorkItem[] }) {
   return (
-    <ul className="swiss-grid gap-y-14 md:gap-y-16">
+    <ul className="swiss-grid gap-y-14 md:gap-y-24">
       {items.map((item, i) => {
         const { meta } = item
         const result = results[meta.slug]
         return (
-          <li key={meta.slug} className="col-span-full md:col-span-6">
+          <li key={meta.slug} className="col-span-full grid grid-cols-subgrid gap-y-3">
+            <HangMargin>
+              <p>{meta.subtitle}</p>
+              <p>{meta.year}</p>
+              {result ? <p className="self-start bg-ink px-2 py-1 text-surface md:mt-2">{result}</p> : null}
+            </HangMargin>
             <Link
               href={`/work/${meta.slug}`}
               transitionTypes={['nav-forward']}
               aria-label={`${meta.title}, ${meta.subtitle}, ${meta.year}`}
-              className="tag-card"
+              className={`tag-card col-span-full ${i % 2 ? 'md:col-span-6' : 'md:col-span-9'}`}
             >
               {/* The sky finishes turning blue at the foot of the first row. */}
               <div className="tag-card-cover" data-fade-end={i === 0 || undefined}>
-                <WorkCover item={item} index={i} sizes="(min-width: 768px) 46vw, 100vw" />
+                <WorkCover item={item} index={i} sizes="(min-width: 768px) 72vw, 100vw" />
               </div>
               <LuggageTag meta={meta} />
-              <div className="mt-4 flex items-start justify-between gap-6">
-                <div>
-                  <p className="text-[22px] leading-7 font-medium tracking-[-0.02em] md:text-[28px] md:leading-8">
-                    {meta.title}
-                  </p>
-                  <p className="t-label mt-1 text-ink-faint">
-                    {meta.subtitle} · {meta.year}
-                  </p>
-                </div>
-                {result ? <p className="t-label shrink-0 bg-ink px-2 py-1 text-surface">{result}</p> : null}
-              </div>
+              <p className="t-dot mt-4 text-[clamp(28px,3vw,40px)] leading-[1.1]">
+                {meta.title}
+              </p>
             </Link>
           </li>
         )
@@ -70,7 +69,7 @@ export function TaggedCovers({ items }: { items: WorkItem[] }) {
 }
 
 /** A paper luggage tag on a strap: the route stripes, flight code, destination and a barcode. Decorative. */
-function LuggageTag({ meta }: { meta: WorkMeta }) {
+export function LuggageTag({ meta }: { meta: WorkMeta }) {
   const flight = flightCode(meta)
   const flown = routesOf(meta)
   return (

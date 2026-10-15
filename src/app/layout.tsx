@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Bricolage_Grotesque } from 'next/font/google'
+import { Bricolage_Grotesque, Doto } from 'next/font/google'
 import localFont from 'next/font/local'
 
 import { SiteFooter } from '@/components/layout/site-footer'
@@ -32,6 +32,15 @@ const paperMono = localFont({
   display: 'swap',
 })
 
+// Doto, a dot-matrix face for project titles: the wordmark's lamps in type.
+// SIL OFL.
+const dot = Doto({
+  subsets: ['latin'],
+  variable: '--font-dot',
+  display: 'swap',
+  axes: ['ROND'],
+})
+
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
@@ -52,7 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${display.variable} ${paperMono.variable}`}
+      className={`${display.variable} ${paperMono.variable} ${dot.variable}`}
       suppressHydrationWarning
     >
       <head>

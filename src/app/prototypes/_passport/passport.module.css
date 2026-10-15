@@ -1,8 +1,12 @@
-.prototype {
+/* The booklet's own inks, wherever it is mounted. */
+.prototype, .stage, .loneCover, .stillBook {
   --paper: #f5f1e4;
   --paper-ink: #283e46;
   --paper-muted: #617071;
   --foil: linear-gradient(125deg, #7c9dba 0%, #e4edee 16%, #a4dbd1 25%, #f0c7e1 35%, #faf0c4 43%, #f4fcff 49%, #7ca4c6 55%, #dac4e5 64%, #c9eddf 75%, #eff7fc 86%, #829daf 100%);
+}
+
+.prototype {
   max-width: 1600px;
   margin: 0 auto;
   padding: 0 clamp(20px, 4.5vw, 72px);
@@ -147,6 +151,14 @@
 .chip { position: relative; display: block; width: 25px; height: 16px; border: 1px solid #c0d3e1; border-radius: 2px; }
 .chip::before { content: ''; position: absolute; top: 6px; left: 0; width: 100%; border-top: 1px solid #c0d3e1; }
 .chip i { position: absolute; inset: 3px 7px; border: 1px solid #c0d3e1; border-radius: 50%; background: #183d74; }
+/* The booklet open and still at its printed size, for scaling into a tile. */
+.stillBook { --light-x: 40%; --light-y: 35%; width: 1000px; }
+.stillBook .book, .stillBook .book[data-open='true'] { width: 100%; transform: none; transition: none; }
+
+/* The cover alone, at its printed size, still and unhinged. */
+.loneCover { --light-x: 40%; --light-y: 35%; position: relative; display: block; width: 500px; height: 560px; }
+.loneCover .cover { inset: 0; width: 100%; transform: none; transition: none; cursor: inherit; }
+
 .book[data-open='true'] .cover { transform: rotateY(-180deg); pointer-events: none; visibility: hidden; transition: transform 850ms cubic-bezier(.2, .75, .2, 1), visibility 0s 850ms; }
 .book[data-light='1'] { --light-x: 78%; --light-y: 25%; }
 .book[data-light='0'] { --light-x: 30%; --light-y: 65%; }
@@ -229,4 +241,10 @@
 }
 @media (prefers-reduced-motion: reduce) and (max-width: 767px) {
   .book { transform: none; }
+}
+
+/* On phones the still booklet stacks its pages at its natural size instead of scaling. */
+@media (max-width: 767px) {
+  .stillBook { width: auto; }
+  .stillBook .book, .stillBook .book[data-open='true'] { width: min(100%, 440px); margin-inline: auto; }
 }

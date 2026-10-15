@@ -18,7 +18,6 @@ export function BaggageHall({ items }: { items: WorkItem[] }) {
       </div>
 
       <div className="terminal-floor">
-        <span className="terminal-floor-label" aria-hidden="true">NYC / Baggage claim</span>
         <button
           type="button"
           className="terminal-motion"
