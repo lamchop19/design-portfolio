@@ -1,0 +1,152 @@
+/* ---------------------------------------------------------------------------
+   Bento load intros (prototypes/bento-intro)
+
+   The LED intro (a full-screen name that flies onto its tile), the baggage
+   drop (tiles land one by one) and the x-ray scan (a scanner sweeps the page).
+   None of them play with reduced motion.
+   --------------------------------------------------------------------------- */
+
+/* ---- LED intro ---- */
+
+.intro-led {
+  position: fixed;
+  z-index: 70;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.intro-led-ground {
+  position: absolute;
+  inset: 0;
+  background: var(--surface);
+}
+
+.intro-led-mark {
+  position: relative;
+  width: min(88vw, 1320px);
+  transform-origin: 0 0;
+}
+
+.intro-led-caption {
+  position: absolute;
+  bottom: 14vh;
+  left: 50%;
+  color: var(--ink-faint);
+  translate: -50% 0;
+  white-space: nowrap;
+}
+
+/* The intro's lamps all strike within about 0.9s, a little quicker than the board's own. */
+.intro-led .ledw[data-load] .led-on {
+  animation-delay: calc(var(--r) * 800ms + 80ms);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* The tile's own wordmark lights up hidden under the intro and shows when the big one lands. */
+  .bento[data-intro='pre'] .board-head .flap-wordmark {
+    visibility: hidden;
+  }
+}
+
+/* ---- Baggage drop ---- */
+
+.board-head { --i: 0; }
+.board-passport { --i: 1; }
+.board-experience { --i: 2; }
+.board-filter { --i: 3; }
+.gate-row > li:nth-child(1) { --i: 4; }
+.gate-row > li:nth-child(2) { --i: 5; }
+.gate-row > li:nth-child(3) { --i: 6; }
+.gate-row > li:nth-child(n + 4) { --i: 7; }
+.board-belt { --i: 8; }
+.board-arrivals { --i: 9; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .bento[data-reveal='drop'] :is(.board-head, .board-passport, .board-experience, .board-filter, .gate-row > li, .board-belt, .board-arrivals) {
+    animation: bento-drop 560ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
+    animation-delay: calc(var(--reveal-delay, 0ms) + var(--i) * 80ms);
+  }
+
+  /* After the LED intro the board only fades in, so the wordmark's landing spot holds still. */
+  .bento[data-preroll='led'][data-reveal='drop'] .board-head {
+    animation-name: bento-fade;
+    animation-delay: var(--reveal-delay, 0ms);
+  }
+}
+
+@keyframes bento-drop {
+  from {
+    opacity: 0;
+    translate: 0 -36px;
+    rotate: -0.6deg;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+    rotate: 0deg;
+  }
+}
+
+@keyframes bento-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ---- X-ray scan ---- */
+
+.xray-veil {
+  position: fixed;
+  z-index: 65;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgb(127 212 255 / 0.06) 0 1px, transparent 1px 4px);
+  /* Film-dark either way: the dark page is tinted as it is, the light one is inverted first. */
+  backdrop-filter: grayscale(1) sepia(1) hue-rotate(165deg) saturate(2.4) contrast(1.15) brightness(1.05);
+  animation: xray-sweep 1100ms cubic-bezier(0.6, 0, 0.3, 1) var(--reveal-delay, 0ms) both;
+}
+
+:root[data-theme='light'] .xray-veil {
+  backdrop-filter: grayscale(1) invert(1) sepia(1) hue-rotate(165deg) saturate(2.4) contrast(1.1) brightness(0.92);
+}
+
+.xray-bar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 2px;
+  background: #9fdfff;
+  box-shadow: 0 0 10px 3px rgb(127 212 255 / 0.65), 0 0 70px 22px rgb(127 212 255 / 0.16);
+}
+
+.xray-label {
+  position: absolute;
+  top: -22px;
+  right: var(--page-margin);
+  color: #9fdfff;
+}
+
+@keyframes xray-sweep {
+  from {
+    translate: 0 0;
+  }
+
+  to {
+    translate: 0 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-led,
+  .xray-veil {
+    display: none;
+  }
+}

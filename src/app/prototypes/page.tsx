@@ -1,6 +1,10 @@
 import Link from 'next/link'
 
 const prototypes = [
+  { href: '/prototypes/bento-split', title: 'Bento — split terminal', note: 'Wordmark, belt and passport pinned left; the work scrolls on the right' },
+  { href: '/prototypes/bento-board', title: 'Bento — departures board', note: 'The LED board on top, then one dense bento of work, passport and belt' },
+  { href: '/prototypes/bento-intro', title: 'Bento — load intros', note: 'The departures board with a full-screen LED intro, baggage-drop and x-ray reveals' },
+  { href: '/prototypes/bento-floorplan', title: 'Bento — floor plan', note: 'The terminal on one screen: gates per project, tiles open out over the plan' },
   { href: '/prototypes/passport', title: 'Passport — closed', note: 'Foil-stamped cover, open to meet the passenger' },
   { href: '/prototypes/passport-open', title: 'Passport — open', note: 'Identity spread, holographic details and experience stamps' },
   { href: '/prototypes/flight-vertical', title: 'The Flight — vertical', note: 'Stacked legs, hard cuts, rail down the right' },
@@ -19,6 +23,7 @@ const prototypes = [
   { href: '/prototypes/hero-load', title: 'Hero load', note: 'Four ways for the wordmark and baggage hall to arrive on load' },
   { href: '/prototypes/led-lab', title: 'LED lab', note: 'Glow, colour, load, hover and click treatments for the LED wordmark' },
   { href: '/prototypes/logo', title: 'Logo', note: 'MAL as a transit route, after the 1974 Greater Manchester Transport M' },
+  { href: '/prototypes/grid-styles', title: 'Grid styles', note: 'Hanging margin, ruled index, modular field and staggered columns on the same content' },
   { href: '/prototypes/type-specimens', title: 'Type specimens', note: 'Six type pairings side by side on the same content' },
 ] as const
 

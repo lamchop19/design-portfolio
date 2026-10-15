@@ -4,9 +4,9 @@ import { Fragment, useCallback, useRef } from 'react'
 
 import { NameHero } from '@/components/brand/name-hero'
 import { GridOverlay } from '@/components/layout/grid-overlay'
+import { HangMargin } from '@/components/layout/hang-margin'
 import { scrollToY } from '@/components/layout/smooth-scroll'
 import { FlapText } from '@/components/split-flap/split-flap'
-import { ArrivalLeg, CruiseLeg, LayoverLeg } from '@/app/prototypes/_flight/leg-content'
 import { FLAP_LAND_MS, FLAP_STEP_MS, flapEases } from '@/lib/flap-motion'
 import type { WorkItem } from '@/lib/work-items'
 import { site } from '@/../content/site'
@@ -17,6 +17,8 @@ import { useSoftSky } from './soft-sky'
 import { routes, TaggedCovers, type Route } from './tagged-covers'
 import { useActiveLeg } from './use-landing'
 import { BaggageHall } from './baggage-hall'
+import { DotField } from './dot-field'
+import { AboutSection, ContactSection, ExperienceSection } from './sections'
 
 import '@/app/prototypes/_flight/flight.css'
 import '@/app/prototypes/_flight/signs.css'
@@ -66,21 +68,26 @@ export function LandingFlight({ items, intro = 'lights' }: { items: WorkItem[]; 
   }, [])
 
   const content: Record<Exclude<LegId, 'gate' | 'departures'>, React.ReactNode> = {
-    cruise: <CruiseLeg bins={false} drift={false} />,
-    layover: <LayoverLeg />,
-    arrival: <ArrivalLeg onReturn={() => jump(0)} />,
+    cruise: <AboutSection />,
+    layover: <ExperienceSection />,
+    arrival: <ContactSection onReturn={() => jump(0)} />,
   }
 
   return (
     <div ref={rootRef} id="top" className="flight flight-v flight-signs landing-hall" data-intro="done" data-seq={intro}>
       <div ref={skyRef} className="signs-sky" aria-hidden="true" />
+      <DotField leg={legs[active].id} />
       <SignStrip active={active} onJump={jump} />
 
       <section data-leg="gate" className={`${legClass('gate')} landing-gate`}>
         {/* Above the fold: the wordmark and the baggage hall fill the first screen between them. */}
         <div className="landing-fold">
           <div className="swiss-grid landing-heading">
-            <div className="landing-wordmark col-span-full">
+            <HangMargin className="landing-margin">
+              <p>New York</p>
+              <p>{span(items)}</p>
+            </HangMargin>
+            <div className="landing-wordmark col-span-full md:col-span-9">
               <NameHero
                 name={site.name}
                 face="led"
@@ -121,7 +128,7 @@ export function LandingFlight({ items, intro = 'lights' }: { items: WorkItem[]; 
 
 function Strap({ pillsAt }: { pillsAt: number }) {
   return (
-    <div className="signs-strap rule-draw col-span-full mt-5 flex flex-col gap-3 pt-4 md:mt-6 md:flex-row md:items-center md:justify-between">
+    <div className="signs-strap rule-draw col-span-full mt-5 md:col-span-9 md:col-start-4 flex flex-col gap-3 pt-4 md:mt-6 md:flex-row md:items-center md:justify-between">
       <p className="text-[20px] leading-7 font-medium tracking-[-0.02em] md:text-[24px]">{site.headline}</p>
       <p className="t-label flex flex-wrap items-center gap-1.5">
         {(Object.keys(routes) as Route[]).map((route, i) => (
@@ -138,15 +145,17 @@ function Strap({ pillsAt }: { pillsAt: number }) {
   )
 }
 
-function DeparturesHeader({ items }: { items: WorkItem[] }) {
+/** The years the work spans: "2024—2025". */
+function span(items: WorkItem[]) {
   const years = items.map((item) => item.meta.year)
+  return `${Math.min(...years)}—${Math.max(...years)}`
+}
+
+function DeparturesHeader({ items }: { items: WorkItem[] }) {
   return (
     <div data-anchor="departures" className="signs-after t-label col-span-full grid grid-cols-subgrid items-baseline gap-y-2">
-      <p className="col-span-2 text-ink-faint md:col-span-3">02 — Departures</p>
-      <h2 className="col-span-2 md:col-span-6">Selected flights</h2>
-      <p className="col-span-full text-ink-faint md:col-span-3 md:text-right">
-        {String(items.length).padStart(2, '0')} flights · {Math.min(...years)}—{Math.max(...years)}
-      </p>
+      <HangMargin>{String(items.length).padStart(2, '0')} flights</HangMargin>
+      <h2 className="col-span-full md:col-span-9">Selected flights</h2>
     </div>
   )
 }

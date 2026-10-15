@@ -52,27 +52,14 @@
   transition-duration: 0ms;
 }
 
-/* The unlit grid carried past the name, fading out toward the edges, with a
-   hole where the board draws its own unlit lamps. Five dots to every six
-   columns keeps the gaps between letters. */
+/* The blank canvas past the name, on the board's lamp pitch: no unlit grid,
+   just stray lamps blinking in it. It fades out toward the edges, with a hole
+   over the board itself. */
 .ledw-field {
-  --dot: radial-gradient(
-    circle at calc(var(--pitch) / 2) 50%,
-    var(--lamp-off, color-mix(in oklch, var(--ink) 9%, transparent)) calc(var(--pitch) * 0.42),
-    transparent calc(var(--pitch) * 0.45)
-  );
   position: absolute;
   z-index: -1;
   inset: calc(var(--pitch) * -6) calc(var(--pitch) * -12);
   pointer-events: none;
-  background-image: var(--dot), var(--dot), var(--dot), var(--dot), var(--dot);
-  background-size: calc(var(--pitch) * 6) var(--pitch);
-  background-position:
-    0 0,
-    var(--pitch) 0,
-    calc(var(--pitch) * 2) 0,
-    calc(var(--pitch) * 3) 0,
-    calc(var(--pitch) * 4) 0;
   mask-image: radial-gradient(closest-side, #000 30%, transparent), linear-gradient(#000 0 0);
   mask-size:
     100% 100%,
@@ -94,7 +81,8 @@
   filter: drop-shadow(0 0 calc(var(--pitch) * 0.6) var(--stray));
 }
 
-/* A pool of lamp light centred on the board's lower edge, fading on every side. */
+/* A pool of lamp light centred on the board's lower edge, fading on every
+   side. It only comes on while the board is pointed at. */
 .ledw-spill {
   position: absolute;
   z-index: -1;
@@ -104,12 +92,23 @@
   height: 320%;
   background: radial-gradient(50% 45% at 50% 50%, color-mix(in oklch, var(--lamp-on) 20%, transparent), transparent);
   pointer-events: none;
+  opacity: 0;
+  scale: 1 0.6;
+  transition:
+    opacity 900ms var(--ease-out),
+    scale 900ms var(--ease-out);
+}
+
+.ledw:hover .ledw-spill {
+  opacity: 1;
+  scale: 1;
+  transition-duration: 500ms;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  /* Load: the unlit board fades up, then lamps light in a scattered order
-     until the name resolves. --ledw-delay holds it all back. */
-  .ledw[data-load] :is(.led-ghosts, .ledw-field) {
+  /* Load: lamps light in a scattered order until the name resolves.
+     --ledw-delay holds it all back. */
+  .ledw[data-load] .ledw-field {
     animation: ledw-fade 700ms var(--ease-out) both;
     animation-delay: var(--ledw-delay, 0ms);
   }
@@ -117,11 +116,6 @@
   .ledw[data-load] .led-on {
     animation: led-on 160ms steps(2, end) both;
     animation-delay: calc(var(--ledw-delay, 0ms) + var(--r) * 1000ms + 100ms);
-  }
-
-  .ledw[data-load] .ledw-spill {
-    animation: ledw-spill-in 1600ms var(--ease-out) both;
-    animation-delay: var(--ledw-delay, 0ms);
   }
 
   .ledw .led-glyph[data-buzz] {
@@ -136,13 +130,6 @@
 @keyframes ledw-fade {
   from {
     opacity: 0;
-  }
-}
-
-@keyframes ledw-spill-in {
-  from {
-    opacity: 0;
-    scale: 1 0.3;
   }
 }
 

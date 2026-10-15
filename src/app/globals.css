@@ -804,6 +804,64 @@ html[data-work-view='passes'] .work-view-passes {
   padding-inline: var(--page-margin);
 }
 
+/* The hanging margin (components/layout/hang-margin): columns 1–3 of a row,
+   facts only. Its first line sits on the same baseline as the block beside it. */
+.hang-margin {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 1.5ch;
+  color: var(--ink-faint);
+}
+
+@media (min-width: 768px) {
+  .hang-margin {
+    grid-column: span 3;
+    flex-direction: column;
+  }
+}
+
+/* Project titles in Doto: round dots at a heavy weight, since lighter
+   weights shrink the dots until the letters break up. Mixed case. */
+.t-dot {
+  font-family: var(--font-dot), var(--font-mono);
+  font-weight: 800;
+  font-variation-settings: 'ROND' 100;
+  letter-spacing: 0;
+}
+
+/* Riso misregistration: pointed at, a dot title or a .t-riso link slips out
+   of register, one ink pass each way. Pink and blue, except where the page
+   itself is brand blue (see .leg-departures). */
+:root {
+  --riso-a: color-mix(in srgb, var(--brand-pink) 70%, transparent);
+  --riso-b: color-mix(in srgb, var(--brand-blue) 70%, transparent);
+}
+
+.t-dot,
+.t-riso {
+  text-shadow:
+    0 0 var(--riso-a),
+    0 0 var(--riso-b);
+}
+
+:is(a:hover, a:focus-visible) .t-dot,
+:is(a.t-dot, .t-riso):is(:hover, :focus-visible) {
+  text-shadow:
+    -1.5px 0 var(--riso-a),
+    1.5px 0 var(--riso-b);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .t-dot,
+  .t-riso {
+    /* Colour too: these replace the links' own transition-colors. */
+    transition:
+      color 150ms var(--ease-out),
+      text-shadow 240ms var(--ease-out);
+  }
+}
+
 /* Small uppercase mono: labels, metadata, anything that flips. The flap line
    box matches the text's, so flipping and static labels share a baseline. */
 .t-label {

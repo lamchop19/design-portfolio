@@ -1,0 +1,1002 @@
+/* ---------------------------------------------------------------------------
+   Bento layouts (prototypes/bento-*)
+
+   Every section on one page, as plates in a grid. Shared here: the bar, tile
+   chrome, the belt and passport sized to their tiles, and the three grids
+   (A split terminal, B departures board, C floor plan).
+   --------------------------------------------------------------------------- */
+
+.bento {
+  --bar-h: 60px;
+  --tile-r: 6px;
+  --tile-gap: 12px;
+  min-height: 100svh;
+}
+
+/* ---- Bar ---- */
+
+.bento-bar {
+  position: sticky;
+  z-index: 30;
+  top: 0;
+  height: var(--bar-h);
+  border-bottom: 1px solid var(--rule);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.bento-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 9px 5px 5px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+.bento-switch > span:first-child {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 2px;
+  background: var(--ink);
+  color: var(--surface);
+}
+
+.bento-switch[aria-current='page'] {
+  border-color: var(--rule);
+  background: var(--surface-raised);
+  color: var(--ink);
+}
+
+.bento-switch[aria-current='page'] > span:first-child {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.bento-switch:hover {
+  color: var(--accent);
+}
+
+.bento-pad {
+  padding: var(--tile-gap) var(--page-margin) 64px;
+}
+
+/* ---- Tiles ---- */
+
+.tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: clip;
+  border: 1px solid var(--rule);
+  border-radius: var(--tile-r);
+  background: var(--surface-raised);
+  color: var(--ink);
+  text-align: left;
+}
+
+.tile-head {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 40px;
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--rule);
+  white-space: nowrap;
+}
+
+.tile-picto {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 2px;
+  background: var(--ink);
+  color: var(--surface);
+}
+
+.tile-picto .sign-picto {
+  width: 14px;
+  height: 14px;
+}
+
+.tile-body {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.bento-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 8px 12px;
+  border-radius: 3px;
+  background: var(--ink);
+  color: var(--surface);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 150ms, color 150ms;
+}
+
+.bento-button:hover {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.bento-button-quiet {
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--ink-muted);
+}
+
+.bento-button-quiet:hover {
+  background: var(--surface-raised);
+  color: var(--ink);
+}
+
+.bento-board-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border-radius: 3px;
+  background: var(--ink);
+  color: var(--surface);
+  font-size: 18px;
+  font-weight: 500;
+  transition: background 150ms, color 150ms;
+}
+
+.bento-board-link:hover {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.bento-stamp {
+  justify-self: start;
+  padding: 1px 5px;
+  border: 1.5px solid currentColor;
+  border-radius: 3px;
+  color: var(--accent);
+  rotate: -4deg;
+}
+
+/* ---- Route pills as filters ---- */
+
+.route-toggle {
+  box-shadow: inset 0 0 0 1.5px var(--pill-fill);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 150ms, color 150ms;
+}
+
+.route-toggle:hover {
+  background: color-mix(in srgb, var(--pill-fill) 22%, transparent);
+}
+
+.route-toggle[aria-pressed='true'] {
+  background: var(--pill-fill);
+  color: var(--pill-ink);
+}
+
+/* ---- Belt in a tile: the hall scales to whatever height the tile has ---- */
+
+.bento-belt {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 150px;
+}
+
+.bento-belt .terminal-hall {
+  position: absolute;
+  inset: 0;
+  height: auto;
+  container-type: size;
+  --conveyor-height: clamp(78px, calc(100cqh - 90px), 300px);
+}
+
+.bento-belt .terminal-wall {
+  inset: 0 0 44px;
+}
+
+.bento-belt .terminal-conveyor {
+  bottom: 30px;
+}
+
+.bento-belt .terminal-floor {
+  height: 56px;
+  border-bottom: 0;
+}
+
+.bento-belt .terminal-motion {
+  right: 4px;
+  bottom: 2px;
+  width: 36px;
+  height: 36px;
+}
+
+/* ---- Passport tile ---- */
+
+.tile-passport {
+  container-type: inline-size;
+}
+
+.passport-tile {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 16px;
+  padding: 14px;
+}
+
+/* Stacked, the tile takes its height from what it holds. */
+@media (max-width: 1023px) {
+  .split-passport .passport-thumb {
+    min-height: 220px;
+  }
+}
+
+@container (max-width: 340px) {
+  .passport-tile {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(160px, 1fr) auto;
+  }
+}
+
+.passport-thumb {
+  position: relative;
+  min-height: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.passport-thumb:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.scale-fit {
+  position: relative;
+}
+
+.scale-fit-art {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  scale: var(--fit, 0.3);
+  transition: rotate 500ms var(--ease-out);
+}
+
+:is(.passport-thumb, .fp-pass):hover .scale-fit-art {
+  rotate: -3deg;
+}
+
+.passport-note {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.passport-bio {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+/* ---- Passport takeover ---- */
+
+.passport-takeover {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: clamp(16px, 3vw, 40px);
+  border: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(10px);
+  color: var(--ink);
+}
+
+.passport-takeover::backdrop {
+  background: transparent;
+}
+
+.passport-takeover-inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 1180px;
+  min-height: 100%;
+  margin: 0 auto;
+}
+
+/* ---- Work cards ---- */
+
+.bento-work-caption {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.bento-work[data-fill] .tag-card-cover {
+  flex: 1 1 auto;
+  min-height: 0;
+  aspect-ratio: auto;
+  border-radius: 0;
+}
+
+.bento-work[data-fill] .bento-work-caption {
+  flex: none;
+  margin: 0;
+  padding: 12px 14px;
+  border-top: 1px solid var(--rule);
+}
+
+.bento-work[data-fill] .luggage-tag {
+  top: -8px;
+  right: 18px;
+}
+
+.bento-work[data-fill]:focus-visible {
+  outline-offset: 3px;
+}
+
+/* ---- A. Split terminal ---- */
+
+.bento-split-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tile-gap);
+  padding: var(--tile-gap) var(--page-margin) 64px;
+}
+
+.bento-split-left,
+.bento-split-right {
+  display: contents;
+}
+
+.split-wordmark { order: 1; }
+.split-belt { order: 2; height: 280px; }
+.bento-works { order: 3; padding-top: 24px; }
+.split-passport { order: 4; }
+.split-contact { order: 5; }
+
+.bento-works-head {
+  position: sticky;
+  z-index: 5;
+  top: var(--bar-h);
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule);
+  background: var(--surface);
+}
+
+.bento-works-list {
+  display: grid;
+  gap: 56px;
+  padding-top: 40px;
+}
+
+@media (min-width: 1024px) {
+  .bento-split-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: start;
+    gap: var(--gutter);
+  }
+
+  .bento-split-left {
+    position: sticky;
+    top: calc(var(--bar-h) + var(--tile-gap));
+    display: grid;
+    grid-template-rows: auto minmax(130px, 1fr) minmax(210px, 0.95fr) auto;
+    gap: var(--tile-gap);
+    height: calc(100svh - var(--bar-h) - 2 * var(--tile-gap));
+  }
+
+  .bento-split-right {
+    display: block;
+  }
+
+  .split-belt {
+    height: auto;
+  }
+
+  .bento-works {
+    padding-top: 0;
+  }
+
+  .bento-works-head {
+    top: var(--bar-h);
+    padding-top: var(--tile-gap);
+  }
+}
+
+/* Short windows: the belt gives up height first, then the passport. */
+@media (min-width: 1024px) and (max-height: 760px) {
+  .bento-split-left {
+    grid-template-rows: auto minmax(100px, 0.75fr) minmax(170px, 1fr) auto;
+  }
+
+  .bento-split-left .passport-bio {
+    -webkit-line-clamp: 2;
+  }
+}
+
+@media (min-width: 1600px) {
+  .bento-works-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 56px var(--gutter);
+  }
+}
+
+/* ---- B. Departures board ---- */
+
+.board-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tile-gap);
+}
+
+.board-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 2px 14px;
+}
+
+/* About: the open passport takes about 60%, the layovers the rest, at one height. */
+.board-about {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--tile-gap);
+}
+
+@media (min-width: 1024px) {
+  .board-about {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  }
+}
+
+.passport-open-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.passport-preview {
+  position: relative;
+  flex: 1 1 auto;
+  aspect-ratio: 1000 / 640;
+  min-height: 0;
+}
+
+/* Phones: the booklet stacks its pages at its own size instead of scaling,
+   showing the identity page and fading out; Expand shows the rest. */
+@media (max-width: 767px) {
+  .passport-preview {
+    aspect-ratio: auto;
+    max-height: 500px;
+    overflow: hidden;
+    mask-image: linear-gradient(to bottom, #000 72%, transparent);
+  }
+
+  .passport-preview .scale-fit-art {
+    position: static;
+    width: auto !important;
+    height: auto !important;
+    translate: none;
+    scale: 1;
+  }
+}
+
+.experience-table {
+  width: 100%;
+  flex: 1 1 auto;
+  border-collapse: collapse;
+}
+
+.experience-table td {
+  padding-block: 12px;
+  vertical-align: middle;
+}
+
+.experience-next {
+  background: var(--ink);
+  color: var(--surface);
+}
+
+/* The gates: one row of the work, each card in its project hue. */
+.gate-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--tile-gap);
+}
+
+@media (min-width: 768px) {
+  .gate-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .gate-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.gate-row > li {
+  padding-top: 18px;
+}
+
+.gate-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid var(--rule);
+  border-radius: var(--tile-r);
+  background: var(--surface-raised);
+  transition: opacity 250ms var(--ease-out), filter 250ms var(--ease-out), border-color 250ms var(--ease-out);
+}
+
+.gate-card .luggage-tag {
+  --w: 84px;
+  top: -16px;
+  right: 14px;
+}
+
+.gate-card .luggage-tag-code {
+  font-size: 20px;
+}
+
+.gate-card-cover {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: calc(var(--tile-r) - 1px) calc(var(--tile-r) - 1px) 0 0;
+}
+
+/* The hue's wash over the cover, waiting for the light-up. */
+.gate-card-cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--tone-hero);
+  mix-blend-mode: multiply;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 250ms var(--ease-out);
+}
+
+.gate-card-caption {
+  flex: 1 1 auto;
+  padding: 12px 14px 14px;
+  border-top: 1px solid var(--rule);
+  border-radius: 0 0 calc(var(--tile-r) - 1px) calc(var(--tile-r) - 1px);
+  transition: background 250ms var(--ease-out), color 250ms var(--ease-out), border-color 250ms var(--ease-out);
+}
+
+.gate-card-meta {
+  color: var(--ink-faint);
+  transition: color 250ms var(--ease-out);
+}
+
+.gate-card-result {
+  padding: 2px 6px;
+  background: var(--ink);
+  color: var(--surface);
+}
+
+/* Lit: the gate takes its hue. Keyboard focus lights it too. */
+.gate-card:focus-visible {
+  outline: 2px solid var(--tone-hero);
+  outline-offset: 3px;
+}
+
+.gate-card:focus-visible,
+.gate-card:focus-visible .gate-card-caption {
+  border-color: var(--tone-hero);
+}
+
+.gate-card:focus-visible .gate-card-caption {
+  background: var(--tone-hero);
+  color: var(--tone-ink);
+}
+
+.gate-card:focus-visible :is(.gate-card-meta, .gate-card-result) {
+  color: var(--tone-ink);
+}
+
+.gate-card:focus-visible .gate-card-result {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+
+.gate-card:focus-visible .gate-card-cover::after {
+  opacity: 0.35;
+}
+
+/* The others dim while one is lit. */
+.gate-row:has(.gate-card:focus-visible) .gate-card:not(:focus-visible) {
+  opacity: 0.55;
+  filter: saturate(0.6);
+}
+
+@media (hover: hover) {
+  .gate-card:hover,
+  .gate-card:hover .gate-card-caption {
+    border-color: var(--tone-hero);
+  }
+
+  .gate-card:hover .gate-card-caption {
+    background: var(--tone-hero);
+    color: var(--tone-ink);
+  }
+
+  .gate-card:hover :is(.gate-card-meta, .gate-card-result) {
+    color: var(--tone-ink);
+  }
+
+  .gate-card:hover .gate-card-result {
+    background: transparent;
+    box-shadow: inset 0 0 0 1px currentColor;
+  }
+
+  .gate-card:hover .gate-card-cover::after {
+    opacity: 0.35;
+  }
+
+  .gate-row:has(.gate-card:hover) .gate-card:not(:hover) {
+    opacity: 0.55;
+    filter: saturate(0.6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gate-card,
+  .gate-card-caption,
+  .gate-card-meta,
+  .gate-card-cover::after {
+    transition: none;
+  }
+}
+
+/* The last row: the belt takes two thirds, arrivals the rest. */
+.board-arrive {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--tile-gap);
+}
+
+.board-belt {
+  height: 240px;
+}
+
+@media (min-width: 768px) {
+  .board-belt {
+    height: 300px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .board-arrive {
+    grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
+  }
+
+  .board-belt {
+    height: auto;
+    min-height: 300px;
+  }
+}
+
+.arrivals-email {
+  min-width: 0;
+  font-size: 16px;
+}
+
+/* Narrow desktops: the arrivals box is slim, so the address steps down a size to fit whole. */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .arrivals-email {
+    padding-inline: 12px;
+    font-size: 13px;
+  }
+}
+
+/* ---- C. Floor plan ---- */
+
+.floor-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--tile-gap);
+}
+
+.fp-gate,
+.fp-pass {
+  padding: 0;
+  cursor: pointer;
+}
+
+.floor-grid > .fp-gate { min-height: 320px; }
+.floor-grid > .fp-pass { min-height: 300px; }
+.floor-grid > .fp-belt { height: 260px; }
+.floor-grid > .fp-hall { order: 9; }
+
+.fp-gate:focus-visible,
+.fp-pass:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.fp-gate-cover {
+  display: block;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.fp-gate-cover > * {
+  transition: scale 700ms var(--ease-out);
+}
+
+.fp-gate:hover .fp-gate-cover > * {
+  scale: 1.03;
+}
+
+.fp-gate-caption {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 9px 12px;
+  border-top: 1px solid var(--rule);
+}
+
+.tile[data-away] {
+  border-style: dashed;
+  background: transparent;
+}
+
+.fp-pass-body {
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+  gap: 14px;
+  min-height: 0;
+  padding: 14px;
+}
+
+.fp-pass-cover {
+  height: 100%;
+  min-height: 160px;
+}
+
+.fp-signs {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  overflow: auto;
+}
+
+/* Airport signs: black plates, the code in sign yellow. */
+.fp-signpost {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 34px;
+  padding: 6px 8px;
+  border-radius: 2px;
+  background: #0a0f1f;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+  color: #f5f7fa;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 150ms;
+}
+
+.fp-signpost .sign-picto {
+  width: 15px;
+  height: 15px;
+}
+
+.fp-signpost:hover,
+.fp-signpost[aria-current] {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.fp-signpost-code {
+  min-width: 2ch;
+  color: #ffcf33;
+  font-weight: 700;
+}
+
+.fp-signpost:hover .fp-signpost-code,
+.fp-signpost[aria-current] .fp-signpost-code {
+  color: inherit;
+}
+
+.fp-arr-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.fp-arr-wrap > .tile {
+  flex: 1;
+}
+
+.fp-arr-expand {
+  position: absolute;
+  top: 7px;
+  right: 10px;
+}
+
+.fp-expand {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: var(--surface);
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+
+.fp-expand:hover {
+  color: var(--accent);
+}
+
+/* The opened spot covers the whole plan (the whole screen on phones). */
+.fp-panel {
+  position: fixed;
+  z-index: 40;
+  inset: var(--bar-h) 0 0;
+  border-radius: 0;
+}
+
+.fp-panel-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 16px;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.fp-gate-panel {
+  display: grid;
+  gap: 24px;
+}
+
+.fp-gate-panel-cover {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.fp-gate-panel-cover .luggage-tag {
+  top: -8px;
+}
+
+.fp-flight {
+  display: block;
+  margin-top: 4px;
+  font-size: 44px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.fp-panel-belt {
+  height: 100%;
+  min-height: 320px;
+}
+
+.fp-arrivals-panel {
+  max-width: 900px;
+  padding: 24px 8px;
+}
+
+.fp-arrivals-panel .bento-board-link {
+  font-size: clamp(18px, 2vw, 26px);
+}
+
+@media (min-width: 1024px) {
+  /* The terminal fits one screen. */
+  .bento-floor .bento-pad {
+    height: calc(100svh - var(--bar-h));
+    padding-bottom: var(--tile-gap);
+  }
+
+  .floor-grid {
+    height: 100%;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-rows: repeat(4, minmax(0, 1fr));
+    grid-template-areas:
+      'sign sign sign g1  g2  g2'
+      'pass pass hall g1  g3  g3'
+      'pass pass hall g4  g3  g3'
+      'belt belt hall g4  arr arr';
+  }
+
+  .floor-grid > * { min-height: 0; }
+  .floor-grid > .fp-gate { min-height: 0; }
+  .floor-grid > .fp-pass { min-height: 0; }
+  .floor-grid > .fp-belt { height: auto; }
+
+  .fp-sign { grid-area: sign; }
+  .fp-gate-1 { grid-area: g1; }
+  .fp-gate-2 { grid-area: g2; }
+  .fp-gate-3 { grid-area: g3; }
+  .fp-gate-4 { grid-area: g4; }
+  .fp-pass { grid-area: pass; }
+  .fp-hall { grid-area: hall; }
+  .fp-belt { grid-area: belt; }
+  .fp-arr { grid-area: arr; }
+
+  .fp-panel {
+    position: relative;
+    z-index: 10;
+    inset: auto;
+    grid-area: 1 / 1 / -1 / -1;
+    border-radius: var(--tile-r);
+    box-shadow: 0 24px 60px -30px rgb(10 15 31 / 0.5);
+  }
+
+  .fp-panel-body {
+    padding: 24px;
+  }
+
+  .fp-gate-panel {
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+    gap: 32px;
+    height: 100%;
+  }
+
+  .fp-gate-panel-cover {
+    aspect-ratio: auto;
+    min-height: 0;
+  }
+
+  .fp-passport-panel {
+    max-width: 1100px;
+    margin-inline: auto;
+  }
+}
+
+/* Short desktop windows: the sign keeps the name and drops the strap. */
+@media (min-width: 1024px) and (max-height: 820px) {
+  .fp-strap {
+    display: none;
+  }
+}

@@ -141,3 +141,65 @@
   border-top: 1px solid var(--rule);
   color: var(--ink-faint);
 }
+
+/* Tail fins: one row per livery, the compact marks across it. */
+.lg-fins {
+  display: grid;
+  padding-inline: var(--page-margin);
+}
+
+.lg-fin-row {
+  display: grid;
+  gap: 16px;
+  padding-block: 20px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.lg-fin-row:first-child {
+  padding-top: 0;
+}
+
+@media (min-width: 960px) {
+  .lg-fin-row {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+    gap: var(--gutter);
+    align-items: start;
+  }
+}
+
+.lg-fin-meta {
+  display: grid;
+  gap: 6px;
+  max-width: 40ch;
+}
+
+.lg-fin-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 16px;
+}
+
+@media (min-width: 520px) {
+  .lg-fin-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 768px) {
+  .lg-fin-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.lg-fin {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.lg-fin svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 102 / 112;
+}

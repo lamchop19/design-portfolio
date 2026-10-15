@@ -80,8 +80,7 @@ export function GateLeg({
         intro={replay ? 'full' : 'auto'}
         className="col-span-full"
       />
-      <div data-detail className="t-label rule-draw col-span-full flex justify-between pt-4">
-        <span className="text-ink-faint">01 — Gate · Morning</span>
+      <div data-detail className="t-label rule-draw col-span-full flex justify-end pt-4">
         <span>
           Scroll to board <Onward dir={dir} />
         </span>
@@ -96,9 +95,6 @@ export function DeparturesHeader({ items }: { items: WorkItem[] }) {
   const years = items.map((item) => item.meta.year)
   return (
     <div className="flex flex-col gap-4">
-      <p className="t-label text-ink-faint">
-        02 — Departures<span data-detail> · Midday</span>
-      </p>
       <h2 className="text-[clamp(2.5rem,6vw,5.5rem)] leading-[0.95] font-medium tracking-[-0.045em]">
         Selected flights
       </h2>
@@ -181,10 +177,7 @@ export function CruiseLeg({ bins = true, drift = true }: { bins?: boolean; drift
           </div>
         </div>
         <div className="col-span-full md:col-span-7 md:col-start-6">
-          <p className="t-label text-ink-faint">
-            03 — Passenger<span data-detail> · Afternoon</span>
-          </p>
-          <h2 className="mt-4 text-[clamp(1.75rem,3.6vw,3.25rem)] leading-[1.05] font-medium tracking-[-0.035em] text-balance">
+          <h2 className="text-[clamp(1.75rem,3.6vw,3.25rem)] leading-[1.05] font-medium tracking-[-0.035em] text-balance">
             Hi, I’m Marc.<span data-detail> I build brands for communities, not just products.</span>
           </h2>
           <p className="mt-6 max-w-[52ch] text-lg leading-7 text-ink-muted">{site.bio}</p>
@@ -223,7 +216,7 @@ const stampPlaces = [
   { left: '6%', top: '58%', r: '-4deg', shape: 'round' },
 ]
 
-function Stamp({ role, i }: { role: (typeof roles)[number]; i: number }) {
+export function Stamp({ role, i }: { role: (typeof roles)[number]; i: number }) {
   const [ref, seen] = useSeen<HTMLDivElement>(0.6)
   const place = stampPlaces[i % stampPlaces.length]
   return (
@@ -245,10 +238,7 @@ export function LayoverLeg() {
   return (
     <div className="swiss-grid h-full min-h-[inherit] content-center gap-y-10 pt-24 pb-28">
       <header className="col-span-full">
-        <p className="t-label text-ink-faint">
-          04 — Layovers<span data-detail> · Sunset</span>
-        </p>
-        <h2 className="mt-4 text-[clamp(2.5rem,6vw,5.5rem)] leading-[0.95] font-medium tracking-[-0.045em]">
+        <h2 className="text-[clamp(2.5rem,6vw,5.5rem)] leading-[0.95] font-medium tracking-[-0.045em]">
           Where I’ve been
         </h2>
       </header>
@@ -287,7 +277,8 @@ export function LayoverLeg() {
 
 /* -------------------------------------------------------------------------- */
 
-export function ArrivalLeg({ onReturn }: { onReturn: () => void }) {
+/** The arrivals board: the passenger's flight, flipping from approach to landed once it's in view. */
+export function ArrivalBoard({ className = '' }: { className?: string }) {
   const [boardRef, seen] = useSeen<HTMLDivElement>(0.6)
   const [status, setStatus] = useState('APPROACH')
   useEffect(() => {
@@ -297,37 +288,39 @@ export function ArrivalLeg({ onReturn }: { onReturn: () => void }) {
   }, [seen])
 
   return (
+    <div ref={boardRef} className={`flight-board t-label ${className} grid grid-cols-[1fr_auto] items-center gap-x-6 gap-y-3 md:grid-cols-[auto_auto_1fr_auto]`}>
+      <span data-detail className="hidden text-ink-faint md:block">
+        From
+      </span>
+      <span data-detail className="hidden text-ink-faint md:block">
+        Flight
+      </span>
+      <span className="text-ink-faint">Passenger</span>
+      <span className="text-ink-faint">Status</span>
+      <span data-detail className="hidden md:block">
+        <SplitFlap text="NYC" variant="tile" trigger="visible" intro="quick" />
+      </span>
+      <span data-detail className="hidden md:block">
+        <SplitFlap text="MAL001" variant="tile" trigger="visible" intro="quick" delay={120} />
+      </span>
+      <span>
+        <span className="sr-only">Marc Andre Lam</span>
+        <SplitFlap text="MARC ANDRE LAM" variant="tile" trigger="visible" intro="quick" delay={240} />
+      </span>
+      <span className="flight-board-status">
+        <span className="sr-only">{status === 'LANDED' ? 'Landed' : 'On approach'}</span>
+        <SplitFlap text={status} length={8} variant="tile" trigger="visible" intro="quick" delay={360} swap="quick" />
+      </span>
+    </div>
+  )
+}
+
+export function ArrivalLeg({ onReturn }: { onReturn: () => void }) {
+  return (
     <div className="relative h-full min-h-[inherit] overflow-hidden">
       <div className="flight-city" aria-hidden="true" />
       <div className="swiss-grid relative h-full min-h-[inherit] content-center gap-y-12 pt-24 pb-28">
-        <p className="t-label col-span-full text-ink-faint">
-          05 — Arrivals<span data-detail> · Night</span>
-        </p>
-
-        <div ref={boardRef} className="flight-board t-label col-span-full grid grid-cols-[1fr_auto] items-center gap-x-6 gap-y-3 md:grid-cols-[auto_auto_1fr_auto]">
-          <span data-detail className="hidden text-ink-faint md:block">
-            From
-          </span>
-          <span data-detail className="hidden text-ink-faint md:block">
-            Flight
-          </span>
-          <span className="text-ink-faint">Passenger</span>
-          <span className="text-ink-faint">Status</span>
-          <span data-detail className="hidden md:block">
-            <SplitFlap text="NYC" variant="tile" trigger="visible" intro="quick" />
-          </span>
-          <span data-detail className="hidden md:block">
-            <SplitFlap text="MAL001" variant="tile" trigger="visible" intro="quick" delay={120} />
-          </span>
-          <span>
-            <span className="sr-only">Marc Andre Lam</span>
-            <SplitFlap text="MARC ANDRE LAM" variant="tile" trigger="visible" intro="quick" delay={240} />
-          </span>
-          <span className="flight-board-status">
-            <span className="sr-only">{status === 'LANDED' ? 'Landed' : 'On approach'}</span>
-            <SplitFlap text={status} length={8} variant="tile" trigger="visible" intro="quick" delay={360} swap="quick" />
-          </span>
-        </div>
+        <ArrivalBoard className="col-span-full" />
 
         <a
           href={`mailto:${site.email}`}

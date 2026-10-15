@@ -12,6 +12,86 @@
   margin-inline: auto;
 }
 
+/* On the homepage the wall's rules stand in the page grid's gutters: before
+   columns 4, 7 and 10 (the hanging margin's edge and the content's thirds),
+   or before columns 2, 3 and 4 on phones. */
+.landing-fold .terminal-wall {
+  --every: 1;
+  --step: calc(
+    var(--every) * ((100% - 2 * var(--page-margin) - (var(--grid-cols) - 1) * var(--gutter)) / var(--grid-cols) + var(--gutter))
+  );
+  --x1: calc(var(--page-margin) - var(--gutter) / 2 + var(--step));
+  --x2: calc(var(--page-margin) - var(--gutter) / 2 + 2 * var(--step));
+  --x3: calc(var(--page-margin) - var(--gutter) / 2 + 3 * var(--step));
+  background:
+    linear-gradient(90deg, transparent var(--x1), var(--rule) var(--x1) calc(var(--x1) + 1px), transparent 0),
+    linear-gradient(90deg, transparent var(--x2), var(--rule) var(--x2) calc(var(--x2) + 1px), transparent 0),
+    linear-gradient(90deg, transparent var(--x3), var(--rule) var(--x3) calc(var(--x3) + 1px), transparent 0);
+}
+
+@media (min-width: 768px) {
+  .landing-fold .terminal-wall {
+    --every: 3;
+  }
+}
+
+/* The pointer's torch over a board of unlit lamps (dot-field.tsx): fixed
+   behind the content, above the sky, and masked to a soft circle around the
+   pointer. It wears the leg class of the section in view, so the dots take
+   that section's ink. */
+.landing-dots {
+  --dot-pitch: 12px;
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in oklch, var(--ink) 14%, transparent) calc(var(--dot-pitch) * 0.2),
+    transparent calc(var(--dot-pitch) * 0.24)
+  );
+  background-size: var(--dot-pitch) var(--dot-pitch);
+  mask-image: radial-gradient(180px circle at var(--mx, -999px) var(--my, -999px), #000, transparent);
+  opacity: 0;
+  transition: opacity 400ms var(--ease-out);
+}
+
+.landing-dots[data-on] {
+  opacity: 1;
+}
+
+/* Riso misregistration on the covers: pointed at, the pink and blue passes
+   slip out from behind the image (the title does the same, see .t-dot). */
+.landing-hall .tag-card-cover {
+  box-shadow:
+    0 0 0 var(--riso-a),
+    0 0 0 var(--riso-b);
+}
+
+.landing-hall .tag-card:is(:hover, :focus-visible) .tag-card-cover {
+  box-shadow:
+    -2px -1px 0 var(--riso-a),
+    2px 1px 0 var(--riso-b);
+}
+
+/* A blue pass vanishes into the blue departures sky, so it prints green there. */
+.landing-hall .leg-departures {
+  --riso-b: color-mix(in srgb, var(--brand-green) 80%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .landing-hall .tag-card-cover {
+    transition: box-shadow 240ms var(--ease-out);
+  }
+}
+
+/* Phones keep the fold for the name and the belt. */
+@media (max-width: 767px) {
+  .landing-margin {
+    display: none;
+  }
+}
+
 .landing-hall .signs-strap {
   width: 100%;
   letter-spacing: 0;
@@ -119,17 +199,6 @@
   height: 86px;
   border-bottom: 1px solid var(--rule);
   background: color-mix(in srgb, var(--ink) 3%, var(--surface));
-}
-
-.terminal-floor-label {
-  position: absolute;
-  bottom: 17px;
-  left: var(--page-margin);
-  color: var(--ink-faint);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  line-height: 14px;
-  text-transform: uppercase;
 }
 
 .terminal-motion {
