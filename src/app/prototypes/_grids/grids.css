@@ -89,39 +89,7 @@
 
 /* ---- 1. Hanging margin: .hang-margin in globals.css ---- */
 
-/* ---- 2. Ruled index ---- */
-
-.gs-row {
-  padding-block: calc(var(--baseline) * 2);
-  border-top: 1px solid var(--rule);
-}
-
-.gs-index-title {
-  font-size: clamp(1.75rem, 4vw, 3.5rem);
-  line-height: 1.05;
-  font-weight: 500;
-  letter-spacing: -0.04em;
-  transition:
-    color 160ms var(--ease-out),
-    translate 240ms var(--ease-out);
-}
-
-.gs-index-row:hover .gs-index-title,
-.gs-index-row[data-active] .gs-index-title {
-  color: var(--accent);
-}
-
-@media (min-width: 768px) {
-  .gs-index-row[data-active] .gs-index-title {
-    translate: 1ch 0;
-  }
-
-  .gs-index-cover {
-    position: sticky;
-    top: calc(var(--baseline) * 10);
-    align-self: start;
-  }
-}
+/* ---- 2. Ruled index: components/home/ruled-index.css ---- */
 
 /* ---- 3. Modular field ---- */
 

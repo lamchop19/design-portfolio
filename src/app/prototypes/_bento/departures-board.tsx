@@ -11,7 +11,7 @@ import { site } from '@/../content/site'
 import { PassportOpenTile } from './passport-tile'
 import { ArrivalsTile, BeltTile, BentoBar, ExperienceTile, Strap, TileHead, wordmarkMotion } from './tiles'
 import { GateCard, RouteFilter, useRouteFilter } from './works'
-import { LED_DONE_AT, LED_FLY_AT, LedPreroll } from './intro/led-preroll'
+import { LED_DONE_AT, LED_FLY_AT, LedPreroll } from '@/components/intro/led-preroll'
 import { XrayVeil } from './intro/xray-veil'
 
 import '../_flight/signs.css'
@@ -107,7 +107,7 @@ export function DeparturesBoard({
           <ArrivalsTile className="board-arrivals" no="06" />
         </div>
       </div>
-      {intro === 'pre' ? <LedPreroll onDone={landed} /> : null}
+      {intro === 'pre' ? <LedPreroll target=".board-head .flap-wordmark" onDone={landed} /> : null}
       {scanning ? <XrayVeil delay={delay} onDone={() => setScanning(false)} /> : null}
       <GridOverlay />
     </div>

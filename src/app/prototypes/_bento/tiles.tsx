@@ -10,7 +10,7 @@ import { BaggageHall } from '@/components/landing/baggage-hall'
 import { Pictogram, type PictogramName } from '@/components/landing/sign-nav'
 import { routes, type Route } from '@/components/landing/tagged-covers'
 import { FlapText } from '@/components/split-flap/split-flap'
-import { FLAP_LAND_MS, FLAP_STEP_MS, flapEases } from '@/lib/flap-motion'
+import { wordmarkMotion } from '@/lib/flap-motion'
 import type { WorkItem } from '@/lib/work-items'
 import { site } from '@/../content/site'
 
@@ -102,11 +102,7 @@ export function TileHead({ no, label, picto, aside }: { no: string; label: strin
   )
 }
 
-export const wordmarkMotion = {
-  step: FLAP_STEP_MS * 2,
-  land: FLAP_LAND_MS * 2,
-  ease: flapEases.expo.fn,
-}
+export { wordmarkMotion }
 
 /** The LED wordmark, the headline and the route pills, sized to the tile. */
 export function WordmarkTile({ stack = 'narrow', className }: { stack?: 'never' | 'narrow' | 'always'; className?: string }) {

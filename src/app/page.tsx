@@ -1,6 +1,6 @@
 import { ViewTransition } from 'react'
 
-import { LandingFlight } from '@/components/landing/landing-flight'
+import { RuledIndex } from '@/components/home/ruled-index'
 import { withCovers } from '@/lib/work-items'
 import { work } from '@/../content/work'
 
@@ -13,7 +13,7 @@ export default function HomePage() {
       exit={{ 'nav-forward': 'nav-forward', 'nav-back': 'nav-back', default: 'none' }}
       default="none"
     >
-      <LandingFlight items={items} />
+      <RuledIndex items={items} intro="led" />
     </ViewTransition>
   )
 }

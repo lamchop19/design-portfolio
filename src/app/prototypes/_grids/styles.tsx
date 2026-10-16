@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
 
 import { NameHero } from '@/components/brand/name-hero'
 import { WorkCover } from '@/components/home/work-cover'
@@ -135,71 +134,7 @@ export function HangingMargin({ items }: Props) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* 2. Ruled index: the work as a typeset list on hairlines. The row in focus
-      shows its cover in one fixed cell beside the list. */
-
-export function RuledIndex({ items }: Props) {
-  const [active, setActive] = useState(0)
-
-  return (
-    <div className="flex flex-col gap-[calc(var(--baseline)*14)] pt-[calc(var(--baseline)*8)] pb-[calc(var(--baseline)*16)]">
-      <section className="swiss-grid gap-y-4">
-        <div className="col-span-full">
-          <Wordmark />
-        </div>
-        <div className="gs-row col-span-full grid grid-cols-subgrid gap-y-2">
-          <p className="col-span-full md:col-span-6">{site.headline}</p>
-          <p className="col-span-full text-ink-muted md:col-span-5 md:col-start-8">{site.bio}</p>
-        </div>
-      </section>
-
-      <section className="swiss-grid gap-y-6">
-        <div className="gs-index-cover col-span-full md:col-span-5 md:col-start-8 md:row-start-1">
-          <div className="gs-cover aspect-[3/2] md:aspect-[4/5]">
-            <WorkCover item={items[active]} index={active} morph={false} sizes="(min-width: 768px) 40vw, 100vw" />
-          </div>
-        </div>
-        <ul className="col-span-full md:col-span-7 md:col-start-1 md:row-start-1">
-          {items.map((item, i) => (
-            <li key={item.meta.slug}>
-              <Link
-                href={href(item)}
-                data-active={i === active || undefined}
-                onPointerEnter={() => setActive(i)}
-                onFocus={() => setActive(i)}
-                className="gs-index-row gs-row grid grid-cols-[1fr_auto] items-baseline gap-x-(--gutter) gap-y-1 md:grid-cols-[minmax(0,4fr)_minmax(0,2fr)_auto]"
-              >
-                <span className="gs-index-title">{item.meta.title}</span>
-                <span className="t-label hidden text-ink-faint md:block">{item.meta.subtitle}</span>
-                <span className="t-label text-right">{item.meta.year}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section className="swiss-grid">
-        <ul className="t-label col-span-full grid grid-cols-subgrid">
-          {roles.map((role) => (
-            <li key={role.role} className="gs-row col-span-full grid grid-cols-subgrid">
-              <span className="col-span-2 md:col-span-4">{role.org}</span>
-              <span className="col-span-2 md:col-span-6">{role.role}</span>
-              <span className="col-span-full text-ink-faint md:col-span-2 md:text-right">{role.when}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section className="swiss-grid">
-        <a href={`mailto:${site.email}`} className="gs-row gs-index-row col-span-full flex items-baseline justify-between gap-6">
-          <span className="gs-index-title break-all">{site.email}</span>
-          <span className="t-label">↗</span>
-        </a>
-        <Links className="t-label col-span-full mt-4" />
-      </section>
-    </div>
-  )
-}
+/* 2. Ruled index: now the homepage, components/home/ruled-index.tsx. */
 
 /* -------------------------------------------------------------------------- */
 /* 3. Modular field: the grid made visible. Every block fills whole modules

@@ -3,11 +3,12 @@
 import { useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 
+import { RuledIndex } from '@/components/home/ruled-index'
 import { GridOverlay } from '@/components/layout/grid-overlay'
 import type { WorkItem } from '@/lib/work-items'
 
 import { GRID_STYLES, type GridStyleId } from './options'
-import { HangingMargin, ModularField, RuledIndex, Staggered } from './styles'
+import { HangingMargin, ModularField, Staggered } from './styles'
 
 import './grids.css'
 

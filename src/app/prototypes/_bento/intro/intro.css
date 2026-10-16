@@ -3,45 +3,11 @@
 
    The LED intro (a full-screen name that flies onto its tile), the baggage
    drop (tiles land one by one) and the x-ray scan (a scanner sweeps the page).
+   The LED layer and the drop keyframes are shared: components/intro/intro.css.
    None of them play with reduced motion.
    --------------------------------------------------------------------------- */
 
-/* ---- LED intro ---- */
-
-.intro-led {
-  position: fixed;
-  z-index: 70;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-}
-
-.intro-led-ground {
-  position: absolute;
-  inset: 0;
-  background: var(--surface);
-}
-
-.intro-led-mark {
-  position: relative;
-  width: min(88vw, 1320px);
-  transform-origin: 0 0;
-}
-
-.intro-led-caption {
-  position: absolute;
-  bottom: 14vh;
-  left: 50%;
-  color: var(--ink-faint);
-  translate: -50% 0;
-  white-space: nowrap;
-}
-
-/* The intro's lamps all strike within about 0.9s, a little quicker than the board's own. */
-.intro-led .ledw[data-load] .led-on {
-  animation-delay: calc(var(--r) * 800ms + 80ms);
-}
+/* ---- LED intro: the layer itself is in components/intro/intro.css ---- */
 
 @media (prefers-reduced-motion: no-preference) {
   /* The tile's own wordmark lights up hidden under the intro and shows when the big one lands. */
@@ -65,38 +31,14 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .bento[data-reveal='drop'] :is(.board-head, .board-passport, .board-experience, .board-filter, .gate-row > li, .board-belt, .board-arrivals) {
-    animation: bento-drop 560ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
+    animation: intro-drop 560ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
     animation-delay: calc(var(--reveal-delay, 0ms) + var(--i) * 80ms);
   }
 
   /* After the LED intro the board only fades in, so the wordmark's landing spot holds still. */
   .bento[data-preroll='led'][data-reveal='drop'] .board-head {
-    animation-name: bento-fade;
+    animation-name: intro-fade;
     animation-delay: var(--reveal-delay, 0ms);
-  }
-}
-
-@keyframes bento-drop {
-  from {
-    opacity: 0;
-    translate: 0 -36px;
-    rotate: -0.6deg;
-  }
-
-  50% {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 1;
-    translate: 0 0;
-    rotate: 0deg;
-  }
-}
-
-@keyframes bento-fade {
-  from {
-    opacity: 0;
   }
 }
 
@@ -145,7 +87,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .intro-led,
   .xray-veil {
     display: none;
   }

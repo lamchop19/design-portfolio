@@ -30,6 +30,13 @@ export type FlapEase = keyof typeof flapEases
 export const FLAP_STEP_MS = 55
 export const FLAP_LAND_MS = 130
 
+/** The LED wordmark's resolve: twice the stock timing, on the expo curve. */
+export const wordmarkMotion: FlapMotion = {
+  step: FLAP_STEP_MS * 2,
+  land: FLAP_LAND_MS * 2,
+  ease: flapEases.expo.fn,
+}
+
 /** When the leaf passes vertical, i.e. where the top half hands over to the bottom. */
 export function halfway(ease: (t: number) => number) {
   let lo = 0

@@ -4,9 +4,10 @@ import { useEffect, useRef } from 'react'
 
 import { NameHero } from '@/components/brand/name-hero'
 import { FlapText } from '@/components/split-flap/split-flap'
+import { wordmarkMotion } from '@/lib/flap-motion'
 import { site } from '@/../content/site'
 
-import { wordmarkMotion } from '../tiles'
+import './intro.css'
 
 /** When the lit name leaves for its tile, and how long the flight takes, in ms. */
 export const LED_FLY_AT = 1100
@@ -19,11 +20,22 @@ const BLOCKED = ['wheel', 'touchmove'] as const
 
 /**
  * The full-screen intro: the name lights up lamp by lamp across the whole
- * screen, then shrinks and flies onto the board tile's own wordmark (which lit
- * up underneath, hidden) while the ground fades away. A click or any key
- * skips it. `onDone(skipped)` fires once, when it's over.
+ * screen, then shrinks and flies onto the page's own wordmark (`target`, a
+ * selector; it lights up underneath, hidden) while the ground fades away. A
+ * click or any key skips it. `onDone(skipped)` fires once, when it's over.
+ *
+ * With `once` (a sessionStorage key) it plays once a visit: once it has run,
+ * later mounts skip straight to the end.
  */
-export function LedPreroll({ onDone }: { onDone: (skipped: boolean) => void }) {
+export function LedPreroll({
+  target,
+  once,
+  onDone,
+}: {
+  target: string
+  once?: string
+  onDone: (skipped: boolean) => void
+}) {
   const layer = useRef<HTMLDivElement>(null)
   const mark = useRef<HTMLDivElement>(null)
   const ground = useRef<HTMLDivElement>(null)
@@ -35,9 +47,10 @@ export function LedPreroll({ onDone }: { onDone: (skipped: boolean) => void }) {
     const finish = (skipped: boolean) => {
       if (over) return
       over = true
+      if (once) remember(once)
       onDone(skipped)
     }
-    if (window.matchMedia(reducedQuery).matches) {
+    if (window.matchMedia(reducedQuery).matches || (once && seen(once))) {
       finish(true)
       return
     }
@@ -60,7 +73,7 @@ export function LedPreroll({ onDone }: { onDone: (skipped: boolean) => void }) {
 
     const timer = window.setTimeout(() => {
       const from = mark.current
-      const to = document.querySelector<HTMLElement>('.board-head .flap-wordmark')
+      const to = document.querySelector<HTMLElement>(target)
       if (!from || !to || !ground.current) return finish(false)
       const a = from.getBoundingClientRect()
       const b = to.getBoundingClientRect()
@@ -85,7 +98,7 @@ export function LedPreroll({ onDone }: { onDone: (skipped: boolean) => void }) {
       window.removeEventListener('keydown', skip)
       el?.removeEventListener('pointerdown', skip)
     }
-  }, [onDone])
+  }, [target, once, onDone])
 
   return (
     <div ref={layer} className="intro-led" aria-hidden="true" data-lenis-prevent>
@@ -98,4 +111,18 @@ export function LedPreroll({ onDone }: { onDone: (skipped: boolean) => void }) {
       </p>
     </div>
   )
+}
+
+function seen(key: string) {
+  try {
+    return sessionStorage.getItem(key) !== null
+  } catch {
+    return false
+  }
+}
+
+function remember(key: string) {
+  try {
+    sessionStorage.setItem(key, '1')
+  } catch {}
 }
