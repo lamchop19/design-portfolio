@@ -1,4 +1,4 @@
-import type { Route } from '@/lib/routes'
+import type { Discipline } from '@/lib/disciplines'
 
 /*
  * Bitmap specimens: soft organic shapes printed as an ordered dither in a few
@@ -16,11 +16,11 @@ import type { Route } from '@/lib/routes'
 
 export type Rgb = readonly [number, number, number]
 
-export type PaletteId = 'dreams' | 'routes' | 'negative'
+export type PaletteId = 'dreams' | 'discipline' | 'negative'
 
 export const PALETTES: Array<{ id: PaletteId; name: string; note: string }> = [
   { id: 'dreams', name: 'Bitmap dreams', note: 'The reference: charcoal, sage, sky and butter on warm paper, a pink halo.' },
-  { id: 'routes', name: 'By route', note: 'Each project in the softened inks of its own routes: Brand blue, Social pink, Content green.' },
+  { id: 'discipline', name: 'By discipline', note: 'Each project in the softened inks of its own disciplines: Brand blue, Social pink, Content green.' },
   { id: 'negative', name: 'Negative', note: 'Printed straight onto the dark page: paper-white cores, inks fading out to the ground.' },
 ]
 
@@ -52,16 +52,16 @@ const GRAIN = hex('#cfccc2')
 const CHARCOAL = hex('#2e2f31')
 const BUTTER = hex('#f0dc55')
 
-/** The route inks, softened towards the reference's chalky tones. */
-const SOFT: Record<Route, Rgb> = {
+/** The discipline inks, softened towards the reference's chalky tones. */
+const SOFT: Record<Discipline, Rgb> = {
   Brand: hex('#7fa3f2'),
   Social: hex('#f0a3c8'),
   Content: hex('#a3d9a9'),
 }
 
-const ROUTE_ORDER: Route[] = ['Brand', 'Social', 'Content']
+const DISCIPLINE_ORDER: Discipline[] = ['Brand', 'Social', 'Content']
 
-export function inksFor(palette: PaletteId, routes: readonly Route[]): Inks {
+export function inksFor(palette: PaletteId, disciplines: readonly Discipline[]): Inks {
   switch (palette) {
     case 'dreams':
       return {
@@ -70,9 +70,9 @@ export function inksFor(palette: PaletteId, routes: readonly Route[]): Inks {
         bands: [BUTTER, hex('#86b8e3'), hex('#9fd4a8'), CHARCOAL],
         halo: hex('#e9a3b8'),
       }
-    case 'routes': {
-      // The project's own routes first, then the others to fill the bands.
-      const order = [...routes, ...ROUTE_ORDER.filter((route) => !routes.includes(route))]
+    case 'discipline': {
+      // The project's own disciplines first, then the others to fill the bands.
+      const order = [...disciplines, ...DISCIPLINE_ORDER.filter((d) => !disciplines.includes(d))]
       return { paper: PAPER, grain: GRAIN, bands: [BUTTER, SOFT[order[1]], SOFT[order[0]], CHARCOAL], halo: SOFT[order[2]] }
     }
     case 'negative':

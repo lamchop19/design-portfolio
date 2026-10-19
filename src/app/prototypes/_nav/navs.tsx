@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react'
 import { LiveClock } from '@/components/brand/live-clock'
 import { INDEX_SECTIONS, type IndexSection } from '@/components/home/ruled-index'
 import { scrollToY } from '@/components/layout/smooth-scroll'
-import { WindowShade } from '@/components/layout/window-shade'
+import { ThemeToggle } from '@/components/layout/theme-toggle'
 import { asset } from '@/lib/paths'
 import { site } from '@/../content/site'
 
@@ -20,7 +20,7 @@ import { site } from '@/../content/site'
 /** A sticky nav's height, roughly, so jumps land clear of it. */
 const JUMP_OFFSET = 88
 
-/** Where each section's dot takes its colour from: the three routes, then the accent. */
+/** Where each section's dot takes its colour from: the three disciplines, then the accent. */
 const DOT: Record<IndexSection, string> = {
   info: 'var(--brand-blue)',
   work: 'var(--brand-pink)',
@@ -99,7 +99,7 @@ function useScrollPercent() {
   return percent
 }
 
-/** True once the page's LED wordmark has scrolled out of view. */
+/** True once the page's wordmark has scrolled out of view. */
 function useWordmarkGone() {
   const [gone, setGone] = useState(false)
   useEffect(() => {
@@ -180,8 +180,8 @@ export function RuledStrip() {
         <span className="nv-live" aria-hidden="true" />
         <LiveClock />
       </div>
-      <div className="nv-cell nv-strip-shade col-span-2 flex justify-end">
-        <WindowShade inline />
+      <div className="nv-cell nv-strip-theme col-span-2 flex justify-end">
+        <ThemeToggle inline />
       </div>
     </header>
   )
@@ -216,7 +216,7 @@ export function SegmentedPill() {
       </nav>
       <div className="nv-pill nv-pill-right t-label" data-drop style={{ '--i': 0 } as React.CSSProperties}>
         <LiveClock className="hidden md:block" />
-        <WindowShade inline />
+        <ThemeToggle inline />
       </div>
     </>
   )
@@ -224,7 +224,7 @@ export function SegmentedPill() {
 
 /* -------------------------------------------------------------------------- */
 /* D. Margin index: the sections stacked in the first columns of a sticky
-      header, each with a route-coloured dot that lights while it's in view. */
+      header, each with a discipline-coloured dot that lights while it's in view. */
 
 export function MarginIndex() {
   const active = useSectionInView()
@@ -253,8 +253,8 @@ export function MarginIndex() {
       <div className="hidden self-start md:col-span-2 md:block">
         <LiveClock />
       </div>
-      <div className="nv-margin-shade col-span-full flex self-start md:col-span-3 md:col-start-10 md:justify-end">
-        <WindowShade inline />
+      <div className="nv-margin-theme col-span-full flex self-start md:col-span-3 md:col-start-10 md:justify-end">
+        <ThemeToggle inline />
       </div>
     </header>
   )
@@ -273,7 +273,7 @@ export function BottomMenu() {
 
   const show = () => {
     dialog.current?.showModal()
-    // Start on Close rather than whatever comes first (the shade).
+    // Start on Close rather than whatever comes first (the theme toggle).
     dialog.current?.querySelector<HTMLElement>('.nv-menu-close')?.focus()
     setOpen(true)
   }
@@ -295,7 +295,7 @@ export function BottomMenu() {
         <div className="nv-menu-head swiss-grid t-label items-center">
           <LiveClock className="col-span-2 md:col-span-6" />
           <span className="col-span-2 flex items-center justify-end gap-6 md:col-span-6">
-            <WindowShade inline />
+            <ThemeToggle inline />
             <button type="button" onClick={close} className="nv-menu-close">
               Close ✕
             </button>

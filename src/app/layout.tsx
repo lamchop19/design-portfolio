@@ -1,15 +1,12 @@
 import type { Metadata } from 'next'
-import { Bricolage_Grotesque, Doto } from 'next/font/google'
+import { Bricolage_Grotesque } from 'next/font/google'
 import localFont from 'next/font/local'
 
 import { SiteFooter } from '@/components/layout/site-footer'
 import { SmoothScroll } from '@/components/layout/smooth-scroll'
-import { WindowShade } from '@/components/layout/window-shade'
-import { flapInitScript } from '@/lib/flap'
-import { introInitScript } from '@/lib/intro'
+import { ThemeToggle } from '@/components/layout/theme-toggle'
 import { ogImage } from '@/lib/og'
 import { themeInitScript } from '@/lib/theme'
-import { workViewInitScript } from '@/lib/work-view'
 import { site } from '@/../content/site'
 
 import './globals.css'
@@ -33,15 +30,6 @@ const paperMono = localFont({
   display: 'swap',
 })
 
-// Doto, a dot-matrix face for project titles: the wordmark's lamps in type.
-// SIL OFL.
-const dot = Doto({
-  subsets: ['latin'],
-  variable: '--font-dot',
-  display: 'swap',
-  axes: ['ROND'],
-})
-
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
@@ -62,18 +50,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${display.variable} ${paperMono.variable} ${dot.variable}`}
+      className={`${display.variable} ${paperMono.variable}`}
       suppressHydrationWarning
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-        <script dangerouslySetInnerHTML={{ __html: flapInitScript }} />
-        <script dangerouslySetInnerHTML={{ __html: workViewInitScript }} />
-        <script dangerouslySetInnerHTML={{ __html: introInitScript }} />
       </head>
       <body className="flex min-h-dvh flex-col">
         <SmoothScroll />
-        <WindowShade />
+        <ThemeToggle />
         <main className="flex-1">{children}</main>
         <SiteFooter />
       </body>

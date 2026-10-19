@@ -9,7 +9,7 @@ import type { WorkItem } from '@/lib/work-items'
 import { BottomMenu, MarginIndex, RuledStrip, SegmentedPill } from './navs'
 import { NAV_STYLES, type NavStyleId } from './options'
 
-import '../_heroload/hero-load.css'
+import '../_panel/panel.css'
 import './nav.css'
 
 const navs: Record<NavStyleId, () => React.ReactNode> = {

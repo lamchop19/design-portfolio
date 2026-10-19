@@ -5,8 +5,7 @@ import Link from 'next/link'
 import { NameHero } from '@/components/brand/name-hero'
 import { WorkCover } from '@/components/home/work-cover'
 import { HangMargin as Margin } from '@/components/layout/hang-margin'
-import { roles } from '@/components/landing/legs'
-import { routes, routesOf } from '@/components/landing/tagged-covers'
+import { disciplines, disciplinesOf } from '@/lib/disciplines'
 import { asset } from '@/lib/paths'
 import type { WorkItem } from '@/lib/work-items'
 import { site } from '@/../content/site'
@@ -27,7 +26,7 @@ function years(items: WorkItem[]) {
 }
 
 function Wordmark() {
-  return <NameHero name={site.name} face="led" intro="auto" />
+  return <NameHero name={site.name} />
 }
 
 function Links({ className }: { className?: string }) {
@@ -48,12 +47,12 @@ function Links({ className }: { className?: string }) {
   )
 }
 
-function RoutePills({ item }: { item: WorkItem }) {
+function DisciplinePills({ item }: { item: WorkItem }) {
   return (
     <span className="flex flex-wrap gap-1">
-      {routesOf(item.meta).map((route) => (
-        <span key={route} className="gs-pill t-label" style={{ background: routes[route].fill, color: routes[route].ink }}>
-          {route}
+      {disciplinesOf(item.meta).map((d) => (
+        <span key={d} className="gs-pill t-label" style={{ background: disciplines[d].fill, color: disciplines[d].ink }}>
+          {d}
         </span>
       ))}
     </span>
@@ -108,7 +107,7 @@ export function HangingMargin({ items }: Props) {
       <section className="swiss-grid gap-y-3">
         <Margin />
         <ul className="t-label col-span-full grid grid-cols-subgrid md:col-span-9">
-          {roles.map((role) => (
+          {site.experience.map((role) => (
             <li key={role.role} className="col-span-full grid grid-cols-subgrid border-t border-rule py-3">
               <span className="col-span-2 md:col-span-3">{role.org}</span>
               <span className="col-span-2 md:col-span-4">{role.role}</span>
@@ -183,7 +182,7 @@ export function ModularField({ items }: Props) {
 
         <Cell className="t-label col-span-4 md:col-span-6 row-span-2">
           <ul className="flex flex-col">
-            {roles.map((role) => (
+            {site.experience.map((role) => (
               <li key={role.role} className="grid grid-cols-[1fr_auto] gap-x-4 border-b border-rule py-2 last:border-0">
                 <span>
                   {role.org}
@@ -240,7 +239,7 @@ export function Staggered({ items }: Props) {
                 </div>
                 <div className="mt-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
                   <p className="gs-title">{item.meta.title}</p>
-                  <RoutePills item={item} />
+                  <DisciplinePills item={item} />
                 </div>
                 <p className="t-label mt-1 text-ink-faint">
                   {item.meta.subtitle} · {item.meta.year}
@@ -254,7 +253,7 @@ export function Staggered({ items }: Props) {
       <section className="swiss-grid gap-y-[calc(var(--baseline)*8)]">
         <p className="gs-statement col-span-full md:col-span-5 md:col-start-7">{site.bio}</p>
         <ul className="t-label col-span-full md:col-span-5 md:col-start-2">
-          {roles.map((role) => (
+          {site.experience.map((role) => (
             <li key={role.role} className="flex justify-between gap-4 border-t border-rule py-3">
               <span>
                 {role.org} · {role.role}

@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { asset } from '@/lib/paths'
-import { routesOf } from '@/lib/routes'
-import { flightCode, type WorkItem } from '@/lib/work-items'
+import { disciplinesOf } from '@/lib/disciplines'
+import { indexLabel, type WorkItem } from '@/lib/work-items'
 
 import { buildField, inksFor, PALETTES, print, printPath, type PaletteId, type PixelSize } from './dither'
 
@@ -23,11 +23,14 @@ const reducedQuery = '(prefers-reduced-motion: reduce)'
  */
 export function BitmapCover({
   item,
+  index,
   palette,
   pixel,
   mode,
 }: {
   item: WorkItem
+  /** The project's place in the running order, for the caption. */
+  index: number
   palette: PaletteId
   pixel: PixelSize
   mode: BitmapMode
@@ -47,7 +50,7 @@ export function BitmapCover({
         )}
       </div>
       <figcaption className="bm-caption t-label">
-        <span>Specimen — {flightCode(meta)}</span>
+        <span>Specimen — {indexLabel(index)}</span>
         <span className="text-ink-faint">
           {paletteName} · {pixel}px · {mode === 'live' ? 'Live' : 'Print'}
         </span>
@@ -82,7 +85,7 @@ function LiveSpecimen({ item, palette, pixel }: { item: WorkItem; palette: Palet
     el.width = width
     el.height = height
     const field = buildField(slug, width, height)
-    const inks = inksFor(palette, routesOf(item.meta))
+    const inks = inksFor(palette, disciplinesOf(item.meta))
     const image = context.createImageData(width, height)
 
     const draw = (progress: number) => {

@@ -3,13 +3,11 @@
 
    The work as a typeset list on hairlines, on the site's one grid. Vertical
    spacing is always a multiple of --baseline, so the 8px rows in the overlay
-   (G) line up with every block. The LED intro's layer is in
-   components/intro/intro.css; the drop that follows it is at the foot.
+   (G) line up with every block.
    --------------------------------------------------------------------------- */
 
 .ri {
   min-height: 100svh;
-  /* The wordmark's glow and stray lamps reach past the page. */
   overflow-x: clip;
 }
 
@@ -63,25 +61,4 @@
     top: calc(var(--baseline) * 10);
     align-self: start;
   }
-}
-
-/* ---- Load: the LED intro, then the rows drop onto their hairlines ---- */
-
-/*
- * Only on a visit that still gets the intro (html[data-led-intro], set before
- * paint by introInitScript). The page's own wordmark lights up hidden under
- * the intro and shows when the big one lands on it.
- */
-html[data-led-intro='play'] .ri[data-intro='pre'] .ri-wordmark .flap-wordmark {
-  visibility: hidden;
-}
-
-html[data-led-intro='play'] .ri[data-reveal='drop'] [data-drop] {
-  animation: intro-drop 560ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
-  animation-delay: calc(var(--reveal-delay, 0ms) + var(--i, 0) * var(--drop-step, 80ms));
-}
-
-/* The intro layer shows only on that visit; otherwise the page is there from the first frame. */
-html:not([data-led-intro='play']) .ri .intro-led {
-  display: none;
 }

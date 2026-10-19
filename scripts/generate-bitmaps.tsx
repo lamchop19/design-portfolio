@@ -12,7 +12,7 @@ import path from 'node:path'
 import sharp from 'sharp'
 
 import { buildField, inksFor, PALETTES, PIXEL_SIZES, print, printPath, PRINT_SIZE } from '../src/app/prototypes/_bitmap/dither'
-import { routesOf } from '../src/lib/routes'
+import { disciplinesOf } from '../src/lib/disciplines'
 import { work } from '../content/work'
 
 const ROOT = path.resolve(import.meta.dirname, '..')
@@ -31,7 +31,7 @@ async function main() {
       const field = buildField(meta.slug, width, height)
       for (const palette of PALETTES) {
         const rgba = new Uint8ClampedArray(width * height * 4)
-        print(rgba, field, width, height, inksFor(palette.id, routesOf(meta)))
+        print(rgba, field, width, height, inksFor(palette.id, disciplinesOf(meta)))
         const file = path.join(ROOT, 'public', printPath(meta.slug, palette.id, pixel))
         const info = await sharp(Buffer.from(rgba.buffer), { raw: { width, height, channels: 4 } })
           .png({ palette: true, colours: 16, compressionLevel: 9 })

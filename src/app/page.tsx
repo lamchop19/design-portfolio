@@ -13,7 +13,7 @@ export default function HomePage() {
       exit={{ 'nav-forward': 'nav-forward', 'nav-back': 'nav-back', default: 'none' }}
       default="none"
     >
-      <RuledIndex items={items} intro="led" />
+      <RuledIndex items={items} />
     </ViewTransition>
   )
 }

@@ -1,7 +1,5 @@
 import type { Metadata } from 'next'
 
-import './_flight/flight.css'
-
 export const metadata: Metadata = {
   title: { default: 'Prototypes', template: '%s — Prototypes' },
   robots: { index: false, follow: false },

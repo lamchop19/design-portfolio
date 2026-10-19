@@ -7,7 +7,7 @@ export const NAV_STYLES: Array<{ id: NavStyleId; name: string; note: string; ref
   {
     id: 'strip',
     name: 'Ruled strip',
-    note: 'A sticky strip in hairline cells on the grid: the name once the wordmark has gone, the sections as one line, the time in New York and the shade.',
+    note: 'A sticky strip in hairline cells on the grid: the name once the wordmark has gone, the sections as one line, the time in New York and the theme toggle.',
     refs: [
       { name: 'Waka Waka', url: 'https://mobbin.com/sites/sections/082e8338-c62d-4080-a4a0-a5a8a8caa6ac' },
       { name: 'SOTF', url: 'https://mobbin.com/sites/sections/c2b03cf7-6f55-431f-8876-0f56beecba25' },
@@ -17,7 +17,7 @@ export const NAV_STYLES: Array<{ id: NavStyleId; name: string; note: string; ref
   {
     id: 'pill',
     name: 'Segmented pill',
-    note: 'Two small capsules float over the page: the sections on the left with the one in view filled, how far down you are, and the clock and shade on the right.',
+    note: 'Two small capsules float over the page: the sections on the left with the one in view filled, how far down you are, and the clock and theme toggle on the right.',
     refs: [
       { name: 'MOUTHWASH', url: 'https://mobbin.com/sites/sections/672c2210-6085-428a-920f-c03f1b5933be' },
       { name: 'Analogue', url: 'https://mobbin.com/sites/sections/2897fc9c-97a9-48e6-9b96-ea02583b012d' },

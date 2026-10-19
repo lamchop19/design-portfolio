@@ -2,9 +2,7 @@
    Nav styles lab (prototypes/_nav)
 
    Four top navs for the ruled-index homepage. Each sits on the site's grid
-   and tokens; every sticky or floating one stays under the LED intro's layer
-   (z-index 70). Floating ones never centre with `translate`, since the load
-   drop animates it.
+   and tokens; every sticky or floating one stays under z-index 70.
    --------------------------------------------------------------------------- */
 
 .nv-dot {
@@ -43,7 +41,7 @@
   padding-block: calc(var(--baseline) * 1.5);
 }
 
-/* Hairline verticals between the cells, as on a timetable. */
+/* Hairline verticals between the cells. */
 @media (min-width: 768px) {
   .nv-cell + .nv-cell {
     padding-left: var(--gutter);
@@ -226,7 +224,7 @@
 }
 
 @media (max-width: 767px) {
-  .nv-margin-shade {
+  .nv-margin-theme {
     margin-top: calc(var(--baseline) * 1.5);
   }
 }
@@ -321,10 +319,10 @@
   border-top: 1px solid var(--rule);
 }
 
-/* Opening, the rows drop onto their hairlines like the page's own. */
+/* Opening, the rows slide in one after another. */
 @media (prefers-reduced-motion: no-preference) {
   .nv-menu[open] li {
-    animation: intro-drop 480ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
+    animation: nv-menu-in 320ms var(--ease-out) both;
   }
 
   .nv-menu[open] li:nth-child(2) { animation-delay: 50ms; }
@@ -332,6 +330,13 @@
   .nv-menu[open] li:nth-child(4) { animation-delay: 150ms; }
   .nv-menu[open] li:nth-child(5) { animation-delay: 200ms; }
   .nv-menu[open] li:nth-child(n + 6) { animation-delay: 250ms; }
+}
+
+@keyframes nv-menu-in {
+  from {
+    opacity: 0;
+    translate: 0 -12px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -351,7 +356,7 @@
     display: none;
   }
 
-  /* The clock and shade capsule moves to the foot, leaving the top to the sections. */
+  /* The clock and theme capsule moves to the foot, leaving the top to the sections. */
   .nv-pill-right {
     top: auto;
     bottom: calc(var(--baseline) * 2);

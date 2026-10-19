@@ -1,23 +1,17 @@
 'use client'
 
 import Link from 'next/link'
-import { useCallback, useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import { NameHero } from '@/components/brand/name-hero'
 import { WorkCover } from '@/components/home/work-cover'
-import { LED_FLY_AT, LedPreroll } from '@/components/intro/led-preroll'
 import { GridOverlay } from '@/components/layout/grid-overlay'
-import { WindowShade } from '@/components/layout/window-shade'
-import { roles } from '@/components/landing/legs'
-import { wordmarkMotion } from '@/lib/flap-motion'
-import { LED_INTRO_KEY } from '@/lib/intro'
+import { ThemeToggle } from '@/components/layout/theme-toggle'
 import { asset } from '@/lib/paths'
 import type { WorkItem } from '@/lib/work-items'
 import { site } from '@/../content/site'
 
 import './ruled-index.css'
-
-export type IndexIntro = 'led' | 'none'
 
 /** The page's sections, top to bottom, by element id: what a nav can jump to or track. */
 export const INDEX_SECTIONS = [
@@ -29,76 +23,40 @@ export const INDEX_SECTIONS = [
 
 export type IndexSection = (typeof INDEX_SECTIONS)[number]['id']
 
-/** Each block's drop starts this long after the one before it, in ms. */
-const DROP_STEP_MS = 80
-/** Long enough for the last block to land; then the page lets go of the intro. */
-const DROP_DONE_MS = 2400
-
 /**
  * The homepage as a ruled index: the work as a typeset list on hairlines, with
  * the row in focus showing its cover in one fixed cell beside the list. Every
  * block sits on the site's one grid (.swiss-grid: 12 columns, 4 on phones,
  * 8px baseline) and carries no section labels.
  *
- * With `intro="led"` the first visit opens on the LED intro: the name lights up
- * across the whole screen and flies into place, then the rows drop onto their
- * hairlines one by one. Later visits in the same tab start on the page.
- *
- * `nav` replaces the strip across the top (see /prototypes/nav-styles). It
- * drops in first with the rows if it carries `data-drop`. `renderCover`
- * replaces what the cover cell shows for the row in focus (see
+ * `nav` replaces the strip across the top (see /prototypes/nav-styles).
+ * `renderCover` replaces what the cover cell shows for the row in focus (see
  * /prototypes/bitmap).
  */
 export function RuledIndex({
   items,
-  intro = 'none',
   nav,
   renderCover,
 }: {
   items: WorkItem[]
-  intro?: IndexIntro
   nav?: React.ReactNode
   renderCover?: (item: WorkItem, index: number) => React.ReactNode
 }) {
   const [active, setActive] = useState(0)
-  const [phase, setPhase] = useState<'pre' | 'done'>(intro === 'led' ? 'pre' : 'done')
-  const [delay, setDelay] = useState(LED_FLY_AT)
-
-  // A skipped intro hands over at once, so the drop starts now.
-  const landed = useCallback((skipped: boolean) => {
-    if (skipped) setDelay(0)
-    setPhase('done')
-  }, [])
-
-  // Once everything has landed, drop the page's hold so nothing replays on a later mount.
-  useEffect(() => {
-    if (intro !== 'led' || phase !== 'done') return
-    const timer = window.setTimeout(() => delete document.documentElement.dataset.ledIntro, delay + DROP_DONE_MS)
-    return () => clearTimeout(timer)
-  }, [intro, phase, delay])
-
-  // Blocks drop in reading order; the counter numbers them as they render.
-  let order = 0
-  const drop = () => ({ '--i': order++ }) as React.CSSProperties
 
   const all = items.map((item) => item.meta.year)
   const years = `${Math.min(...all)}–${Math.max(...all)}`
 
   return (
-    <div
-      className="ri"
-      data-intro={phase}
-      data-reveal={intro === 'led' ? 'drop' : undefined}
-      style={{ '--reveal-delay': `${delay}ms`, '--drop-step': `${DROP_STEP_MS}ms` } as React.CSSProperties}
-    >
+    <div className="ri">
       {nav ?? (
-        <header className="ri-strip swiss-grid t-label items-center" data-drop style={drop()}>
+        <header className="ri-strip swiss-grid t-label items-center">
           <p className="col-span-2 md:col-span-6">
             New York<span className="md:hidden"> · {years}</span>
           </p>
           <p className="hidden md:col-span-4 md:block">{years}</p>
           <span className="col-span-2 flex justify-end">
-            <WindowShade inline />
+            <ThemeToggle inline />
           </span>
         </header>
       )}
@@ -106,16 +64,16 @@ export function RuledIndex({
       <div className="flex flex-col gap-[calc(var(--baseline)*14)] pt-[calc(var(--baseline)*6)] pb-[calc(var(--baseline)*16)]">
         <section className="swiss-grid gap-y-4">
           <div className="ri-wordmark col-span-full">
-            <NameHero name={site.name} face="led" motion={wordmarkMotion} intro="auto" loadDelay={150} />
+            <NameHero name={site.name} />
           </div>
-          <div id="info" className="ri-row col-span-full grid grid-cols-subgrid gap-y-2" data-drop style={drop()}>
+          <div id="info" className="ri-row col-span-full grid grid-cols-subgrid gap-y-2">
             <p className="col-span-full md:col-span-6">{site.headline}</p>
             <p className="col-span-full text-ink-muted md:col-span-5 md:col-start-8">{site.bio}</p>
           </div>
         </section>
 
         <section id="work" className="swiss-grid gap-y-6" aria-label="Work">
-          <div className="ri-cover-cell col-span-full md:col-span-5 md:col-start-8 md:row-start-1" data-drop style={drop()}>
+          <div className="ri-cover-cell col-span-full md:col-span-5 md:col-start-8 md:row-start-1">
             {renderCover ? (
               renderCover(items[active], active)
             ) : (
@@ -126,7 +84,7 @@ export function RuledIndex({
           </div>
           <ul className="col-span-full md:col-span-7 md:col-start-1 md:row-start-1">
             {items.map((item, i) => (
-              <li key={item.meta.slug} data-drop style={drop()}>
+              <li key={item.meta.slug}>
                 <Link
                   href={`/work/${item.meta.slug}`}
                   transitionTypes={['nav-forward']}
@@ -146,8 +104,8 @@ export function RuledIndex({
 
         <section id="experience" className="swiss-grid" aria-label="Experience">
           <ul className="t-label col-span-full grid grid-cols-subgrid">
-            {roles.map((role) => (
-              <li key={role.role} className="ri-row col-span-full grid grid-cols-subgrid" data-drop style={drop()}>
+            {site.experience.map((role) => (
+              <li key={role.role} className="ri-row col-span-full grid grid-cols-subgrid">
                 <span className="col-span-2 md:col-span-4">{role.org}</span>
                 <span className="col-span-2 md:col-span-6">{role.role}</span>
                 <span className="col-span-full text-ink-faint md:col-span-2 md:text-right">{role.when}</span>
@@ -160,13 +118,11 @@ export function RuledIndex({
           <a
             href={`mailto:${site.email}`}
             className="ri-row ri-link col-span-full flex items-baseline justify-between gap-6"
-            data-drop
-            style={drop()}
           >
             <span className="ri-title break-all">{site.email}</span>
             <span className="t-label">↗</span>
           </a>
-          <ul className="t-label col-span-full mt-4 flex flex-wrap gap-x-5 gap-y-1" data-drop style={drop()}>
+          <ul className="t-label col-span-full mt-4 flex flex-wrap gap-x-5 gap-y-1">
             {site.links.map((link) => (
               <li key={link.label}>
                 <a
@@ -182,7 +138,6 @@ export function RuledIndex({
         </section>
       </div>
 
-      {phase === 'pre' ? <LedPreroll target=".ri-wordmark .flap-wordmark" once={LED_INTRO_KEY} onDone={landed} /> : null}
       <GridOverlay />
     </div>
   )

@@ -8,7 +8,7 @@ import type { WorkItem } from '@/lib/work-items'
 import { BitmapCover, type BitmapMode } from './bitmap-cover'
 import { PALETTES, PIXEL_SIZES, type PaletteId, type PixelSize } from './dither'
 
-import '../_heroload/hero-load.css'
+import '../_panel/panel.css'
 import './bitmap.css'
 
 const MODES: Array<{ id: BitmapMode; name: string; note: string }> = [
@@ -33,7 +33,7 @@ export function BitmapLab({ items }: { items: WorkItem[] }) {
     <>
       <RuledIndex
         items={items}
-        renderCover={(item) => <BitmapCover item={item} palette={palette} pixel={pixel} mode={mode} />}
+        renderCover={(item, i) => <BitmapCover item={item} index={i} palette={palette} pixel={pixel} mode={mode} />}
       />
 
       <aside className="hl-panel hl-corner" aria-label="Bitmap options" data-folded={folded || undefined}>
