@@ -1,0 +1,46 @@
+/* /prototypes/ocean: the alternative water treatments and the font trial. */
+
+.ocean-caustics {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  opacity: calc(var(--ocean-water) * 1.6);
+  pointer-events: none;
+}
+
+html[data-water='caustics'] .ocean-water,
+html[data-water='none'] .ocean-water {
+  display: none;
+}
+
+/* Option C: the swell lines bent by a slowly drifting turbulence. */
+html[data-water='ripple'] .ocean-water {
+  filter: url(#ocean-ripple);
+}
+
+.ol-range {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr 2.5rem;
+  align-items: center;
+  gap: 10px;
+  padding-inline: 4px;
+  color: var(--ink-muted);
+  font-size: 13px;
+}
+
+.ol-range input {
+  accent-color: var(--ink);
+}
+
+.hl-corner[data-folded] .ol-range {
+  display: none;
+}
+
+/* Sits above the frame's bottom-right clock. */
+.hl-panel.hl-corner {
+  bottom: 44px;
+  z-index: 70;
+}

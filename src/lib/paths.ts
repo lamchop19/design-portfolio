@@ -19,11 +19,3 @@ export function isHome(pathname: string) {
 export function drawsOwnFooter(pathname: string) {
   return isHome(pathname) || pathname.replace(/^\/+/, '').startsWith('prototypes')
 }
-
-const OWN_TOGGLE = ['nav-styles', 'bitmap']
-
-/** Pages whose header carries the theme control, so the floating one stands aside. */
-export function placesOwnThemeToggle(pathname: string) {
-  const path = pathname.replace(/^\/+/, '')
-  return isHome(pathname) || OWN_TOGGLE.some((prefix) => path.startsWith(`prototypes/${prefix}`))
-}

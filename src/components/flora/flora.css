@@ -1,0 +1,70 @@
+/* ---------------------------------------------------------------------------
+   Flora (components/flora)
+
+   Each role is a 1-bit mask on its own layer; the layers never overlap (the
+   generator knocks each out of the ones beneath), so no blending is needed.
+   --------------------------------------------------------------------------- */
+
+.flora {
+  --flora-w: 120;
+  --flora-h: 150;
+  position: relative;
+  display: block;
+  flex: none;
+  width: calc(var(--flora-w) * var(--flora-dot, var(--dot)) * 1px);
+  height: calc(var(--flora-h) * var(--flora-dot, var(--dot)) * 1px);
+}
+
+.flora[data-flip] {
+  scale: -1 1;
+}
+
+.flora-ink {
+  position: absolute;
+  inset: 0;
+  image-rendering: pixelated;
+  mask: var(--mask) 0 0 / 100% 100% no-repeat;
+}
+
+/* The two-thirds print, for short cells: layouts opt in with the .flora-sm
+   class on a container, usually inside a media query of their own. */
+.flora-sm .flora {
+  --flora-w: 80;
+  --flora-h: 100;
+}
+
+.flora-sm .flora-ink {
+  mask-image: var(--mask-sm);
+}
+
+/* Two-ink riso: blue body, fluoro orange detail, dots knocked out to paper. */
+.flora-ink[data-role='base'],
+.flora-ink[data-role='stem'],
+.flora-ink[data-role='body'],
+.flora-ink[data-role='shade'] {
+  background: var(--ink-blue);
+}
+
+.flora-ink[data-role='accent'],
+.flora-ink[data-role='line'] {
+  background: var(--ink-orange);
+}
+
+.flora-ink[data-role='spot'] {
+  background: var(--surface);
+}
+
+/* Full palette: each role in the ink the generator picked for it. */
+[data-palette='full'] .flora-ink {
+  background: var(--full);
+}
+
+/* Airbrush: the soft colour render replaces the masks. It is drawn at twice
+   the bitmap's size, so it downsamples cleanly at any dot. */
+[data-palette='air'] .flora {
+  background: var(--air) center / 100% 100% no-repeat;
+}
+
+[data-palette='air'] .flora-ink {
+  display: none;
+}

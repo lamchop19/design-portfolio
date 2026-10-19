@@ -1,6 +1,10 @@
 import Link from 'next/link'
 
 const prototypes = [
+  { href: '/prototypes/sea', title: 'Sea', note: 'One watercolour scene in three snapped screens: sky and sailboat, open water and the work, the floor with the submarine' },
+  { href: '/prototypes/aquarium', title: 'Aquarium', note: 'An airbrushed tank of fish and coral behind the portfolio, with the text centred over it, three ways' },
+  { href: '/prototypes/one-page', title: 'One page', note: 'The whole portfolio on one screen, four formats, with folk-plant flora in two-ink or full palette' },
+  { href: '/prototypes/ocean', title: 'Ocean', note: 'Water treatments behind the specimen wallpaper, ink strengths, dot size and wordmark faces' },
   { href: '/prototypes/grid-styles', title: 'Grid styles', note: 'Hanging margin, ruled index, modular field and staggered columns on the same content' },
   { href: '/prototypes/nav-styles', title: 'Nav styles', note: 'Ruled strip, segmented pill, margin index and a bottom bar with a full-screen menu, on the ruled-index homepage' },
   { href: '/prototypes/bitmap', title: 'Bitmap specimens', note: 'Dithered shapes in soft inks in the ruled index’s cover cell: palettes, pixel sizes, live or pre-rendered' },

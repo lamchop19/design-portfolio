@@ -52,8 +52,12 @@ export function SmoothScroll() {
     const lenis = lenisRef.current
     const sections = [...document.querySelectorAll<HTMLElement>('[data-snap]')]
     if (!lenis || !sections.length) return
+    // A page can ask to lock onto every section (data-snap-type="mandatory");
+    // phones keep proximity, since their sections can run taller than a screen.
+    const wantsLock = document.querySelector<HTMLElement>('[data-snap-type]')?.dataset.snapType === 'mandatory'
+    const lock = wantsLock && window.matchMedia('(min-width: 768px) and (min-height: 620px)').matches
     const snap = new Snap(lenis, {
-      type: 'proximity',
+      type: lock ? 'mandatory' : 'proximity',
       distanceThreshold: '30%',
       debounce: 180,
       duration: 0.9,

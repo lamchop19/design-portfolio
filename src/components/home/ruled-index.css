@@ -1,24 +1,25 @@
 /* ---------------------------------------------------------------------------
    Ruled index (the homepage)
 
-   The work as a typeset list on hairlines, on the site's one grid. Vertical
-   spacing is always a multiple of --baseline, so the 8px rows in the overlay
-   (G) line up with every block.
+   The page on the site's one grid. Vertical spacing is always a multiple of
+   --baseline, so the 8px rows in the overlay (G) line up with every block.
    --------------------------------------------------------------------------- */
 
 .ri {
   min-height: 100svh;
   overflow-x: clip;
+  /* A paper halo round every glyph, so text always sits on clean stock even
+     where the wallpaper's darkest dots run behind it. */
+  --halo: 0 0 2px var(--surface), 0 0 6px var(--surface), 0 0 12px var(--surface);
 }
 
-/* Jumps to a section land clear of a sticky nav. */
+.ri :where(p, li, a, h1, h2, span) {
+  text-shadow: var(--halo);
+}
+
+/* Jumps to a section land clear of the frame's pills. */
 .ri [id] {
-  scroll-margin-top: calc(var(--baseline) * 12);
-}
-
-.ri-strip {
-  padding-block: calc(var(--baseline) * 2);
-  border-bottom: 1px solid var(--rule);
+  scroll-margin-top: calc(var(--baseline) * 10);
 }
 
 .ri-row {
@@ -26,19 +27,51 @@
   border-top: 1px solid var(--rule);
 }
 
+.ri-headline {
+  font-size: clamp(1.125rem, 1.6vw, 1.5rem);
+  line-height: 1.25;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+/* The bio, read in word by word (ScrollLitText). */
+.ri-bio {
+  font-size: clamp(1.5rem, 3.2vw, 2.75rem);
+  line-height: 1.12;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  text-wrap: pretty;
+}
+
+.ri-index {
+  padding-top: calc(var(--baseline) * 1);
+}
+
+.ri-section-title {
+  font-size: clamp(2.5rem, 7vw, 6.5rem);
+  line-height: 0.95;
+  font-weight: 500;
+  letter-spacing: -0.05em;
+}
+
 .ri-title {
-  font-size: clamp(1.75rem, 4vw, 3.5rem);
+  font-size: clamp(1.75rem, 3.4vw, 3rem);
   line-height: 1.05;
   font-weight: 500;
   letter-spacing: -0.04em;
   transition:
     color 160ms var(--ease-out),
+    text-shadow 240ms var(--ease-out),
     translate 240ms var(--ease-out);
 }
 
+/* The row in focus prints in two inks, the fluoro one a touch off register. */
 .ri-link:hover .ri-title,
 .ri-link[data-active] .ri-title {
   color: var(--accent);
+  text-shadow:
+    0.05em 0.035em 0 color-mix(in srgb, var(--ink-orange) 85%, transparent),
+    var(--halo);
 }
 
 .ri-cover {
@@ -60,5 +93,18 @@
     position: sticky;
     top: calc(var(--baseline) * 10);
     align-self: start;
+  }
+}
+
+/* The address is one long word: smaller on phones so it fits on a line, and
+   allowed to break only if it still can't. */
+.ri-email {
+  font-size: clamp(1.25rem, 6.4vw, 3rem);
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 768px) {
+  .ri-email {
+    font-size: clamp(1.75rem, 3.4vw, 3rem);
   }
 }

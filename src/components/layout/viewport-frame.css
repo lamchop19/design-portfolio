@@ -1,0 +1,148 @@
+/* ---------------------------------------------------------------------------
+   Viewport frame (components/layout/viewport-frame)
+   --------------------------------------------------------------------------- */
+
+:root {
+  --frame-inset: 8px;
+  --frame-corner: 14px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --frame-inset: 12px;
+    --frame-corner: 18px;
+  }
+}
+
+.vf {
+  position: fixed;
+  inset: var(--frame-inset);
+  z-index: 60;
+  pointer-events: none;
+  border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+}
+
+.vf-corner {
+  position: absolute;
+  width: var(--frame-corner);
+  height: var(--frame-corner);
+  border: 0 solid var(--ink);
+}
+
+.vf-corner[data-corner='tl'] {
+  top: -1px;
+  left: -1px;
+  border-top-width: 1px;
+  border-left-width: 1px;
+}
+.vf-corner[data-corner='tr'] {
+  top: -1px;
+  right: -1px;
+  border-top-width: 1px;
+  border-right-width: 1px;
+}
+.vf-corner[data-corner='bl'] {
+  bottom: -1px;
+  left: -1px;
+  border-bottom-width: 1px;
+  border-left-width: 1px;
+}
+.vf-corner[data-corner='br'] {
+  bottom: -1px;
+  right: -1px;
+  border-bottom-width: 1px;
+  border-right-width: 1px;
+}
+
+.vf-nav {
+  position: fixed;
+  top: calc(var(--frame-inset) + 8px);
+  left: calc(var(--frame-inset) + 8px);
+  right: calc(var(--frame-inset) + 8px);
+  z-index: 61;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+/* Small pills, paper-filled and frosted so the wallpaper reads through them. */
+.vf-pill {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 32px;
+  padding-inline: 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  backdrop-filter: blur(8px);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 12%, transparent);
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+  /* 44px of target on a 32px pill. */
+  position: relative;
+}
+
+.vf-pill::before {
+  content: '';
+  position: absolute;
+  inset: -6px -2px;
+}
+
+.vf-pill:hover {
+  background: var(--ink);
+  color: var(--surface);
+}
+
+/* Contact +: the plus sits in its own little pill, joined to the label. */
+.vf-pill-split {
+  padding-right: 4px;
+  gap: 10px;
+}
+
+.vf-plus {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--ink-orange);
+  color: var(--ink);
+  font-size: 14px;
+  transition: rotate var(--dur-base) var(--ease-out);
+}
+
+.vf-pill-split:hover .vf-plus {
+  rotate: 90deg;
+}
+
+.vf-foot {
+  position: fixed;
+  left: calc(var(--frame-inset) + 12px);
+  right: calc(var(--frame-inset) + 12px);
+  bottom: calc(var(--frame-inset) + 6px);
+  z-index: 61;
+  display: flex;
+  justify-content: space-between;
+  color: var(--ink-muted);
+  pointer-events: none;
+}
+
+/* A paper backing, so content scrolling under the corners stays legible. */
+.vf-foot > * {
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+@media (max-width: 767px) {
+  .vf-foot > span:first-child {
+    display: none;
+  }
+
+  .vf-foot {
+    justify-content: flex-end;
+  }
+}
