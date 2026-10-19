@@ -13,6 +13,11 @@
   overflow-x: clip;
 }
 
+/* Jumps to a section land clear of a sticky nav. */
+.ri [id] {
+  scroll-margin-top: calc(var(--baseline) * 12);
+}
+
 .ri-strip {
   padding-block: calc(var(--baseline) * 2);
   border-bottom: 1px solid var(--rule);

@@ -5,27 +5,13 @@ import { WorkCover } from '@/components/home/work-cover'
 import { HangMargin } from '@/components/layout/hang-margin'
 import { FlapText } from '@/components/split-flap/split-flap'
 import type { WorkMeta } from '@/lib/content'
+import { routes, routesOf } from '@/lib/routes'
 import { flightCode, type WorkItem } from '@/lib/work-items'
 
 import { results } from './legs'
 
-/** The three routes, each with its sign colour and an ink that reads on it. */
-export const routes = {
-  Brand: { fill: 'var(--brand-blue)', ink: '#ffffff' },
-  Social: { fill: 'var(--brand-pink)', ink: '#0a0f1f' },
-  Content: { fill: 'var(--brand-green)', ink: '#0a0f1f' },
-} as const
-
-export type Route = keyof typeof routes
-
-/** Which routes a project flies, from its discipline line and tags. Anything not brand or social is content. */
-export function routesOf(meta: WorkMeta): Route[] {
-  const words = [meta.subtitle, ...meta.tags].join(' ').toLowerCase()
-  const found: Route[] = []
-  if (words.includes('brand')) found.push('Brand')
-  if (words.includes('social')) found.push('Social')
-  return found.length ? found : ['Content']
-}
+// The routes live in lib/routes (build scripts read them too); re-exported for the components that import them from here.
+export { routes, routesOf, type Route } from '@/lib/routes'
 
 /**
  * The work on the hanging margin: one project per row, its discipline, year

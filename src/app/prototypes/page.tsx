@@ -24,6 +24,8 @@ const prototypes = [
   { href: '/prototypes/led-lab', title: 'LED lab', note: 'Glow, colour, load, hover and click treatments for the LED wordmark' },
   { href: '/prototypes/logo', title: 'Logo', note: 'MAL as a transit route, after the 1974 Greater Manchester Transport M' },
   { href: '/prototypes/grid-styles', title: 'Grid styles', note: 'Hanging margin, ruled index, modular field and staggered columns on the same content' },
+  { href: '/prototypes/nav-styles', title: 'Nav styles', note: 'Ruled strip, segmented pill, margin index and a bottom bar with a full-screen menu, on the ruled-index homepage' },
+  { href: '/prototypes/bitmap', title: 'Bitmap specimens', note: 'Dithered shapes in soft inks in the ruled index’s cover cell: palettes, pixel sizes, live or pre-rendered' },
   { href: '/prototypes/type-specimens', title: 'Type specimens', note: 'Six type pairings side by side on the same content' },
 ] as const
 

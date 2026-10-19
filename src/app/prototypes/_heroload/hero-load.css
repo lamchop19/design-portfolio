@@ -58,3 +58,25 @@
   font-size: 13px;
   line-height: 1.45;
 }
+
+/* In the bottom-right corner instead, folding to one chip (data-folded), for labs whose page has something at the bottom centre. */
+.hl-corner {
+  right: 16px;
+  left: auto;
+  width: min(calc(100% - 32px), 420px);
+  translate: none;
+}
+
+.hl-corner[data-folded] {
+  width: auto;
+}
+
+.hl-corner[data-folded] .hl-chip:not(.hl-fold),
+.hl-corner[data-folded] .hl-options + .hl-options,
+.hl-corner[data-folded] .hl-note {
+  display: none;
+}
+
+.hl-fold {
+  margin-left: auto;
+}

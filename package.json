@@ -10,7 +10,9 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "og": "tsx scripts/generate-og.tsx",
-    "new-project": "node scripts/new-project.mjs"
+    "bitmaps": "tsx scripts/generate-bitmaps.tsx",
+    "new-project": "node scripts/new-project.mjs",
+    "refs": "node --env-file-if-exists=.env.local scripts/sync-refs.mjs"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",

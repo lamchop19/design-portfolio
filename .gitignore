@@ -45,5 +45,8 @@ next-env.d.ts
 /public/og/
 /src/lib/image-manifest.json
 
+# design references synced from Are.na — `npm run refs`
+/references/
+
 # conductor workspace scratch
 /.context/
