@@ -33,15 +33,3 @@ const PLACEHOLDERS = [
 export function placeholder(i: number) {
   return PLACEHOLDERS[i % PLACEHOLDERS.length]
 }
-
-/** A flight number for the pass: slug initials and the year's last two digits ("tech-nyu", 2025 → "TN25"). */
-export function flightCode(meta: WorkMeta) {
-  const words = meta.slug.split('-')
-  const letters = words.length > 1 ? words.map((word) => word[0]).join('') : words[0]
-  return `${letters.slice(0, 2)}${String(meta.year % 100).padStart(2, '0')}`.toUpperCase()
-}
-
-/** The pass's seat is the project's running number: "01A". */
-export function seatLabel(i: number) {
-  return `${indexLabel(i)}A`
-}

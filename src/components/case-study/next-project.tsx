@@ -13,7 +13,7 @@ export function NextProject({ meta }: { meta: WorkMeta }) {
         transitionTypes={['nav-forward']}
         className="group mt-3 flex flex-wrap items-baseline gap-x-5 gap-y-2"
       >
-        <span className="font-display text-[clamp(2rem,6vw,4.5rem)] leading-none tracking-tight transition-colors group-hover:text-accent">
+        <span className="text-[clamp(2rem,6vw,4.5rem)] leading-none font-medium tracking-[-0.04em] transition-colors group-hover:text-accent">
           {meta.title}
         </span>
         <span className="font-mono text-xs tracking-wide text-ink-faint uppercase">

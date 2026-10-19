@@ -1,0 +1,45 @@
+/* ---------------------------------------------------------------------------
+   Bitmap specimens (prototypes/_bitmap)
+
+   A specimen fills the ruled index's cover cell: the bitmap on its paper,
+   scaled up crisp, with a spec-sheet caption under it.
+   --------------------------------------------------------------------------- */
+
+.bm-frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 3 / 2;
+  /* The specimen's paper, so the frame never flashes the page's colour before it draws. */
+  background: #ecebe5;
+}
+
+@media (min-width: 768px) {
+  .bm-frame {
+    aspect-ratio: 4 / 5;
+  }
+}
+
+/* Negative prints straight onto the page. */
+.bm-cover[data-palette='negative'] .bm-frame {
+  background: transparent;
+  outline: 1px solid var(--rule);
+  outline-offset: -1px;
+}
+
+.bm-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+
+.bm-caption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px var(--gutter);
+  padding-top: calc(var(--baseline) * 1.5);
+  border-top: 1px solid var(--rule);
+  margin-top: calc(var(--baseline) * 1.5);
+}

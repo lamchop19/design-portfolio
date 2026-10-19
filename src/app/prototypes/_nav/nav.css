@@ -1,0 +1,371 @@
+/* ---------------------------------------------------------------------------
+   Nav styles lab (prototypes/_nav)
+
+   Four top navs for the ruled-index homepage. Each sits on the site's grid
+   and tokens; every sticky or floating one stays under z-index 70.
+   --------------------------------------------------------------------------- */
+
+.nv-dot {
+  display: inline-block;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid var(--dot, var(--ink-faint));
+  border-radius: 99px;
+  transition:
+    background 200ms var(--ease-out),
+    box-shadow 200ms var(--ease-out);
+}
+
+[aria-current] > .nv-dot,
+.nv-bar-here > .nv-dot {
+  background: var(--dot);
+  box-shadow: 0 0 8px 1px color-mix(in oklch, var(--dot) 60%, transparent);
+}
+
+/* ---- A + B. Ruled strip ---- */
+
+.nv-strip {
+  position: sticky;
+  z-index: 40;
+  top: 0;
+  row-gap: 0;
+  border-bottom: 1px solid var(--rule);
+  background: var(--surface);
+}
+
+.nv-cell {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding-block: calc(var(--baseline) * 1.5);
+}
+
+/* Hairline verticals between the cells. */
+@media (min-width: 768px) {
+  .nv-cell + .nv-cell {
+    padding-left: var(--gutter);
+    border-left: 1px solid var(--rule);
+    margin-left: calc(var(--gutter) * -1);
+  }
+}
+
+@media (max-width: 767px) {
+  .nv-strip-nav {
+    border-top: 1px solid var(--rule);
+  }
+}
+
+/* "New York" until the wordmark has gone, then the name takes the cell. */
+.nv-strip-name {
+  display: grid;
+  overflow: hidden;
+}
+
+.nv-strip-name > span {
+  grid-area: 1 / 1;
+  transition:
+    translate 320ms var(--ease-out),
+    opacity 320ms var(--ease-out);
+}
+
+.nv-strip-mark,
+.nv-strip-name[data-shown] .nv-strip-place {
+  opacity: 0;
+  translate: 0 -100%;
+}
+
+.nv-strip-name[data-shown] .nv-strip-mark {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.nv-strip-line {
+  color: var(--ink-faint);
+}
+
+.nv-strip-link {
+  color: var(--ink);
+  transition: color 160ms var(--ease-out);
+}
+
+.nv-strip-link:hover {
+  color: var(--accent);
+}
+
+.nv-strip-link[aria-current] {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* On air: the clock is live. */
+.nv-live {
+  width: 6px;
+  height: 6px;
+  border-radius: 99px;
+  background: var(--brand-green);
+  box-shadow: 0 0 6px 1px color-mix(in oklch, var(--brand-green) 60%, transparent);
+  animation: nv-blink 2.4s steps(1, end) infinite;
+}
+
+@keyframes nv-blink {
+  85% {
+    opacity: 0.25;
+  }
+}
+
+/* ---- C. Segmented pill ---- */
+
+.nv-pill-spacer {
+  height: calc(var(--baseline) * 7);
+}
+
+.nv-pill {
+  position: fixed;
+  z-index: 40;
+  top: calc(var(--baseline) * 1.5);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 36px;
+  padding: 3px;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: color-mix(in oklch, var(--surface) 82%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.nv-pill-left {
+  left: var(--page-margin);
+}
+
+.nv-pill-right {
+  right: var(--page-margin);
+  gap: calc(var(--baseline) * 2);
+  padding-inline: calc(var(--baseline) * 1.5);
+}
+
+.nv-pill-mark,
+.nv-pill-seg,
+.nv-pill-meter {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding-inline: 10px;
+  border-radius: 7px;
+}
+
+.nv-pill-mark {
+  background: var(--ink);
+  color: var(--surface);
+  letter-spacing: 0.08em;
+}
+
+.nv-pill-seg {
+  color: var(--ink-faint);
+  transition:
+    color 160ms var(--ease-out),
+    background 160ms var(--ease-out);
+}
+
+.nv-pill-seg:hover {
+  color: var(--ink);
+}
+
+.nv-pill-seg[aria-current] {
+  background: color-mix(in oklch, var(--ink) 12%, transparent);
+  color: var(--ink);
+}
+
+.nv-pill-meter {
+  min-width: 5ch;
+  justify-content: flex-end;
+  border-left: 1px solid var(--rule);
+  border-radius: 0;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- D. Margin index ---- */
+
+.nv-margin {
+  position: sticky;
+  z-index: 40;
+  top: 0;
+  padding-block: calc(var(--baseline) * 1.5);
+  border-bottom: 1px solid var(--rule);
+  background: var(--surface);
+}
+
+.nv-margin-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px calc(var(--baseline) * 2);
+}
+
+@media (min-width: 768px) {
+  .nv-margin-list {
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+
+.nv-margin-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink-faint);
+  transition: color 160ms var(--ease-out);
+}
+
+.nv-margin-link:hover,
+.nv-margin-link[aria-current] {
+  color: var(--ink);
+}
+
+@media (max-width: 767px) {
+  .nv-margin-theme {
+    margin-top: calc(var(--baseline) * 1.5);
+  }
+}
+
+/* ---- E. Bottom bar + menu ---- */
+
+.nv-bar {
+  position: fixed;
+  z-index: 40;
+  right: 0;
+  bottom: calc(var(--baseline) * 2);
+  left: 0;
+  display: flex;
+  align-items: center;
+  width: max-content;
+  margin-inline: auto;
+  padding: 3px;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: color-mix(in oklch, var(--surface) 82%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.nv-bar-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding-inline: 14px;
+  border-radius: 7px;
+  background: var(--ink);
+  color: var(--surface);
+  cursor: pointer;
+}
+
+.nv-bar-here {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 15ch;
+  padding-inline: 14px;
+}
+
+.nv-menu {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--surface);
+  color: var(--ink);
+  overflow-y: auto;
+}
+
+.nv-menu::backdrop {
+  background: transparent;
+}
+
+.nv-menu-head {
+  padding-block: calc(var(--baseline) * 2);
+  border-bottom: 1px solid var(--rule);
+}
+
+.nv-menu-close {
+  min-height: 36px;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+
+.nv-menu-close:hover {
+  color: var(--accent);
+}
+
+.nv-menu-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gutter);
+}
+
+.nv-menu-row[aria-current] .ri-title {
+  color: var(--accent);
+}
+
+.nv-menu-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px calc(var(--baseline) * 2.5);
+  padding-block: calc(var(--baseline) * 2) calc(var(--baseline) * 6);
+  border-top: 1px solid var(--rule);
+}
+
+/* Opening, the rows slide in one after another. */
+@media (prefers-reduced-motion: no-preference) {
+  .nv-menu[open] li {
+    animation: nv-menu-in 320ms var(--ease-out) both;
+  }
+
+  .nv-menu[open] li:nth-child(2) { animation-delay: 50ms; }
+  .nv-menu[open] li:nth-child(3) { animation-delay: 100ms; }
+  .nv-menu[open] li:nth-child(4) { animation-delay: 150ms; }
+  .nv-menu[open] li:nth-child(5) { animation-delay: 200ms; }
+  .nv-menu[open] li:nth-child(n + 6) { animation-delay: 250ms; }
+}
+
+@keyframes nv-menu-in {
+  from {
+    opacity: 0;
+    translate: 0 -12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nv-live {
+    animation: none;
+  }
+}
+
+/* ---- Phones ---- */
+
+@media (max-width: 767px) {
+  /*
+   * Desktop-only parts. Tailwind's `hidden` can't do this here: these rules
+   * set `display` themselves and, unlayered, they beat its utilities.
+   */
+  .nv-wide {
+    display: none;
+  }
+
+  /* The clock and theme capsule moves to the foot, leaving the top to the sections. */
+  .nv-pill-right {
+    top: auto;
+    bottom: calc(var(--baseline) * 2);
+  }
+}
+
+/* ---- The lab's panel (hero-load.css) ---- */
+
+/* Clear of the bottom bar when that's the style on trial. */
+[data-nav-style='menu'] .hl-corner {
+  bottom: 76px;
+}

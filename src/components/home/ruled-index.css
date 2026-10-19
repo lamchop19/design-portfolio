@@ -1,0 +1,64 @@
+/* ---------------------------------------------------------------------------
+   Ruled index (the homepage)
+
+   The work as a typeset list on hairlines, on the site's one grid. Vertical
+   spacing is always a multiple of --baseline, so the 8px rows in the overlay
+   (G) line up with every block.
+   --------------------------------------------------------------------------- */
+
+.ri {
+  min-height: 100svh;
+  overflow-x: clip;
+}
+
+/* Jumps to a section land clear of a sticky nav. */
+.ri [id] {
+  scroll-margin-top: calc(var(--baseline) * 12);
+}
+
+.ri-strip {
+  padding-block: calc(var(--baseline) * 2);
+  border-bottom: 1px solid var(--rule);
+}
+
+.ri-row {
+  padding-block: calc(var(--baseline) * 2);
+  border-top: 1px solid var(--rule);
+}
+
+.ri-title {
+  font-size: clamp(1.75rem, 4vw, 3.5rem);
+  line-height: 1.05;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  transition:
+    color 160ms var(--ease-out),
+    translate 240ms var(--ease-out);
+}
+
+.ri-link:hover .ri-title,
+.ri-link[data-active] .ri-title {
+  color: var(--accent);
+}
+
+.ri-cover {
+  overflow: hidden;
+  background: var(--rule);
+}
+
+.ri-cover > * {
+  width: 100%;
+  height: 100%;
+}
+
+@media (min-width: 768px) {
+  .ri-link[data-active] .ri-title {
+    translate: 1ch 0;
+  }
+
+  .ri-cover-cell {
+    position: sticky;
+    top: calc(var(--baseline) * 10);
+    align-self: start;
+  }
+}

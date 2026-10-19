@@ -47,7 +47,7 @@ export default async function WorkPage(props: PageProps<'/work/[slug]'>) {
         <ScrollProgress />
         <header className="pt-[14vh] pb-12">
           <h1 className="flex flex-wrap items-baseline gap-x-5 gap-y-2">
-            <span className="font-display text-[clamp(2.5rem,8vw,6rem)] leading-[0.95] tracking-tight">
+            <span className="text-[clamp(2.5rem,8vw,6rem)] leading-[0.95] font-medium tracking-[-0.04em]">
               {meta.title}
             </span>
             <span className="font-mono text-xs tracking-wide text-ink-faint uppercase">
@@ -75,7 +75,7 @@ export default async function WorkPage(props: PageProps<'/work/[slug]'>) {
         ) : null}
 
         <div className="mt-16 grid gap-12 md:grid-cols-[16rem_minmax(0,68ch)] md:gap-20">
-          <MetaRail meta={meta} index={work.indexOf(meta)} />
+          <MetaRail meta={meta} />
           <div className="min-w-0">
             <p className="mb-14 font-display text-[clamp(1.75rem,4vw,2.75rem)] leading-[1.1] tracking-tight text-balance">
               {meta.headline}

@@ -15,15 +15,15 @@ export function isHome(pathname: string) {
   return (pathname.replace(/\/+$/, '') || '/') === '/'
 }
 
-/** Pages that close with their own footer, or none: the homepage and the layout prototypes. */
+/** Pages that close with their own footer, or none: the homepage and the prototypes. */
 export function drawsOwnFooter(pathname: string) {
   return isHome(pathname) || pathname.replace(/^\/+/, '').startsWith('prototypes')
 }
 
-const OWN_SHADE = ['flight-', 'hero-load', 'seatback', 'blacklight', 'tone-on-tone', 'layout-', 'dot-matrix', 'logo']
+const OWN_TOGGLE = ['nav-styles', 'bitmap']
 
 /** Pages whose header carries the theme control, so the floating one stands aside. */
-export function placesOwnShade(pathname: string) {
+export function placesOwnThemeToggle(pathname: string) {
   const path = pathname.replace(/^\/+/, '')
-  return isHome(pathname) || OWN_SHADE.some((prefix) => path.startsWith(`prototypes/${prefix}`))
+  return isHome(pathname) || OWN_TOGGLE.some((prefix) => path.startsWith(`prototypes/${prefix}`))
 }

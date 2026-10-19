@@ -4,11 +4,9 @@ import localFont from 'next/font/local'
 
 import { SiteFooter } from '@/components/layout/site-footer'
 import { SmoothScroll } from '@/components/layout/smooth-scroll'
-import { WindowShade } from '@/components/layout/window-shade'
-import { flapInitScript } from '@/lib/flap'
+import { ThemeToggle } from '@/components/layout/theme-toggle'
 import { ogImage } from '@/lib/og'
 import { themeInitScript } from '@/lib/theme'
-import { workViewInitScript } from '@/lib/work-view'
 import { site } from '@/../content/site'
 
 import './globals.css'
@@ -57,12 +55,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-        <script dangerouslySetInnerHTML={{ __html: flapInitScript }} />
-        <script dangerouslySetInnerHTML={{ __html: workViewInitScript }} />
       </head>
       <body className="flex min-h-dvh flex-col">
         <SmoothScroll />
-        <WindowShade />
+        <ThemeToggle />
         <main className="flex-1">{children}</main>
         <SiteFooter />
       </body>

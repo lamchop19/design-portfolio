@@ -54,60 +54,25 @@ pass unchanged.
 
 The grid band itself is `PixelGrid` — the 8-cell unit `B.P..GB.` over `.B.PG..B`,
 drawn as one repeating gradient per row. It heads the footer on case studies and
-Scraps. Pixel art is kept for the footer and accents. The homepage sits on a
-12-column Swiss grid (`.swiss-grid` in `globals.css`, 4 columns on phones, 8px
-baseline; press G to draw it): a meta strip, the wordmark across all twelve
-columns, the Passenger (info) row, then Departures (the work), and a Final call
-colophon in place of the site footer. The airport framing stays in the labels
-and motion; every label still reads literally.
+Scraps. The homepage is a ruled index on a 12-column Swiss grid (`.swiss-grid`
+in `globals.css`, 4 columns on phones, 8px baseline; press G to draw it): a top
+strip, the name across the full width, an info row, the work as a typeset list
+on hairlines with the row in focus showing its cover in a fixed cell, then
+experience and contact (`src/components/home/ruled-index.tsx`).
 
-On a session's first visit the page loads like a board refreshing: the strip's
-labels resolve left to right, the wordmark cascades to WELCOME ABOARD (the same
-fourteen tiles as the name), holds, and turns over to MARC ANDRE LAM (the
-`preroll` prop on `SplitFlap`), and the hairline rules draw in. Phones, repeat
-visits, reduced motion and no-JS get the name directly. Labels that should wait
-for the full intro take `delay={{ first, repeat }}`.
+The theme control (`ThemeToggle`) is a text button naming the theme it switches
+to. Every visitor starts in dark mode, whatever their system setting; switching
+is remembered locally.
 
-The work switches between two views, **Index** (a numbered table with a pinned
-preview) and **Passes** (each project as a boarding pass). Both are rendered and
-CSS shows one, keyed off `data-work-view`, which a head script
-(`src/lib/work-view.ts`) restores from `localStorage` before paint. Without JS
-the index shows and the switch is hidden. `BoardingPass`
-(`src/components/work/`) prints in when that view is shown, and also forms the case study sidebar, so a project's pass
-matches on both pages: same flight code, seat and accent colour. Only the visible
-view carries the cover's shared view-transition name, since React allows one
-mounted element per name.
+**Motion** is CSS, apart from smooth scrolling. Word reveals, figure rise-ins and
+the reading-progress bar are all CSS. Page transitions and the cover→hero morph
+use the native View Transitions API via React's `<ViewTransition>`. The one
+library is Lenis (`smooth-scroll.tsx`, ~4kB), which eases wheel scrolling
+site-wide. Touch keeps native scrolling; reduced motion disables easing.
 
-The theme control is a plane window (`WindowShade`): closing the shade is dark
-mode, opening it light. It can be clicked or dragged, and the change sweeps
-across the page as a View Transition clipped to a moving edge (`data-shade` in
-`globals.css`). Every visitor starts with the shade closed (dark), whatever their
-system setting; opening it is remembered locally.
-
-**Motion** is CSS, apart from smooth scrolling and the split-flap tiles. Word
-reveals, figure rise-ins and the reading-progress bar are all CSS — the hero is the LCP element,
-and gating it on a JS library delayed the largest paint until hydration. Page
-transitions and the cover→hero morph use the native View Transitions API via React's
-`<ViewTransition>`. The one library is Lenis (`smooth-scroll.tsx`, ~4kB), which
-eases wheel scrolling site-wide. On pages that mark sections with `data-snap`, it
-settles onto a section start when scrolling stops near one, and scrolls freely
-elsewhere. Touch keeps native scrolling; reduced motion disables both easing and
-snapping.
-
-`SplitFlap` (`src/components/split-flap/`) drives the wordmark, the clock and the
-flipping labels. The server renders the finished text, so it reads correctly
-without JS. On the client each tile steps forward through a fixed character drum
-(`src/lib/flap.ts`) using the Web Animations API, so tiles further along the drum
-land later and the cascade staggers itself. Its default `bare` look draws only the
-glyphs: one tile is one Paper Mono character, so a row sets like plain text, and the
-leaves appear only while a letter turns (the `tile` variant
-still draws the physical board). Labels use a `quick` intro and swap, landing in a
-few flips. The wordmark fills its container with CSS alone, on one row or stacked
-MARC / ANDRE / LAM. A head script marks the page `data-flap="pending"` before paint
-so letters don't flash ahead of the cascade; later visits in the same session play
-a short version. Reduced motion shows the text with no flips.
-The seabed crab makes one small arrival movement, which is disabled for reduced
-motion.
+The earlier airplane-themed version of the site (split-flap wordmark, boarding
+passes, LED intro, window-shade toggle and its prototypes) is archived: see
+[ARCHIVE.md](ARCHIVE.md).
 
 Everything positional degrades under `prefers-reduced-motion`, and the
 scroll-driven effects are wrapped in `@supports` so unsupported browsers get

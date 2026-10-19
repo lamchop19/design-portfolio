@@ -25,4 +25,12 @@ export const site = {
     // Re-enable once public/resume.pdf exists — shipping it now is a dead link.
     { label: 'Resume', href: '/resume.pdf', kind: 'asset', disabled: true },
   ].filter((link) => !('disabled' in link && link.disabled)) as SiteLink[],
+
+  /** Roles, newest first. */
+  experience: [
+    { org: 'tech@nyu', role: 'Vice President', when: '2025' },
+    { org: 'tech@nyu', role: 'Marketing Lead', when: 'Jan 2025' },
+    { org: 'NYU Sydney', role: 'Intercultural Learning Fellow', when: 'Oct 2025' },
+    { org: 'Shmeel NYC', role: 'Designer', when: 'May 2024' },
+  ],
 }

@@ -1,0 +1,82 @@
+/* Lab panel: a floating switcher over a live page, shared by the prototypes. */
+
+.hl-panel {
+  position: fixed;
+  z-index: 80;
+  bottom: 16px;
+  left: 50%;
+  display: grid;
+  gap: 8px;
+  width: min(calc(100% - 32px), 640px);
+  padding: 10px;
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  background: color-mix(in oklch, var(--surface) 88%, transparent);
+  backdrop-filter: blur(12px);
+  translate: -50% 0;
+}
+
+.hl-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.hl-chip {
+  min-height: 34px;
+  padding-inline: 12px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  color: var(--ink-muted);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.hl-chip:hover {
+  border-color: var(--ink-faint);
+  color: var(--ink);
+}
+
+.hl-chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.hl-chip[aria-checked='true'] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--surface);
+}
+
+.hl-replay {
+  margin-left: auto;
+}
+
+.hl-note {
+  padding-inline: 4px;
+  color: var(--ink-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+/* In the bottom-right corner instead, folding to one chip (data-folded), for labs whose page has something at the bottom centre. */
+.hl-corner {
+  right: 16px;
+  left: auto;
+  width: min(calc(100% - 32px), 420px);
+  translate: none;
+}
+
+.hl-corner[data-folded] {
+  width: auto;
+}
+
+.hl-corner[data-folded] .hl-chip:not(.hl-fold),
+.hl-corner[data-folded] .hl-options + .hl-options,
+.hl-corner[data-folded] .hl-note {
+  display: none;
+}
+
+.hl-fold {
+  margin-left: auto;
+}

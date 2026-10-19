@@ -2,8 +2,6 @@
 
 import { useSyncExternalStore } from 'react'
 
-import { SplitFlap } from '@/components/split-flap/split-flap'
-import { CLOCK_DRUM } from '@/lib/flap'
 
 const format = new Intl.DateTimeFormat('en-GB', {
   timeZone: 'America/New_York',
@@ -38,7 +36,7 @@ function subscribe(onChange: () => void) {
 
 const getTime = () => format.format(new Date())
 // The export is static, so the server can't know the time: it ships dashes and
-// the tiles flip to the visitor's current New York time once hydrated.
+// the visitor's current New York time shows once hydrated.
 const getServerTime = () => '--:--'
 
 export function LiveClock({ className }: { className?: string }) {
@@ -50,7 +48,7 @@ export function LiveClock({ className }: { className?: string }) {
       <span className="text-ink-faint" aria-hidden="true">
         NYC{' '}
       </span>
-      <SplitFlap text={time} trigger="none" drum={CLOCK_DRUM} />
+      <span className="tabular-nums" aria-hidden="true">{time}</span>
       <span className="text-ink-faint" aria-hidden="true">
         {' '}
         Local
