@@ -64,7 +64,16 @@ The theme control (`ThemeToggle`) is a text button naming the theme it switches
 to. Every visitor starts in dark mode, whatever their system setting; switching
 is remembered locally.
 
-**Motion** is CSS, apart from smooth scrolling. Word reveals, figure rise-ins and
+**The mark** is the maL logo from the Figma exports in `public/logo`, placed
+inline by `logoSvg` (`src/components/brand/logo/source.ts`), which redraws the
+dotted name's dots as plain squares (70.7 KB to 12.2 KB) and namespaces its ids.
+The homepage opens on its Halftone load once a visit (`LogoIntro`): a head script
+in `src/lib/intro.ts` decides before paint, so return visits, reduced motion and
+no-JS get the page from the first frame, and `?intro` replays it. The mark then
+flies into the frame's top-left pill, where Sweep, Boil and Shift play on hover.
+`/prototypes/logo` runs the same effects (`src/components/brand/logo/effects.ts`).
+
+**Motion** is CSS, apart from smooth scrolling and the logo. Word reveals, figure rise-ins and
 the reading-progress bar are all CSS. Page transitions and the cover→hero morph
 use the native View Transitions API via React's `<ViewTransition>`. The one
 library is Lenis (`smooth-scroll.tsx`, ~4kB), which eases wheel scrolling

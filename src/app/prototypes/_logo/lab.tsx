@@ -1,13 +1,13 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 
-import { bindHovers, getParts, HOVERS, LOADS, playLoad, type HoverId, type LoadId } from './effects'
+import { HOVERS, LOADS, type HoverId, type LoadId } from '@/components/brand/logo/effects'
+import { LogoMark } from '@/components/brand/logo/logo-mark'
+import type { Colorway } from '@/components/brand/logo/source'
 
 import '../_panel/panel.css'
 import './logo.css'
-
-export type Colorway = 'blue' | 'green' | 'pink'
 
 const COLORWAYS: { id: Colorway; name: string }[] = [
   { id: 'blue', name: 'Blue' },
@@ -21,33 +21,10 @@ const GROUNDS = [
 ] as const
 
 /**
- * The Figma export, inline, with a load animation and hovers on top. `svg` is
- * the file's markup, read on the server, so the letters, gradients and noise
- * can be reached by id. Remounted (by key) to replay from a clean copy.
+ * The maL mark from Marc's "logos final" frame: three colourways, five loads,
+ * five hovers. The mark itself is the site's (components/brand/logo), which
+ * the homepage intro and the frame's pill use with Marc's picks below.
  */
-function Mark({ svg, load, hovers }: { svg: string; load: LoadId; hovers: HoverId[] }) {
-  const ref = useRef<HTMLDivElement>(null)
-
-  // Separate effects, so toggling a hover doesn't replay the load.
-  useEffect(() => {
-    const parts = ref.current && getParts(ref.current)
-    if (!parts) return
-    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    return playLoad(still ? 'none' : load, parts)
-  }, [load])
-
-  useEffect(() => {
-    const host = ref.current
-    const parts = host && getParts(host)
-    if (!host || !parts) return
-    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    return bindHovers(host, parts, hovers, still)
-  }, [hovers])
-
-  return <div ref={ref} className="lg-mark" role="img" aria-label="maL, Marc Andre Lam" dangerouslySetInnerHTML={{ __html: svg }} />
-}
-
-/** The maL mark from Marc's "logos final" frame: three colourways, five loads, five hovers. */
 export function LogoLab({ svgs }: { svgs: Record<Colorway, string> }) {
   const [colorway, setColorway] = useState<Colorway>('blue')
   const [ground, setGround] = useState<(typeof GROUNDS)[number]['id']>('dark')
@@ -69,7 +46,7 @@ export function LogoLab({ svgs }: { svgs: Record<Colorway, string> }) {
   return (
     <div className="lg" data-ground={ground}>
       <div className="lg-stage">
-        <Mark key={`${colorway}-${load}-${take}`} svg={svgs[colorway]} load={load} hovers={hovers} />
+        <LogoMark key={`${colorway}-${load}-${take}`} svg={svgs[colorway]} load={load} hovers={hovers} label="maL, Marc Andre Lam" className="lg-mark" />
       </div>
 
       <aside className="hl-panel hl-corner lg-panel" aria-label="Logo motion" data-folded={folded || undefined}>

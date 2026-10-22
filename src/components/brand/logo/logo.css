@@ -1,0 +1,117 @@
+/* ---------------------------------------------------------------------------
+   The maL mark (components/brand/logo)
+
+   The mark placed inline, sized by its box, and the homepage intro that plays
+   its Halftone load on the logo frame's dark ground before landing in the
+   viewport frame's pill.
+   --------------------------------------------------------------------------- */
+
+.mal-mark {
+  display: inline-block;
+  line-height: 0;
+}
+
+.mal-mark svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* Each letter moves about its own box, landing on its baseline. */
+.mal-mark path {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+/* The Spotlight hover's light: faded in and out, moved by script. */
+.mal-spot {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease;
+}
+
+/* ---- Intro ---- */
+
+/* The dot radius of the ground's halftone dissolve. */
+@property --mal-dot {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+/* Over the frame (z-index 60/61), under the paper grain (90). */
+.mal-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+html:not([data-intro]) .mal-intro {
+  display: none;
+}
+
+/* If the script never takes over, the page shows anyway. */
+.mal-intro:not([data-live]) {
+  animation: mal-failsafe 0s 8s forwards;
+}
+
+@keyframes mal-failsafe {
+  to {
+    visibility: hidden;
+  }
+}
+
+.mal-intro-ground {
+  position: absolute;
+  inset: 0;
+  background: #1f222b;
+}
+
+/* Leaving, the ground breaks into a dot screen whose dots shrink to nothing:
+   the Halftone load run backwards over the whole window. 14px cells are fully
+   covered from a 10px radius. */
+.mal-intro-ground[data-out] {
+  mask-image: radial-gradient(circle, #000 var(--mal-dot), transparent calc(var(--mal-dot) + 0.5px));
+  mask-size: 14px 14px;
+  mask-position: 50% 50%;
+  animation: mal-dissolve var(--out, 760ms) cubic-bezier(0.55, 0, 0.35, 1) forwards;
+}
+
+@keyframes mal-dissolve {
+  from {
+    --mal-dot: 10px;
+  }
+  to {
+    --mal-dot: 0px;
+  }
+}
+
+.mal-intro-mark {
+  position: relative;
+  width: min(64vw, 620px);
+  /* A little above centre, like the logo lab's stage. */
+  translate: 0 -4vh;
+  transform-origin: 0 0;
+}
+
+/* Until the load has its masks on, so the server's solid copy never shows. */
+.mal-intro-mark:not([data-ready]) {
+  visibility: hidden;
+}
+
+/* As the ground lifts, the page settles up into place under it. A wrapper
+   beside the intro, never around it: a moving ancestor would become the fixed
+   layer's containing block and carry the flying mark off with it. */
+html[data-intro='dock'] .mal-intro-settle {
+  animation: mal-settle 1100ms var(--ease-out) both;
+}
+
+@keyframes mal-settle {
+  from {
+    translate: 0 3vh;
+  }
+}
