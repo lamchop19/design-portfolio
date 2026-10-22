@@ -16,7 +16,8 @@
     "aquarium": "tsx scripts/generate-aquarium.tsx",
     "sea": "tsx scripts/generate-sea.tsx",
     "new-project": "node scripts/new-project.mjs",
-    "refs": "node --env-file-if-exists=.env.local scripts/sync-refs.mjs"
+    "refs": "node --env-file-if-exists=.env.local scripts/sync-refs.mjs",
+    "scenes": "tsx scripts/generate-scenes.tsx"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",

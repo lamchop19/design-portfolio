@@ -18,6 +18,7 @@ npm run dev          # generates images, then starts the dev server
 | `npm run new-project -- "Name"` | Scaffolds and registers a case study |
 | `npm run images` | Regenerates image derivatives |
 | `npm run og` | Regenerates Open Graph cards |
+| `npm run scenes -- [id…] [--preview]` | Repaints the airbrushed scenes in `public/scenes` (not part of dev or build; `/prototypes/scenes` shows them) |
 | `npm run typecheck` / `npm run lint` | |
 
 ## Adding work

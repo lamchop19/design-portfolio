@@ -1,0 +1,493 @@
+/* ---------------------------------------------------------------------------
+   Scenes (/prototypes/scenes)
+
+   The painted scenes (public/scenes) placed the ways the homepage could use
+   them: a full-bleed hero under the frame, a window beside the menu, a record
+   sleeve, and a sheet of all of them.
+   --------------------------------------------------------------------------- */
+
+/* ---- The player: cover-cropped around the scene's focus ---- */
+
+.sc-player {
+  position: relative;
+  overflow: hidden;
+  container-type: size;
+  background: #1f222b;
+}
+
+.sc-fill {
+  position: absolute;
+  inset: 0;
+}
+
+/* The stage is the picture at its cropped size, so layers and hotspots can
+   be placed in the picture's own fractions. Like object-fit: cover, keeping
+   the focus point (--fx, --fy) in frame. */
+.sc-stage {
+  --sw: max(100cqw, calc(100cqh * var(--aspect)));
+  --sh: calc(var(--sw) / var(--aspect));
+  position: absolute;
+  width: var(--sw);
+  height: var(--sh);
+  left: calc((100cqw - var(--sw)) * var(--fx));
+  top: calc((100cqh - var(--sh)) * var(--fy));
+}
+
+.sc-still,
+.sc-twinkles {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.sc-twinkles {
+  pointer-events: none;
+}
+
+.sc-sprite {
+  position: absolute;
+  left: calc(var(--x) * 100%);
+  top: calc(var(--y) * 100%);
+  width: calc(var(--w) * 100%);
+  height: auto;
+}
+
+/* A jet crosses the whole picture and comes round again, starting from where it was painted. */
+.sc-sprite[data-motion='fly'] {
+  animation: sc-fly calc(80s / var(--speed)) linear infinite;
+  animation-delay: calc((var(--x) - 1.05) / (1.05 + var(--w)) * (80s / var(--speed)));
+}
+
+@keyframes sc-fly {
+  from {
+    left: 105%;
+  }
+  to {
+    left: calc(var(--w) * -100%);
+  }
+}
+
+.sc-sprite[data-motion='bob'] {
+  animation: sc-bob 7s ease-in-out infinite;
+}
+
+@keyframes sc-bob {
+  50% {
+    translate: 0 -2%;
+  }
+}
+
+.sc-sprite[data-motion='drift'] {
+  animation: sc-drift 20s ease-in-out infinite;
+}
+
+@keyframes sc-drift {
+  50% {
+    translate: 4% 0;
+  }
+}
+
+.sc-sprite[data-motion='sway'] {
+  transform-origin: 50% 100%;
+  animation: sc-sway 6s ease-in-out infinite;
+}
+
+@keyframes sc-sway {
+  50% {
+    rotate: 1.5deg;
+  }
+}
+
+.sc-hotspot {
+  position: absolute;
+  display: grid;
+  place-items: center;
+}
+
+/* The record store's signs, lettered by the site. */
+.sc-sign {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: #16181d;
+  font-family: var(--font-paper-mono), ui-monospace, monospace;
+  font-size: clamp(9px, 1.15cqw, 22px);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.sc-sign:hover,
+.sc-sign:focus-visible {
+  background: #fff6c2;
+  box-shadow: 0 0 24px 6px rgb(255 214 120 / 0.7);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-sprite {
+    animation: none !important;
+  }
+}
+
+/* ---- Hero: full bleed under the frame ---- */
+
+.sc-hero {
+  position: fixed;
+  inset: 0;
+}
+
+html:has(.sc[data-placement='hero']) {
+  overflow: hidden;
+}
+
+/* A close shadow and a wide one, so light type holds over a cloud or spray as well as sky. */
+.sc-hero-type {
+  position: absolute;
+  left: clamp(20px, 5vw, 72px);
+  top: clamp(76px, 11vh, 140px);
+  color: #fbfaf7;
+  text-shadow:
+    0 1px 2px rgb(10 14 40 / 0.3),
+    0 2px 22px rgb(10 14 40 / 0.32);
+  pointer-events: none;
+}
+
+.sc-hero-type[data-ink='dark'] {
+  color: var(--ink);
+  text-shadow: none;
+}
+
+/* One line in the sky, ruled under like the title on the Ohtaki single. */
+.sc-hero-type h1 {
+  padding-bottom: 0.14em;
+  border-bottom: max(2px, 0.045em) solid currentColor;
+  font-size: clamp(34px, 6.2vw, 100px);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.045em;
+  white-space: nowrap;
+}
+
+.sc-hero-type p {
+  margin-top: 12px;
+  font-size: clamp(14px, 1.4vw, 20px);
+}
+
+@media (max-width: 767px) {
+  .sc-hero-type h1 {
+    white-space: normal;
+  }
+}
+
+/* ---- Window: beside the menu, on paper ---- */
+
+.sc-window-page {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.25fr);
+  gap: clamp(24px, 4vw, 64px);
+  align-items: center;
+  min-height: 100dvh;
+  padding: 96px clamp(20px, 4vw, 56px) 96px;
+}
+
+.sc-window-text h1 {
+  font-size: clamp(36px, 5vw, 76px);
+  font-weight: 600;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+.sc-bio {
+  max-width: 34ch;
+  margin-top: 18px;
+  color: var(--ink-muted);
+}
+
+.sc-menu {
+  margin-top: 28px;
+  border-top: 1px solid var(--rule);
+}
+
+.sc-menu li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-block: 10px;
+  border-bottom: 1px solid var(--rule);
+  font-size: clamp(18px, 1.8vw, 26px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.sc-window {
+  position: relative;
+  height: min(78vh, 780px);
+  overflow: hidden;
+  border-radius: 28px;
+  box-shadow:
+    0 0 0 6px var(--brand-blue),
+    0 30px 60px -30px rgb(22 24 29 / 0.5);
+}
+
+.sc-window-tag {
+  position: absolute;
+  left: 16px;
+  bottom: 14px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgb(236 235 229 / 0.85);
+  backdrop-filter: blur(6px);
+}
+
+@media (max-width: 767px) {
+  .sc-window-page {
+    grid-template-columns: minmax(0, 1fr);
+    padding-top: 80px;
+  }
+
+  .sc-window {
+    height: 58vh;
+  }
+}
+
+/* ---- Sleeve: a 7-inch single ---- */
+
+.sc-sleeve-page {
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+  padding: 96px 20px 140px;
+}
+
+.sc-sleeve-wrap {
+  position: relative;
+  width: min(66vh, 74vw, 660px);
+  aspect-ratio: 1;
+  container-type: inline-size;
+  outline: none;
+}
+
+.sc-sleeve {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #fff;
+  box-shadow:
+    0 1px 0 rgb(22 24 29 / 0.1),
+    0 40px 60px -32px rgb(22 24 29 / 0.6);
+}
+
+/* The record behind the sleeve: grooves, and a label in the brand pink with the mark. */
+.sc-record {
+  position: absolute;
+  top: 3%;
+  left: 3%;
+  width: 94%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, transparent 0 31%, rgb(255 255 255 / 0.06) 31.5% 32%, transparent 32.5%),
+    repeating-radial-gradient(circle, #141518 0 1.5px, #1f2125 1.5px 3px);
+  box-shadow: 0 20px 40px -20px rgb(0 0 0 / 0.6);
+  transition:
+    translate 800ms var(--ease-out),
+    rotate 1600ms var(--ease-out);
+}
+
+.sc-record-label {
+  position: absolute;
+  inset: 34%;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--brand-pink);
+}
+
+.sc-record-label::after {
+  content: '';
+  position: absolute;
+  width: 6%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #ecebe5;
+}
+
+.sc-record-mark {
+  width: 56%;
+}
+
+.sc-sleeve-wrap:hover .sc-record,
+.sc-sleeve-wrap:focus-visible .sc-record {
+  translate: 46% 0;
+  rotate: 120deg;
+}
+
+/* With reduced motion the record still comes out of the sleeve, without the spin. */
+@media (prefers-reduced-motion: reduce) {
+  .sc-record {
+    transition: none;
+  }
+
+  .sc-sleeve-wrap:hover .sc-record,
+  .sc-sleeve-wrap:focus-visible .sc-record {
+    rotate: none;
+  }
+}
+
+.sc-sleeve-wrap:focus-visible .sc-sleeve {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+/* Title and rule, top left, as on the Ohtaki single. */
+.sc-sleeve-title {
+  position: absolute;
+  left: 5%;
+  top: 4.5%;
+  max-width: 70%;
+  color: #fff;
+  text-shadow: 0 1px 10px rgb(10 14 40 / 0.25);
+}
+
+.sc-sleeve-title[data-ink='dark'] {
+  color: var(--ink);
+  text-shadow: none;
+}
+
+.sc-sleeve-title h2 {
+  padding-bottom: 1.2cqw;
+  border-bottom: 0.4cqw solid currentColor;
+  font-size: 7.4cqw;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.sc-sleeve-title p {
+  margin-top: 1.4cqw;
+  font-size: 3.2cqw;
+  letter-spacing: 0.04em;
+}
+
+/* The label's badge, top right, after Niagara Records'. */
+.sc-sleeve-badge {
+  position: absolute;
+  right: 4%;
+  top: 4%;
+  display: grid;
+  justify-items: end;
+  gap: 0.6cqw;
+  padding: 1.4cqw 1.6cqw;
+  border-radius: 1.4cqw;
+  background: rgb(251 250 247 / 0.92);
+  color: var(--ink);
+  font-size: 1.8cqw;
+  letter-spacing: 0.06em;
+}
+
+.sc-badge-mark {
+  width: 9cqw;
+}
+
+/* The running order on a paper strip, so it reads over any picture. */
+.sc-sleeve-sides {
+  position: absolute;
+  left: 4%;
+  bottom: 4%;
+  display: grid;
+  gap: 0.6cqw;
+  padding: 1.2cqw 1.6cqw;
+  border-radius: 1.4cqw;
+  background: rgb(251 250 247 / 0.92);
+  color: var(--ink);
+  font-size: 1.9cqw;
+  letter-spacing: 0.04em;
+}
+
+/* ---- All scenes ---- */
+
+.sc-gallery {
+  padding: 96px clamp(20px, 4vw, 56px) 160px;
+}
+
+.sc-gallery ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+  gap: 32px 20px;
+  margin-top: 20px;
+}
+
+.sc-card {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sc-card img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 10px;
+  transition: translate var(--dur-base) var(--ease-out);
+}
+
+.sc-card:hover img,
+.sc-card:focus-visible img {
+  translate: 0 -3px;
+}
+
+.sc-card-name {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.sc-card-note {
+  color: var(--ink-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ---- Panel ---- */
+
+.sc-panel {
+  font-family: var(--font-paper-mono), ui-monospace, monospace;
+}
+
+.sc-set {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sc-set + .sc-set {
+  padding-left: 10px;
+  border-left: 1px solid var(--rule);
+}
+
+.sc-panel .hl-chip[aria-pressed='true'] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--surface);
+}
+
+/* The clock: the hour in New York picks the variant; the slider tries others. */
+.sc-clock {
+  align-items: center;
+  gap: 10px;
+}
+
+.sc-clock input {
+  flex: 1;
+  min-width: 120px;
+  accent-color: var(--ink);
+}
