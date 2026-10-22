@@ -1,0 +1,568 @@
+/* ---------------------------------------------------------------------------
+   One-page formats (/prototypes/one-page)
+
+   From tablet width up, and tall enough to read, each format is exactly one
+   screen: the page never scrolls, rows share the height in fr, and type
+   scales with the smaller of width and height so it fits from 1280 × 720 to
+   1920 × 1080. Below that the same blocks stack in reading order and scroll.
+
+   Type is set heavier than the scrolling homepage: titles 600 in ink, labels
+   in --ink-muted, nothing in --ink-faint. Flora only sits in its own cells.
+   --------------------------------------------------------------------------- */
+
+.op {
+  /* Clear of the frame's pills above and its clock below (viewport-frame). */
+  --op-top: 64px;
+  --op-bottom: 48px;
+  --op-gap: clamp(12px, 2.4vh, 28px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--op-gap);
+  min-height: 100svh;
+  padding: var(--op-top) var(--page-margin) var(--op-bottom);
+  /* No flora on this layer's dots: one per screen pixel at small sizes. */
+  --flora-dot: 1;
+}
+
+@media (min-width: 768px) and (min-height: 620px) {
+  .op {
+    height: 100svh;
+    overflow: hidden;
+  }
+
+  .op-fit {
+    flex: 1;
+    min-height: 0;
+  }
+}
+
+/* The site's columns, without .swiss-grid's own page margin. */
+.op-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
+  column-gap: var(--gutter);
+}
+
+/* ---- Shared type ---- */
+
+.op-name {
+  font-family: var(--font-wordmark, inherit);
+  font-size: clamp(2.5rem, min(8.6vw, 15vh), 9.5rem);
+  line-height: 0.9;
+  font-weight: 600;
+  letter-spacing: -0.055em;
+}
+
+.op-title {
+  font-size: clamp(1.25rem, min(2.3vw, 3.9vh), 2.5rem);
+  line-height: 1.05;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+}
+
+.op-lede {
+  font-size: clamp(1rem, min(1.5vw, 2.6vh), 1.5rem);
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.op-body {
+  font-size: clamp(0.875rem, min(1.05vw, 1.9vh), 1.125rem);
+  line-height: 1.4;
+  text-wrap: pretty;
+}
+
+.op-label {
+  margin-bottom: 8px;
+  color: var(--ink-muted);
+}
+
+.op-muted {
+  color: var(--ink-muted);
+}
+
+.op-email {
+  display: block;
+  font-size: clamp(1rem, min(1.5vw, 2.6vh), 1.5rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.op-email:hover,
+.op-links a:hover {
+  color: var(--accent);
+}
+
+.op-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin-top: 8px;
+}
+
+/* A project row: title, then its discipline and year. The row in focus prints
+   in two inks, the fluoro one a touch off register. */
+.op-row {
+  display: grid;
+  gap: 2px;
+  padding-block: clamp(6px, 1.2vh, 14px);
+  border-top: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+}
+
+.op-row-meta {
+  display: flex;
+  justify-content: space-between;
+  color: var(--ink-muted);
+}
+
+.op-row:hover .op-title,
+.op-row:focus-visible .op-title,
+.op-row[data-active] .op-title {
+  color: var(--accent);
+  text-shadow: 0.05em 0.035em 0 color-mix(in srgb, var(--ink-orange) 85%, transparent);
+}
+
+.op-roles {
+  display: grid;
+}
+
+.op-role {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 12px;
+  padding-block: clamp(5px, 1vh, 10px);
+  border-top: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+  font-size: clamp(0.8125rem, min(1vw, 1.8vh), 1rem);
+  line-height: 1.3;
+}
+
+.op-role-org {
+  font-weight: 600;
+}
+
+.op-role-title {
+  grid-column: 1;
+  color: var(--ink-muted);
+}
+
+.op-role-when {
+  grid-row: 1;
+  grid-column: 2;
+  color: var(--ink-muted);
+}
+
+/* A tile: hairline-ruled cell of a plate or the split's work grid. */
+.op-tile {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(10px, 1.6vh, 18px);
+  overflow: hidden;
+}
+
+/* A figure: its plant fills the space above the caption; pointing at it
+   swaps in the cover (a static swap; motion comes later). */
+.op-figure-art {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: end center;
+}
+
+.op-figure-cover {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+
+.op-figure-cover > * {
+  width: 100%;
+  height: 100%;
+}
+
+.op-figure[data-active] .op-figure-cover {
+  display: block;
+}
+
+.op-figure-caption {
+  display: grid;
+  gap: 2px;
+  padding-top: clamp(6px, 1.2vh, 12px);
+  border-top: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+}
+
+.op-figure:hover .op-title,
+.op-figure:focus-visible .op-title {
+  color: var(--accent);
+}
+
+/* The lab's flora switch. */
+[data-flora='off'] .flora {
+  visibility: hidden;
+}
+
+/* ---- 1. Index sheet ---- */
+
+.op-index-main {
+  row-gap: var(--op-gap);
+}
+
+.op-index-about,
+.op-index-work,
+.op-index-roles {
+  grid-column: 1 / -1;
+  min-height: 0;
+}
+
+.op-index-about {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.op-index-contact {
+  margin-top: auto;
+}
+
+.op-index-band {
+  row-gap: var(--op-gap);
+}
+
+.op-index-flora {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  overflow: hidden;
+  border-bottom: 1px solid var(--ink);
+}
+
+.op-index-cover {
+  grid-column: 1 / -1;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--rule);
+}
+
+.op-index-cover > * {
+  width: 100%;
+  height: 100%;
+}
+
+.op-wide-only {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .op-index-about {
+    grid-column: 1 / span 3;
+  }
+
+  .op-index-work {
+    grid-column: 4 / span 5;
+  }
+
+  .op-index-roles {
+    grid-column: 9 / span 4;
+  }
+
+  .op-index-flora {
+    grid-column: 1 / span 9;
+  }
+
+  .op-index-cover {
+    grid-column: 10 / span 3;
+    aspect-ratio: auto;
+  }
+
+  .op-wide-only {
+    display: block;
+  }
+}
+
+/* ---- 2. Specimen plate ---- */
+
+.op-plate-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--ink);
+  border-left: 1px solid var(--ink);
+}
+
+.op-plate-grid > .op-tile {
+  border-right: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  min-height: 220px;
+}
+
+.op-plate-name,
+.op-plate-contact {
+  grid-column: span 2;
+}
+
+.op-plate-name {
+  justify-content: space-between;
+}
+
+.op-plate-name .op-name {
+  font-size: clamp(2.5rem, min(5.6vw, 9.5vh), 7rem);
+}
+
+/* Experience runs down two rows, with a plant at its foot where room allows. */
+.op-plate-roles-flora {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: end center;
+  overflow: hidden;
+}
+
+.op-plate-text {
+  justify-content: flex-start;
+}
+
+.op-plate-contact {
+  justify-content: flex-end;
+}
+
+.op-plate-flora {
+  align-items: center;
+  justify-content: end;
+}
+
+.op-plate-line {
+  text-align: center;
+  color: var(--ink);
+}
+
+@media (min-width: 768px) {
+  .op-plate-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+  }
+
+  .op-plate-grid > .op-tile {
+    min-height: 0;
+  }
+
+  .op-plate-roles {
+    grid-column: 4;
+    grid-row: 2 / span 2;
+  }
+}
+
+@media (max-width: 767px) {
+  .op-plate-flora {
+    display: none;
+  }
+}
+
+/* ---- 3. Magazine cover ---- */
+
+.op-cover {
+  row-gap: var(--op-gap);
+}
+
+.op-cover > * {
+  grid-column: 1 / -1;
+  min-height: 0;
+}
+
+.op-cover-name {
+  font-size: clamp(2.5rem, min(8.2vw, 16vh), 10rem);
+}
+
+.op-cover-contents ol {
+  display: grid;
+}
+
+.op-cover-contents .op-row {
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 10px;
+}
+
+.op-cover-contents .op-row > :not(.op-cover-page) {
+  grid-column: 2;
+}
+
+.op-cover-page {
+  grid-row: 1 / span 2;
+  padding-top: 0.35em;
+  color: var(--ink-orange);
+  font-weight: 600;
+}
+
+/* The cover art: plants in two staggered rows, stood on their own ground. */
+.op-cover-art {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  justify-content: center;
+  align-content: center;
+  gap: 0 clamp(4px, 1vw, 20px);
+  overflow: hidden;
+}
+
+.op-cover-art > :nth-child(3n + 2) {
+  translate: 0 18%;
+}
+
+.op-cover-contact {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .op-cover {
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+
+  .op-cover-issue {
+    grid-column: 1 / span 3;
+    align-self: end;
+  }
+
+  .op-cover-name {
+    grid-column: 4 / span 9;
+    text-align: right;
+  }
+
+  .op-cover-contents {
+    grid-column: 1 / span 3;
+  }
+
+  .op-cover-art {
+    grid-column: 4 / span 6;
+  }
+
+  .op-cover-roles {
+    grid-column: 10 / span 3;
+  }
+
+  .op-cover-bio {
+    grid-column: 1 / span 6;
+    align-self: end;
+  }
+
+  .op-cover-contact {
+    grid-column: 7 / span 6;
+    align-items: flex-end;
+    align-self: end;
+    text-align: right;
+  }
+}
+
+/* ---- 4. Split ---- */
+
+.op-split {
+  row-gap: var(--op-gap);
+}
+
+.op-split-type,
+.op-split-work {
+  grid-column: 1 / -1;
+  min-height: 0;
+}
+
+.op-split-type {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--op-gap);
+}
+
+.op-split-name {
+  font-size: clamp(2.5rem, min(6.6vw, 14vh), 8rem);
+  margin-bottom: 12px;
+}
+
+.op-split-work {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--ink);
+  border-left: 1px solid var(--ink);
+}
+
+.op-split-work > .op-tile {
+  border-right: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  min-height: 240px;
+}
+
+@media (min-width: 768px) {
+  .op-split-type {
+    grid-column: 1 / span 6;
+  }
+
+  .op-split-work {
+    grid-column: 7 / span 6;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+  }
+
+  .op-split-work > .op-tile {
+    min-height: 0;
+  }
+}
+
+/* Larger screens print the plants two screen pixels to the dot. */
+@media (min-width: 1600px) and (min-height: 1000px) {
+  .op-split,
+  .op-cover {
+    --flora-dot: 2;
+  }
+}
+
+/* The lab panel sits above the frame's clock and folds out of the way. */
+.op-panel.hl-corner {
+  bottom: 44px;
+  z-index: 70;
+}
+
+/* Under about 860px tall the plate's tiles are too short for full-size
+   plants, so it prints the two-thirds ones (same rules as .flora-sm). */
+@media (min-width: 768px) and (max-height: 860px) {
+  .op-plate .flora {
+    --flora-w: 80;
+    --flora-h: 100;
+  }
+
+  .op-plate .flora-ink {
+    mask-image: var(--mask-sm);
+  }
+}
+
+/* The pastel ground: a soft sky-to-meadow wash under everything, after the
+   gradient posters; the paper grain (body::after) still prints over it.
+   The wrapper fills the page, so the formats sit on it unchanged. */
+[data-ground='pastel'] {
+  min-height: 100svh;
+  background: linear-gradient(to bottom, #c4defd 0%, #ffd8e6 48%, #dff3d6 100%);
+}
+
+[data-ground='pastel'] .op-plate-grid > .op-tile,
+[data-ground='pastel'] .op-split-work > .op-tile {
+  background: color-mix(in srgb, #fff 18%, transparent);
+}
+
+/* Airbrushed plants are soft images, not dot bitmaps, so they can scale to
+   whatever room a tile has instead of keeping whole dots. */
+[data-palette='air'] .op-figure-art .flora,
+[data-palette='air'] .op-plate-flora .flora,
+[data-palette='air'] .op-plate-roles-flora .flora {
+  width: 100%;
+  height: 100%;
+  max-height: 360px;
+  background-size: contain;
+  background-position: bottom center;
+}
+
+[data-palette='air'] .op-plate-flora {
+  align-items: stretch;
+}

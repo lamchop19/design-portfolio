@@ -1,0 +1,80 @@
+/* ---------------------------------------------------------------------------
+   Logo motion (/prototypes/logo)
+
+   The maL mark alone, large, on the Figma frame's dark ground or on paper,
+   to judge its load and hover animations.
+   --------------------------------------------------------------------------- */
+
+.lg {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #1f222b;
+}
+
+.lg[data-ground='paper'] {
+  background: #fbfaf7;
+}
+
+/* The site's frame stands aside. */
+html:has(.lg) :is(.vf, .vf-nav, .vf-foot) {
+  display: none;
+}
+
+html:has(.lg) {
+  overflow: hidden;
+}
+
+.lg-stage {
+  width: min(62vw, 680px);
+  /* A little above centre, clear of the panel in the corner. */
+  translate: 0 -6vh;
+}
+
+/* The export's fixed 245 × 136 size, scaled to the stage. */
+.lg-mark svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* Each letter moves about its own box, landing on its baseline. */
+.lg-mark path {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+.lg-mark {
+  cursor: default;
+}
+
+/* The Spotlight hover's light: faded in and out, moved by script. */
+.lg-spot {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease;
+}
+
+.lg-set {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.lg-set + .lg-set {
+  padding-left: 10px;
+  border-left: 1px solid var(--rule);
+}
+
+.hl-chip[aria-pressed='true'] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--surface);
+}
+
+.lg-panel {
+  font-family: var(--font-paper-mono), ui-monospace, monospace;
+}

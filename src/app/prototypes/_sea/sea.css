@@ -1,0 +1,500 @@
+/* ---------------------------------------------------------------------------
+   The sea (/prototypes/sea)
+
+   One scene in three screens: sky and surface, open water, the floor. The
+   water is a single gradient from the waterline to the bottom of the page,
+   so its colour drifts rather than steps between screens; the props are
+   watercolours placed over it, and cold-press paper is multiplied over all.
+   --------------------------------------------------------------------------- */
+
+.sea {
+  --waterline: 74svh;
+  --sea-ink: #1f2833;
+  --sea-muted: #4a5360;
+  --sea-paper: #f6f1e3;
+  --surface-h: max(9.17vw, 147px);
+  --seabed-h: max(11.67vw, 187px);
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  color: var(--sea-ink);
+  background: linear-gradient(to bottom, #f4efe4 0, #eef0ea var(--waterline));
+}
+
+/* The site's own frame and wallpaper stand aside; the sea brings its own. */
+html:has(.sea) :is(.vf, .vf-nav, .vf-foot) {
+  display: none;
+}
+
+/* ---- The water, its surface and its floor ---- */
+
+.sea-water {
+  position: absolute;
+  inset: var(--waterline) 0 0;
+  z-index: -2;
+  background: linear-gradient(to bottom, #8cbcc1 0%, #80b4bb 22%, #72a8b1 46%, #6399a5 72%, #578d9b 100%);
+}
+
+.sea-prop {
+  position: absolute;
+  z-index: 0;
+  display: block;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+.sea-prop[data-flip] {
+  scale: -1 1;
+}
+
+/* The torn waterline: its wave crest sits on --waterline, and it fades into
+   the gradient below so the two never show a seam. */
+.sea-surface {
+  top: calc(var(--waterline) - var(--surface-h) * 0.32);
+  left: 50%;
+  width: max(100%, 1600px);
+  translate: -50% 0;
+  z-index: -1;
+  mask-image: linear-gradient(to bottom, #000 55%, transparent);
+}
+
+.sea-seabed {
+  bottom: 0;
+  left: 50%;
+  width: max(100%, 1600px);
+  translate: -50% 0;
+  z-index: -1;
+}
+
+.sea-paper {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: var(--paper) 0 0 / 512px 512px repeat;
+  mix-blend-mode: multiply;
+  opacity: 0.45;
+}
+
+/* ---- Layers ---- */
+
+.sea-layer {
+  position: relative;
+  min-height: 100svh;
+}
+
+.sea-inner {
+  position: relative;
+  z-index: 2;
+  width: min(100% - 2 * var(--page-margin), 1240px);
+  margin-inline: auto;
+}
+
+.sea-kicker {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--sea-muted);
+}
+
+.sea-title {
+  font-size: clamp(2.25rem, 5vw, 4.5rem);
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.05em;
+}
+
+.sea-muted {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--sea-muted);
+}
+
+.sea-strong {
+  font-weight: 600;
+}
+
+/* Paper cards, like the poster's printed labels. */
+.sea-card {
+  background: var(--sea-paper);
+  border-radius: 6px;
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.6) inset,
+    0 14px 30px -18px rgb(20 50 60 / 0.45);
+}
+
+/* ---- 1. Sky ---- */
+
+.sea-hero {
+  position: relative;
+  z-index: 2;
+  padding: 24svh var(--page-margin) 0;
+  text-align: center;
+}
+
+.sea-wordmark {
+  font-size: clamp(3rem, 9.5vw, 10rem);
+  line-height: 0.92;
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  color: #243142;
+}
+
+.sea-oneliner {
+  max-width: 34rem;
+  margin: 18px auto 0;
+  font-size: clamp(1rem, 1.4vw, 1.25rem);
+  line-height: 1.35;
+}
+
+.sea-cloud-1 {
+  top: 10svh;
+  left: 4%;
+  width: clamp(160px, 20vw, 360px);
+}
+
+.sea-cloud-2 {
+  top: 17svh;
+  right: 6%;
+  width: clamp(140px, 17vw, 320px);
+}
+
+/* The boat sits on the water: its hull's waterline (95% down the image) on --waterline. */
+.sea-boat {
+  --boat-w: clamp(140px, 15vw, 270px);
+  left: 66%;
+  width: var(--boat-w);
+  top: calc(var(--waterline) - var(--boat-w) * 1.333 * 0.93);
+}
+
+/* ---- 2. Open water ---- */
+
+.sea-mid {
+  display: flex;
+  align-items: center;
+  padding-block: 12svh 8svh;
+}
+
+.sea-head {
+  margin-bottom: clamp(16px, 3vh, 32px);
+}
+
+.sea-works {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(10px, 1.6vw, 22px);
+}
+
+.sea-work {
+  display: grid;
+  gap: 3px;
+  padding: 8px 8px 12px;
+}
+
+.sea-work-cover {
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  margin-bottom: 8px;
+  border-radius: 3px;
+  background: #e7e1d3;
+}
+
+.sea-work-cover > * {
+  width: 100%;
+  height: 100%;
+}
+
+.sea-work-title {
+  font-size: clamp(1.125rem, 1.6vw, 1.5rem);
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+}
+
+.sea-work:hover .sea-work-title,
+.sea-work:focus-visible .sea-work-title {
+  color: var(--accent);
+  text-shadow: 0.05em 0.035em 0 color-mix(in srgb, var(--ink-orange) 80%, transparent);
+}
+
+.sea-fish-1 {
+  top: 6%;
+  left: 3%;
+  width: clamp(110px, 12vw, 200px);
+}
+
+.sea-fish-2 {
+  top: 9%;
+  right: 5%;
+  width: clamp(120px, 14vw, 230px);
+}
+
+.sea-fish-3 {
+  bottom: 4%;
+  left: 8%;
+  width: clamp(100px, 11vw, 180px);
+}
+
+.sea-fish-4 {
+  bottom: 2%;
+  right: 12%;
+  width: clamp(110px, 12vw, 200px);
+}
+
+.sea-fish-5 {
+  top: 7%;
+  left: 44%;
+  width: clamp(70px, 7vw, 120px);
+}
+
+/* ---- 3. The floor ---- */
+
+.sea-deep {
+  padding-block: 12svh var(--seabed-h);
+}
+
+.sea-about {
+  max-width: 500px;
+  padding: 24px 26px 22px;
+}
+
+.sea-lede {
+  margin: 6px 0 10px;
+  font-size: clamp(1.25rem, 1.8vw, 1.625rem);
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.sea-bio {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.sea-gap {
+  margin-top: 18px;
+  margin-bottom: 4px;
+}
+
+.sea-roles li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 12px;
+  padding-block: 6px;
+  border-top: 1px solid rgb(31 40 51 / 0.12);
+  font-size: 0.875rem;
+  line-height: 1.3;
+}
+
+.sea-roles li > :nth-child(2) {
+  grid-column: 1;
+}
+
+.sea-roles li > :nth-child(3) {
+  grid-row: 1;
+  grid-column: 2;
+}
+
+.sea-email {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.sea-links {
+  display: flex;
+  gap: 16px;
+  margin-top: 6px;
+  font-size: 0.875rem;
+}
+
+.sea-email:hover,
+.sea-links a:hover {
+  color: var(--accent);
+}
+
+/* The submarine cruises low on the right, coral either side of it. */
+.sea-sub {
+  right: 6%;
+  bottom: calc(var(--seabed-h) * 0.9);
+  width: clamp(260px, 34vw, 600px);
+}
+
+.sea-coral {
+  /* Stood on the sand: the seabed's crest runs about 40% down its image. */
+  bottom: calc(var(--seabed-h) * 0.5);
+}
+
+.sea-coral-1 {
+  right: 36%;
+  width: clamp(150px, 17vw, 300px);
+}
+
+.sea-coral-2 {
+  right: 1%;
+  width: clamp(140px, 15vw, 270px);
+}
+
+.sea-coral-3 {
+  left: 2%;
+  width: clamp(130px, 14vw, 250px);
+}
+
+.sea-coral-4 {
+  right: 26%;
+  width: clamp(110px, 12vw, 210px);
+}
+
+.sea-fish-6 {
+  top: 10%;
+  right: 16%;
+  width: clamp(100px, 10vw, 170px);
+}
+
+/* ---- The name pill ---- */
+
+.sea-nav {
+  position: fixed;
+  top: 16px;
+  /* Centred with auto margins, not left: 50%, which would leave it only half
+     the screen to grow into as it opens. */
+  left: 0;
+  right: 0;
+  width: fit-content;
+  max-width: calc(100% - 24px);
+  margin-inline: auto;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--sea-paper) 86%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow:
+    inset 0 0 0 1px rgb(31 40 51 / 0.12),
+    0 8px 24px -14px rgb(20 50 60 / 0.5);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sea-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding-inline: 14px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.sea-nav-name {
+  color: var(--sea-ink);
+}
+
+.sea-nav a:hover {
+  color: var(--accent);
+}
+
+/* The sections fold out of the pill: a clipped strip whose width opens from
+   nothing to more than it needs. */
+.sea-nav-reveal {
+  display: block;
+  max-width: 0;
+  overflow: hidden;
+  transition: max-width 420ms var(--ease-out);
+}
+
+.sea-nav-links {
+  display: flex;
+}
+
+.sea-nav-links a {
+  color: var(--sea-muted);
+}
+
+.sea-nav-links a[aria-current] {
+  background: var(--sea-ink);
+  color: var(--sea-paper);
+}
+
+.sea-nav[data-open] .sea-nav-reveal,
+.sea-nav:hover .sea-nav-reveal,
+.sea-nav:focus-within .sea-nav-reveal {
+  max-width: 24rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sea-nav-reveal {
+    transition: none;
+  }
+}
+
+/* ---- Wider screens ---- */
+
+@media (min-width: 900px) {
+  .sea-works {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .sea-deep {
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* ---- Phones ---- */
+
+/* An open pill keeps just the first name, so the sections fit across a phone. */
+@media (max-width: 480px) {
+  .sea-nav a {
+    padding-inline: 11px;
+  }
+
+  .sea-nav[data-open] .sea-nav-rest {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .sea {
+    --waterline: 70svh;
+  }
+
+  .sea-hero {
+    padding-top: 20svh;
+  }
+
+  .sea-boat {
+    left: 58%;
+  }
+
+  .sea-fish-2,
+  .sea-fish-5 {
+    display: none;
+  }
+
+  /* The floor stacks: the card, then the submarine and coral beneath it. */
+  .sea-deep {
+    padding-bottom: calc(var(--seabed-h) + 62vw);
+  }
+
+  .sea-sub {
+    right: 50%;
+    translate: 50% 0;
+    width: 74vw;
+  }
+
+  .sea-coral-1 {
+    right: 6%;
+  }
+
+  .sea-coral-4 {
+    display: none;
+  }
+}

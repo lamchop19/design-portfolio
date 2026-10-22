@@ -3,34 +3,42 @@
 /* ---------------------------------------------------------------------------
    Tokens
 
-   Palette derives from the footer grid artwork: blue, pink and green on white.
-   White is the primary surface; the brand colors are accents on top of it.
+   The page is printed on warm riso stock. Paper is the one surface; the inks
+   sit on top of it and are what pops.
 
-   The three brand colors are NOT interchangeable — their contrast on white
-   decides what each is allowed to do:
-     blue  #0059FF  5.42:1  carries text and links
-     pink  #F551AB  3.16:1  large text only, or a fill with dark ink on it
-     green #81DB89  1.69:1  decorative fills only, never text on white
+     ink         #16181d  body text and headings
+     ink blue    #3a5ba0  the specimens and the water, and small text (6.0:1)
+     ink orange  #ff6c3a  fluoro second ink: fills, shadows, large marks only
+                          (2.4:1 on paper, so never body text)
+     brand blue  #0059ff  links and the interactive accent (4.6:1 on paper)
+
+   Pink and green stay for the brand grid band and the bitmap prototypes.
    --------------------------------------------------------------------------- */
 
 :root {
-  /* Brand constants. Same value in both themes — these are the marks themselves,
-     not theme-dependent surfaces. */
+  /* Brand constants: the marks themselves. */
   --brand-blue: #0059ff;
   --brand-pink: #f551ab;
   --brand-green: #81db89;
 
-  --surface: #ffffff;
-  --surface-raised: #f2f4f8;
-  --ink: #0a0f1f;
-  --ink-muted: #4a5169;
-  --ink-faint: #6b7391;
-  --rule: #e3e7ef;
+  /* Riso inks. Blue and orange are the two-ink set; the rest join them in the
+     flora's full palette (components/flora), never as text colours. */
+  --ink-blue: #3a5ba0;
+  --ink-orange: #ff6c3a;
+  --ink-pink: #ff48b0;
+  --ink-green: #00a95c;
+  --ink-yellow: #ffe14d;
+  --ink-black: #1f1f22;
 
-  /* Blue is the interactive accent on the primary white surface. */
+  --surface: #ecebe5;
+  --surface-raised: #e3e1d8;
+  --ink: #16181d;
+  --ink-muted: #484b54;
+  --ink-faint: #56585e;
+  --rule: #cfccc2;
+
   --accent: var(--brand-blue);
   --on-accent: #ffffff;
-
 
   /* Motion — every animated surface reads from these so timing stays coherent. */
   --dur-fast: 150ms;
@@ -59,22 +67,6 @@
   }
 }
 
-/* Dark is the default surface. It is a translation of the white-primary brand,
-   not a second brand: the surface goes near-black and blue lifts to #4d8cff,
-   since #0059ff only reaches 3.58:1 against it. Pink and green already clear AA
-   on this surface unchanged. The light tokens above apply only once the theme
-   toggle switches to light (data-theme='light'). */
-:root:not([data-theme='light']) {
-  --surface: #0b0d14;
-  --surface-raised: #161a26;
-  --ink: #f5f7fa;
-  --ink-muted: #a8b0c4;
-  --ink-faint: #8a93ab;
-  --rule: #262c3d;
-  --accent: #4d8cff;
-  --on-accent: #0a0f1f;
-}
-
 @theme inline {
   --color-surface: var(--surface);
   --color-surface-raised: var(--surface-raised);
@@ -88,6 +80,8 @@
   --color-brand-blue: var(--brand-blue);
   --color-brand-pink: var(--brand-pink);
   --color-brand-green: var(--brand-green);
+  --color-ink-blue: var(--ink-blue);
+  --color-ink-orange: var(--ink-orange);
 
   /* One face for everything: Paper Mono (SIL OFL, src/fonts/paper-mono). */
   --font-display: var(--font-paper-mono), ui-monospace, monospace;
@@ -105,10 +99,6 @@
    --------------------------------------------------------------------------- */
 
 html {
-  color-scheme: dark;
-}
-
-html[data-theme='light'] {
   color-scheme: light;
 }
 
@@ -123,6 +113,19 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+/* Paper grain: fibres and specks in the stock, multiplied over everything so
+   the inks print into it rather than sitting on top. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0.4;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.43 0 0 0 0 0.38 0 0 0 0.55 -0.12'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 ::selection {
@@ -291,6 +294,8 @@ body {
 
 /* The wordmark (components/brand/name-hero). */
 .name-hero {
+  /* /prototypes/ocean tries other faces through --font-wordmark. */
+  font-family: var(--font-wordmark, inherit);
   font-size: clamp(2.5rem, 9.5vw, 9rem);
   line-height: 0.95;
   font-weight: 500;
@@ -500,3 +505,118 @@ html[data-grid] .grid-overlay {
   );
 }
 
+
+/* ---------------------------------------------------------------------------
+   Scroll-lit text (components/motion/scroll-lit-text)
+   Each word goes from pale to ink across the paragraph's pass through the
+   window, in reading order.
+   --------------------------------------------------------------------------- */
+
+.lit-text {
+  view-timeline-name: --lit;
+}
+
+@supports (animation-timeline: view()) {
+  .lit-word {
+    color: color-mix(in srgb, var(--ink) 22%, var(--surface));
+    animation: lit-word 1ms linear both;
+    animation-timeline: --lit;
+    animation-range: cover calc(18% + var(--i) / var(--n) * 34%) cover calc(24% + var(--i) / var(--n) * 34%);
+  }
+}
+
+@keyframes lit-word {
+  to {
+    color: var(--ink);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lit-word {
+    animation: none !important;
+    color: inherit !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Scanline type (components/motion/scanline-text)
+
+   Two copies of the heading share one band pattern: the first shows the even
+   half of every band, the second the odd half. --fill (0–1) grows each half
+   to its full height, so at 1 the two halves meet and the heading is solid;
+   the odd copy starts slid sideways and settles as it fills.
+   --------------------------------------------------------------------------- */
+
+@property --fill {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+
+.scanline {
+  position: relative;
+  display: block;
+  --band: 0.09em;
+}
+
+.scanline-odd {
+  display: none;
+}
+
+@supports (animation-timeline: view()) {
+  .scanline {
+    animation: scanline-fill 1ms linear both;
+    animation-timeline: view();
+    animation-range: entry 30% cover 42%;
+  }
+
+  /* In the last few percent the even half grows past the whole band, so the
+     settled heading is one unbroken mask with no seams between bands. */
+  .scanline-even,
+  .scanline-odd {
+    display: block;
+    mask-image: repeating-linear-gradient(
+      to bottom,
+      #000 0 calc(var(--fill) * var(--band) / 2 + max(0, var(--fill) - 0.97) * 34 * var(--band)),
+      transparent 0 var(--band)
+    );
+    translate: calc((1 - var(--fill)) * -0.12em) 0;
+  }
+
+  .scanline-odd {
+    position: absolute;
+    inset: 0;
+    mask-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0 calc(var(--band) / 2),
+      #000 0 calc(var(--band) / 2 + var(--fill) * var(--band) / 2),
+      transparent 0 var(--band)
+    );
+    translate: calc((1 - var(--fill)) * 0.5em) 0;
+  }
+}
+
+@keyframes scanline-fill {
+  from {
+    --fill: 0.08;
+  }
+  to {
+    --fill: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scanline {
+    animation: none !important;
+    --fill: 1;
+  }
+
+  .scanline-even {
+    mask-image: none !important;
+    translate: none !important;
+  }
+
+  .scanline-odd {
+    display: none !important;
+  }
+}

@@ -4,9 +4,9 @@ import localFont from 'next/font/local'
 
 import { SiteFooter } from '@/components/layout/site-footer'
 import { SmoothScroll } from '@/components/layout/smooth-scroll'
-import { ThemeToggle } from '@/components/layout/theme-toggle'
+import { ViewportFrame } from '@/components/layout/viewport-frame'
+import { OceanWallpaper } from '@/components/ocean/ocean-wallpaper'
 import { ogImage } from '@/lib/og'
-import { themeInitScript } from '@/lib/theme'
 import { site } from '@/../content/site'
 
 import './globals.css'
@@ -48,17 +48,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="en"
-      className={`${display.variable} ${paperMono.variable}`}
-      suppressHydrationWarning
-    >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-      </head>
+    <html lang="en" className={`${display.variable} ${paperMono.variable}`}>
       <body className="flex min-h-dvh flex-col">
+        <OceanWallpaper />
         <SmoothScroll />
-        <ThemeToggle />
+        <ViewportFrame />
         <main className="flex-1">{children}</main>
         <SiteFooter />
       </body>

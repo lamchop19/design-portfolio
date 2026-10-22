@@ -6,7 +6,6 @@ import { useEffect, useRef, useState } from 'react'
 import { LiveClock } from '@/components/brand/live-clock'
 import { INDEX_SECTIONS, type IndexSection } from '@/components/home/ruled-index'
 import { scrollToY } from '@/components/layout/smooth-scroll'
-import { ThemeToggle } from '@/components/layout/theme-toggle'
 import { asset } from '@/lib/paths'
 import { site } from '@/../content/site'
 
@@ -181,7 +180,6 @@ export function RuledStrip() {
         <LiveClock />
       </div>
       <div className="nv-cell nv-strip-theme col-span-2 flex justify-end">
-        <ThemeToggle inline />
       </div>
     </header>
   )
@@ -216,7 +214,6 @@ export function SegmentedPill() {
       </nav>
       <div className="nv-pill nv-pill-right t-label" data-drop style={{ '--i': 0 } as React.CSSProperties}>
         <LiveClock className="hidden md:block" />
-        <ThemeToggle inline />
       </div>
     </>
   )
@@ -254,7 +251,6 @@ export function MarginIndex() {
         <LiveClock />
       </div>
       <div className="nv-margin-theme col-span-full flex self-start md:col-span-3 md:col-start-10 md:justify-end">
-        <ThemeToggle inline />
       </div>
     </header>
   )
@@ -295,7 +291,6 @@ export function BottomMenu() {
         <div className="nv-menu-head swiss-grid t-label items-center">
           <LiveClock className="col-span-2 md:col-span-6" />
           <span className="col-span-2 flex items-center justify-end gap-6 md:col-span-6">
-            <ThemeToggle inline />
             <button type="button" onClick={close} className="nv-menu-close">
               Close ✕
             </button>

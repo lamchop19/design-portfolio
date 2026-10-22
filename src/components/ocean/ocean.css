@@ -1,0 +1,49 @@
+/* ---------------------------------------------------------------------------
+   Ocean wallpaper (components/ocean)
+
+   Engraved swell lines printed faintly behind everything, thickening towards
+   the bottom of the page. A 1-bit tile used as a mask and scaled up by whole
+   dots, so it stays crisp; the ink is the layer's colour.
+
+   Static for now: the motion round will decide what moves.
+   --------------------------------------------------------------------------- */
+
+:root {
+  /* CSS px per bitmap dot, shared with the flora. Whole numbers only, or the dots blur. */
+  --dot: 1;
+  /* Ink strength of the water, 0–1. Kept low so it never competes with type. */
+  --ocean-water: 0.1;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --dot: 2;
+  }
+}
+
+body {
+  position: relative;
+}
+
+.ocean {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: clip;
+  pointer-events: none;
+  contain: layout paint;
+}
+
+.ocean-water {
+  position: absolute;
+  inset: 0;
+  background: var(--ink-blue);
+  opacity: var(--ocean-water);
+  image-rendering: pixelated;
+  mask-image: var(--tile), linear-gradient(to bottom, rgb(0 0 0 / 0.12), rgb(0 0 0 / 0.55) 45%, #000 92%);
+  mask-size:
+    calc(192px * var(--dot)) calc(96px * var(--dot)),
+    100% 100%;
+  mask-repeat: repeat, no-repeat;
+  mask-composite: intersect;
+}

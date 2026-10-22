@@ -1,4 +1,5 @@
 import type { Discipline } from '@/lib/disciplines'
+import { bayerAt, hashString, mulberry32 } from '@/lib/dither'
 
 /*
  * Bitmap specimens: soft organic shapes printed as an ordered dither in a few
@@ -85,26 +86,7 @@ export function inksFor(palette: PaletteId, disciplines: readonly Discipline[]):
   }
 }
 
-/* ---- Randomness, seeded by the project so its specimen never changes ---- */
-
-function hashString(text: string) {
-  let h = 2166136261
-  for (let i = 0; i < text.length; i++) {
-    h ^= text.charCodeAt(i)
-    h = Math.imul(h, 16777619)
-  }
-  return h >>> 0
-}
-
-function mulberry32(seed: number) {
-  let a = seed
-  return () => {
-    a = (a + 0x6d2b79f5) | 0
-    let t = Math.imul(a ^ (a >>> 15), 1 | a)
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-}
+/* ---- Randomness, seeded by the project so its specimen never changes (src/lib/dither.ts) ---- */
 
 /** A cheap, smooth 2D value noise, roughly -1 to 1. */
 function makeNoise(random: () => number) {
@@ -206,21 +188,6 @@ export function buildField(seed: string, width: number, height: number) {
 
 /* ---- Printing ---- */
 
-/** 8 × 8 Bayer thresholds, 0–1. */
-const BAYER = (() => {
-  const base = [
-    [0, 32, 8, 40, 2, 34, 10, 42],
-    [48, 16, 56, 24, 50, 18, 58, 26],
-    [12, 44, 4, 36, 14, 46, 6, 38],
-    [60, 28, 52, 20, 62, 30, 54, 22],
-    [3, 35, 11, 43, 1, 33, 9, 41],
-    [51, 19, 59, 27, 49, 17, 57, 25],
-    [15, 47, 7, 39, 13, 45, 5, 37],
-    [63, 31, 55, 23, 61, 29, 53, 21],
-  ]
-  return Float32Array.from(base.flat(), (n) => (n + 0.5) / 64)
-})()
-
 /** Where each ink starts, edge to core. */
 const THRESHOLDS = [0.04, 0.2, 0.42, 0.72] as const
 /** How much of each step is dithered: 1 blends a whole band, lower keeps bands distinct. */
@@ -251,7 +218,7 @@ export function print(out: Uint8ClampedArray, field: Float32Array, width: number
     for (let x = 0; x < width; x++) {
       const i = y * width + x
       const v = (field[i] - lift) / scale
-      const bayer = BAYER[(y & 7) * 8 + (x & 7)]
+      const bayer = bayerAt(x, y)
       let ink: Rgb | null = null
 
       if (v >= THRESHOLDS[0]) {
