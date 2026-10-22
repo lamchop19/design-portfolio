@@ -1,0 +1,348 @@
+/* ---------------------------------------------------------------------------
+   Screen print (/prototypes/screen-print)
+
+   The work printed the way the maL mark is printed: covers as ink on the
+   page's own paper, swelling into colour when pointed at. Three settings for
+   it: the homepage's cover cell, a contact sheet of proofs, and the cut into
+   a case study. The prints draw on a canvas (print-gl.ts); this file sets
+   their frames, the sheet's printer's marks and the flood layer.
+   --------------------------------------------------------------------------- */
+
+/* ---- A print ---- */
+
+.sp-frame {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  background: #ecebe5;
+}
+
+.sp-frame > canvas,
+.sp-frame > img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The plain image is only the fallback: hidden while the press runs (or
+   before it has started), shown where it can't. */
+.sp-frame > img {
+  visibility: hidden;
+}
+
+.sp-frame[data-press='off'] > img {
+  visibility: visible;
+}
+
+.sp-frame[data-press='off'] > canvas {
+  display: none;
+}
+
+/* ---- Homepage ---- */
+
+.sp-home-cover .ri-cover {
+  background: #ecebe5;
+}
+
+.sp-spec {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px var(--gutter);
+  padding-top: calc(var(--baseline) * 1.5);
+  margin-top: calc(var(--baseline) * 1.5);
+  border-top: 1px solid var(--rule);
+}
+
+/* ---- Contact sheet ---- */
+
+.sp-sheet,
+.sp-menu,
+.sp-case {
+  row-gap: calc(var(--baseline) * 3);
+  padding-top: calc(var(--baseline) * 13);
+  padding-bottom: calc(var(--baseline) * 24);
+}
+
+.sp-sheet-title,
+.sp-menu-title {
+  font-size: clamp(2.5rem, 7vw, 6.5rem);
+  line-height: 0.95;
+  font-weight: 500;
+  letter-spacing: -0.05em;
+}
+
+/* The colour bar a proof carries: paper, each solid ink, then tints of the
+   first ink screened at the sheet's own angle. */
+.sp-bar {
+  display: flex;
+  align-self: end;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.sp-bar-patch {
+  width: 28px;
+  height: 28px;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 12%, transparent);
+}
+
+.sp-bar-tint {
+  background-color: #ecebe5;
+  background-image: radial-gradient(circle at center, var(--bar-ink) calc(sqrt(var(--tint)) * 2.47px), transparent calc(sqrt(var(--tint)) * 2.47px + 0.5px));
+  background-size: 5px 5px;
+}
+
+.sp-sheet-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
+  gap: calc(var(--baseline) * 6) var(--gutter);
+  padding-top: calc(var(--baseline) * 4);
+}
+
+.sp-sheet-grid > li {
+  grid-column: span 4;
+}
+
+@media (min-width: 768px) {
+  .sp-sheet-grid > li {
+    grid-column: span 6;
+  }
+}
+
+@media (min-width: 1100px) {
+  .sp-sheet-grid > li {
+    grid-column: span 3;
+  }
+}
+
+.sp-proof {
+  display: grid;
+  gap: calc(var(--baseline) * 1);
+  outline: none;
+}
+
+/* Crop marks just outside each corner, as on a proof. */
+.sp-marks {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 5;
+  --mark: 10px;
+  --gap: 6px;
+}
+
+/* Each draws two corners' marks; the second is turned round for the other two. */
+.sp-marks::before,
+.sp-marks::after {
+  content: '';
+  position: absolute;
+  inset: calc(-1 * (var(--gap) + var(--mark)));
+  pointer-events: none;
+  background:
+    linear-gradient(var(--ink), var(--ink)) 0 calc(var(--gap) + var(--mark)) / var(--mark) 1px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) calc(var(--gap) + var(--mark)) 0 / 1px var(--mark) no-repeat,
+    linear-gradient(var(--ink), var(--ink)) 100% calc(var(--gap) + var(--mark)) / var(--mark) 1px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) calc(100% - var(--gap) - var(--mark)) 0 / 1px var(--mark) no-repeat;
+  opacity: 0.55;
+}
+
+.sp-marks::after {
+  rotate: 180deg;
+}
+
+.sp-proof-caption {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--gutter);
+}
+
+.sp-proof:hover .sp-proof-caption:first-of-type,
+.sp-proof:focus-visible .sp-proof-caption:first-of-type {
+  color: var(--accent);
+}
+
+.sp-proof:focus-visible .sp-marks {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.sp-proof-meta {
+  display: grid;
+  gap: 2px;
+}
+
+.sp-credit {
+  margin-top: 4px;
+  opacity: 0.8;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ---- Cut ---- */
+
+.sp-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
+  gap: calc(var(--baseline) * 4) var(--gutter);
+}
+
+.sp-menu-grid > li {
+  grid-column: span 2;
+}
+
+@media (min-width: 768px) {
+  .sp-menu-grid > li {
+    grid-column: span 3;
+  }
+}
+
+.sp-scene {
+  display: grid;
+  gap: calc(var(--baseline) * 1.5);
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sp-scene .sp-frame {
+  aspect-ratio: 4 / 5;
+  height: auto;
+}
+
+.sp-scene-caption {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--gutter);
+  padding-top: calc(var(--baseline) * 1);
+  border-top: 1px solid var(--rule);
+}
+
+.sp-scene:hover .sp-scene-caption,
+.sp-scene:focus-visible .sp-scene-caption {
+  color: var(--accent);
+}
+
+.sp-scene:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.sp-back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding-inline: 12px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--surface);
+  cursor: pointer;
+}
+
+.sp-back:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.sp-case-head {
+  display: grid;
+  gap: calc(var(--baseline) * 2);
+  align-content: start;
+}
+
+.sp-case-title {
+  font-size: clamp(2.75rem, 8vw, 7.5rem);
+  line-height: 0.92;
+  font-weight: 600;
+  letter-spacing: -0.05em;
+}
+
+.sp-case-headline {
+  max-width: 28ch;
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.sp-case-facts {
+  display: grid;
+  gap: calc(var(--baseline) * 1.5);
+  align-content: end;
+}
+
+.sp-case-facts > div {
+  display: grid;
+  grid-template-columns: 9ch 1fr;
+  gap: var(--gutter);
+  padding-top: calc(var(--baseline) * 1);
+  border-top: 1px solid var(--rule);
+}
+
+.sp-case-cover {
+  aspect-ratio: 3 / 2;
+  max-height: 78svh;
+}
+
+@media (max-width: 767px) {
+  .sp-case-cover {
+    aspect-ratio: 4 / 5;
+  }
+}
+
+/* The flood: over the page and its frame, under the lab panel and the paper grain. */
+.sp-flood {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.sp-flood[data-on] {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* ---- Panel ---- */
+
+.sp-panel {
+  font-family: var(--font-paper-mono), ui-monospace, monospace;
+}
+
+.sp-set {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sp-set + .sp-set {
+  padding-left: 10px;
+  border-left: 1px solid var(--rule);
+}
+
+.sp-swatch {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: 6px;
+  border-radius: 999px;
+  vertical-align: 0;
+}
+
+.sp-swatch[data-ink='blue'] {
+  background: #0059ff;
+}
+
+.sp-swatch[data-ink='pink'] {
+  background: #f551ab;
+}
+
+.sp-swatch[data-ink='green'] {
+  background: #81db89;
+}

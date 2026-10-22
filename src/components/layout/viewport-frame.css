@@ -95,6 +95,30 @@
   color: var(--surface);
 }
 
+/* The maL mark ahead of the name. */
+.vf-pill-mark {
+  gap: 9px;
+  padding-left: 10px;
+}
+
+/* 38px wide is about 15px tall: the monogram is 2.6 times wider than it is tall. */
+.vf-mark {
+  width: 38px;
+}
+
+/* Held back while the homepage intro flies the big mark in; it lands here.
+   Shown after 8s whatever happens, like the intro layer's own failsafe. */
+html[data-intro] .vf-mark {
+  visibility: hidden;
+  animation: vf-mark-failsafe 0s 8s forwards;
+}
+
+@keyframes vf-mark-failsafe {
+  to {
+    visibility: visible;
+  }
+}
+
 /* Contact +: the plus sits in its own little pill, joined to the label. */
 .vf-pill-split {
   padding-right: 4px;

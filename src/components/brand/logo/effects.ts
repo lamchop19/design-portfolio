@@ -1,14 +1,17 @@
 /*
- * Load and hover effects for the maL mark. They work on the Figma export as
- * it is (public/logo/mal-*.svg), placed inline: the three letters are paths
- * with their own brand-to-white gradients, one noise filter stipples ink over
- * all three, and "marc andre lam" is twelve dot-matrix letter paths. Every
- * effect either moves those paths or animates the gradient and noise
- * attributes the export already has.
+ * Load and hover effects for the maL mark. They work on the Figma export
+ * (public/logo/mal-*.svg, placed inline by logoSvg in ./source): the three
+ * letters are paths with their own brand-to-white gradients, one noise filter
+ * stipples ink over all three, and "marc andre lam" is twelve dot-matrix
+ * letter paths. Every effect either moves those paths or animates the
+ * gradient and noise attributes the export already has. Used by the site's
+ * intro and frame (./logo-intro, ./logo-mark) and by /prototypes/logo.
  */
 
 export type Parts = {
   svg: SVGSVGElement
+  /** Prefix for the ids these effects add, so two marks on a page don't collide. */
+  ns: string
   /** The whole mark: monogram and the name under it. */
   root: SVGGElement
   /** The monogram group, which carries the noise filter. */
@@ -36,6 +39,7 @@ export function getParts(host: HTMLElement): Parts | null {
   const byId = (id: string) => svg.querySelector<SVGPathElement>(`[id="${id}"]`)!
   return {
     svg,
+    ns: svg.dataset.ns ?? 'lg',
     root: svg.querySelector('g')!,
     group,
     letters: [byId('Vector'), byId('Vector_3'), byId('Vector_2')],
@@ -153,13 +157,13 @@ export function playLoad(id: LoadId, p: Parts): () => void {
     const added: Element[] = []
     p.letters.forEach((letter, i) => {
       const dot = el('circle', { cx: pitch / 2, cy: pitch / 2, r: 0, fill: 'white' })
-      const pattern = el('pattern', { id: `lg-dots-${i}`, width: pitch, height: pitch, patternUnits: 'userSpaceOnUse' })
+      const pattern = el('pattern', { id: `${p.ns}-dots-${i}`, width: pitch, height: pitch, patternUnits: 'userSpaceOnUse' })
       pattern.append(dot)
-      const mask = el('mask', { id: `lg-halftone-${i}`, maskUnits: 'userSpaceOnUse', x: -150, y: -150, width: 550, height: 450 })
-      mask.append(el('rect', { x: -150, y: -150, width: 550, height: 450, fill: `url(#lg-dots-${i})` }))
+      const mask = el('mask', { id: `${p.ns}-halftone-${i}`, maskUnits: 'userSpaceOnUse', x: -150, y: -150, width: 550, height: 450 })
+      mask.append(el('rect', { x: -150, y: -150, width: 550, height: 450, fill: `url(#${p.ns}-dots-${i})` }))
       defs.append(pattern, mask)
       added.push(pattern, mask)
-      letter.setAttribute('mask', `url(#lg-halftone-${i})`)
+      letter.setAttribute('mask', `url(#${p.ns}-halftone-${i})`)
       // Full cover once the radius passes half the diagonal of a cell.
       stops.push(
         tween(1000, (t) => {
@@ -181,7 +185,7 @@ export function playLoad(id: LoadId, p: Parts): () => void {
   if (id === 'grain') {
     const defs = p.svg.querySelector('defs')!
     const funcA = el('feFuncA', { type: 'discrete', tableValues: '0' })
-    const filter = el('filter', { id: 'lg-dissolve', x: -150, y: -150, width: 550, height: 450, filterUnits: 'userSpaceOnUse' })
+    const filter = el('filter', { id: `${p.ns}-dissolve`, x: -150, y: -150, width: 550, height: 450, filterUnits: 'userSpaceOnUse' })
     // Noise, thresholded to specks, painted white: a mask that fills in as the threshold rises.
     const transfer = el('feComponentTransfer', { in: 'alpha', result: 'specks' })
     transfer.append(funcA)
@@ -192,10 +196,10 @@ export function playLoad(id: LoadId, p: Parts): () => void {
       el('feFlood', { 'flood-color': 'white', result: 'white' }),
       el('feComposite', { in: 'white', in2: 'specks', operator: 'in' }),
     )
-    const mask = el('mask', { id: 'lg-grain', maskUnits: 'userSpaceOnUse', x: -150, y: -150, width: 550, height: 450 })
-    mask.append(el('rect', { x: -150, y: -150, width: 550, height: 450, fill: 'white', filter: 'url(#lg-dissolve)' }))
+    const mask = el('mask', { id: `${p.ns}-grain`, maskUnits: 'userSpaceOnUse', x: -150, y: -150, width: 550, height: 450 })
+    mask.append(el('rect', { x: -150, y: -150, width: 550, height: 450, fill: 'white', filter: `url(#${p.ns}-dissolve)` }))
     defs.append(filter, mask)
-    p.root.setAttribute('mask', 'url(#lg-grain)')
+    p.root.setAttribute('mask', `url(#${p.ns}-grain)`)
     stops.push(
       tween(1500, (t) => {
         // The noise bunches around mid-grey: from 12 to 28 of 40 levels the
@@ -434,13 +438,13 @@ export function bindHovers(host: HTMLElement, p: Parts, active: HoverId[], still
  */
 function addSpotlight(p: Parts) {
   const defs = p.svg.querySelector('defs')!
-  const light = el('radialGradient', { id: 'lg-spot', gradientUnits: 'userSpaceOnUse', cx: 0, cy: 0, r: 44 })
+  const light = el('radialGradient', { id: `${p.ns}-spot`, gradientUnits: 'userSpaceOnUse', cx: 0, cy: 0, r: 44 })
   light.append(
     el('stop', { 'stop-color': 'white', 'stop-opacity': 0.95 }),
     el('stop', { offset: 0.4, 'stop-color': 'white', 'stop-opacity': 0.5 }),
     el('stop', { offset: 1, 'stop-color': 'white', 'stop-opacity': 0 }),
   )
-  const clip = el('clipPath', { id: 'lg-spot-clip' })
+  const clip = el('clipPath', { id: `${p.ns}-spot-clip` })
   const outlines = p.letters.map((letter) => {
     const copy = letter.cloneNode() as SVGPathElement
     copy.removeAttribute('id')
@@ -449,7 +453,7 @@ function addSpotlight(p: Parts) {
     return copy
   })
   defs.append(light, clip)
-  const glow = el('rect', { x: -30, y: 0, width: 305, height: 120, fill: 'url(#lg-spot)', 'clip-path': 'url(#lg-spot-clip)', class: 'lg-spot' })
+  const glow = el('rect', { x: -30, y: 0, width: 305, height: 120, fill: `url(#${p.ns}-spot)`, 'clip-path': `url(#${p.ns}-spot-clip)`, class: 'mal-spot' })
   p.group.append(glow)
   return {
     light,

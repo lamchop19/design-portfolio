@@ -1,0 +1,1499 @@
+/* ---------------------------------------------------------------------------
+   Chapters (/prototypes/chapters)
+
+   The case study as a disc: the title over its scene selection (chapter
+   thumbnails with the DVD menu's neon frame gliding between them), tabs for
+   Chapters, Extras and Details, then the text in chapters with an on-screen
+   display that tracks the one playing. On the site's paper and grid, in Paper
+   Mono; the DVD neons are the only bright ink, and Doto prints whatever a
+   player's display would.
+   --------------------------------------------------------------------------- */
+
+.ch {
+  --glide: 380ms;
+  --cut: 420ms;
+  /* The on-screen display: a player's black plastic and its lit text, on either ground. */
+  --osd-bg: #16181d;
+  --osd-ink: #f4f2ec;
+  --osd-muted: rgb(244 242 236 / 0.62);
+  position: relative;
+}
+
+/* Dark: the logo frame's ground. The site's tokens flip, so the frame, the
+   grain and the lab panel follow. */
+html:has(.ch[data-ground='dark']) {
+  color-scheme: dark;
+  --surface: #1f222b;
+  --surface-raised: #282c37;
+  --ink: #f0eee8;
+  --ink-muted: #b9bcc6;
+  --ink-faint: #9a9eaa;
+  --rule: #393e4b;
+  --accent: #6f9bff;
+}
+
+.ch[data-ground='dark'] {
+  --osd-bg: #2a2e39;
+}
+
+.ch button {
+  text-align: inherit;
+  cursor: pointer;
+}
+
+.ch button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* A highlighted menu item is already marked by the highlight. */
+.ch .ch-hl ~ button[data-active]:focus-visible {
+  outline: none;
+}
+
+/* ---- The cut: a disc changes, or a tab ---- */
+
+.ch-cut {
+  animation: ch-in var(--cut) var(--ease-out) both;
+}
+
+.ch-cut[data-cutting] {
+  pointer-events: none;
+  animation: ch-out var(--cut) ease-in both;
+}
+
+.ch-stage {
+  animation: ch-in 300ms var(--ease-out) both;
+}
+
+.ch-stage[data-cutting] {
+  pointer-events: none;
+  animation: ch-out 240ms ease-in both;
+}
+
+@keyframes ch-in {
+  from {
+    opacity: 0;
+    filter: blur(8px) brightness(1.5);
+  }
+}
+
+@keyframes ch-out {
+  to {
+    opacity: 0;
+    filter: blur(10px) brightness(1.7);
+  }
+}
+
+/* ---- The highlight: one per menu, moved by the DVD menu's useMenu ---- */
+
+.ch-hl {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  pointer-events: none;
+  transition:
+    transform var(--glide) var(--ease-out),
+    width var(--glide) var(--ease-out),
+    height var(--glide) var(--ease-out),
+    background-color var(--glide) ease,
+    border-color var(--glide) ease,
+    box-shadow var(--glide) ease,
+    opacity 200ms ease;
+}
+
+.ch-hl ~ button {
+  position: relative;
+  z-index: 1;
+  transition: color 200ms ease;
+}
+
+/* A frame round the thumbnail and its caption, just outside them. */
+.ch-hl-frame {
+  box-sizing: content-box;
+  margin: -12px;
+  padding: 8px;
+  border: 4px solid var(--hl);
+  border-radius: 14px;
+  box-shadow: 0 0 30px -4px color-mix(in srgb, var(--hl) 70%, transparent);
+}
+
+/* A flat block of the neon behind a word, as the Index layout's menu has. */
+.ch-hl-mark {
+  border-radius: 4px;
+  background: var(--hl);
+}
+
+.ch-hl-mark ~ button[data-active] {
+  color: var(--on-hl);
+}
+
+/* ---- The disc's front: title, scene selection, tabs ---- */
+
+.ch-head {
+  row-gap: 16px;
+  padding-top: calc(var(--baseline) * 13);
+}
+
+.ch-head-main,
+.ch-scenes-main,
+.ch-section-main {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .ch-head-main,
+  .ch-scenes-main,
+  .ch-section-main {
+    grid-column: 4 / -1;
+  }
+}
+
+.ch-head-main {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* The DVD menu's title shadow, in the neon of the chapter the frame is on. */
+.ch-title {
+  font-size: clamp(56px, 9.5vw, 156px);
+  font-weight: 600;
+  line-height: 0.88;
+  letter-spacing: -0.06em;
+  text-shadow: 0.03em 0.03em 0 var(--hl);
+  transition: text-shadow var(--glide) ease;
+}
+
+.ch-headline {
+  max-width: 34ch;
+  font-size: clamp(18px, 1.8vw, 26px);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.ch-scenes {
+  row-gap: 16px;
+  margin-top: calc(var(--baseline) * 9);
+}
+
+.ch-scenes-main {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.ch-scene-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--count), minmax(0, 1fr));
+  gap: clamp(20px, 2.2vw, 32px);
+}
+
+.ch-scene {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.ch-thumb {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--c) 14%, #121419);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+}
+
+.ch-thumb-img {
+  object-fit: cover;
+}
+
+/* A looping blur of the chapter's neon, like a scene preview, playing only while the chapter is selected. */
+.ch-thumb-field {
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(ellipse 34% 28% at 30% 40%, var(--c), transparent 70%),
+    radial-gradient(ellipse 30% 24% at 70% 64%, color-mix(in srgb, var(--c), #fff 40%), transparent 70%);
+  filter: blur(16px);
+  animation: ch-field 9s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+
+[data-active] .ch-thumb-field {
+  animation-play-state: running;
+}
+
+@keyframes ch-field {
+  to {
+    transform: translate(9%, -7%) rotate(10deg);
+  }
+}
+
+/* Scanlines and a vignette, so every thumbnail reads as a still off the disc. */
+.ch-thumb::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(0deg, rgb(0 0 0 / 0.16) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, transparent 50%, rgb(0 0 0 / 0.5));
+  pointer-events: none;
+}
+
+.ch-thumb:has(.ch-thumb-img)::after {
+  background:
+    repeating-linear-gradient(0deg, rgb(0 0 0 / 0.12) 0 1px, transparent 1px 3px),
+    linear-gradient(transparent 35%, rgb(0 0 0 / 0.6));
+}
+
+.ch-thumb-num,
+.ch-thumb-time {
+  position: absolute;
+  z-index: 1;
+  color: #fff;
+}
+
+.ch-thumb-num {
+  left: 12px;
+  bottom: 4px;
+  font-family: var(--font-doto), monospace;
+  font-size: clamp(40px, 4.2vw, 68px);
+  font-weight: 800;
+  line-height: 1;
+  text-shadow: 0 0 18px color-mix(in srgb, var(--c) 85%, transparent);
+}
+
+.ch-thumb-time {
+  top: 8px;
+  right: 10px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: rgb(255 255 255 / 0.78);
+}
+
+.ch-scene-caption {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.ch-scene-num {
+  padding: 2px 6px;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px var(--rule);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  transition:
+    background-color var(--glide) ease,
+    color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+[data-active] .ch-scene-num {
+  background: var(--c);
+  color: var(--on-c);
+  box-shadow: none;
+}
+
+.ch-scene-title {
+  min-width: 0;
+  font-weight: 600;
+}
+
+.ch-scene-time {
+  margin-left: auto;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.ch-tabbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+}
+
+.ch-tablist {
+  position: relative;
+  display: flex;
+  gap: 4px;
+  margin-left: -8px;
+}
+
+.ch-tab {
+  padding: 6px 12px 6px 24px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* ▶ beside the tab you're in; the neon block follows where you point, as on a disc. */
+.ch-tab-tick {
+  position: absolute;
+  top: 50%;
+  left: 9px;
+  font-size: 0.62em;
+  opacity: 0;
+  translate: 0 -50%;
+  transition: opacity 200ms ease;
+}
+
+.ch-tab[aria-selected='true'] .ch-tab-tick {
+  opacity: 1;
+}
+
+.ch-play {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--surface);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
+.ch-play:hover {
+  background: var(--hl);
+  color: var(--on-hl);
+}
+
+/* ---- Reading: the body in chapters ---- */
+
+.ch-read {
+  align-items: start;
+  margin-top: calc(var(--baseline) * 14);
+}
+
+.ch-reading {
+  grid-column: 1 / -1;
+  min-width: 0;
+  padding-bottom: 6vh;
+}
+
+.ch-reading p {
+  max-width: 64ch;
+}
+
+@media (min-width: 768px) {
+  /* Without the rail, the text runs on the page's grid and each chapter's
+     number hangs in the margin, like the homepage's section indexes. */
+  .ch-disc:not([data-osd='rail']) .ch-reading {
+    display: grid;
+    grid-template-columns: subgrid;
+  }
+
+  .ch-disc:not([data-osd='rail']) .ch-reading > * {
+    grid-column: 4 / span 7;
+  }
+
+  .ch-disc:not([data-osd='rail']) .ch-reading > .ch-mark {
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
+
+  .ch-disc:not([data-osd='rail']) .ch-mark > * {
+    grid-column: 4 / span 7;
+  }
+
+  .ch-disc:not([data-osd='rail']) .ch-mark > .ch-mark-meta {
+    grid-row: 1 / span 2;
+    grid-column: 1 / span 3;
+    flex-direction: column;
+    align-items: flex-start;
+    align-self: start;
+  }
+
+  .ch-disc[data-osd='rail'] .ch-reading {
+    grid-column: 4 / span 7;
+  }
+}
+
+/* A chapter's title card (chapter-mark.tsx). */
+.ch-mark {
+  display: grid;
+  row-gap: 12px;
+  margin: 104px 0 28px;
+  scroll-margin-top: 132px;
+  outline: none;
+}
+
+.ch-reading > .ch-mark:first-child {
+  margin-top: 0;
+}
+
+.ch-mark-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ch-mark-num {
+  padding: 7px 9px 5px;
+  border-radius: 4px;
+  background: var(--c);
+  color: var(--on-c);
+  font-family: var(--font-doto), monospace;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.ch-mark-time {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The same fill as the chapter's segment on the scrubber. */
+.ch-mark-bar {
+  display: block;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--ink) 12%, transparent);
+}
+
+.ch-mark-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--c);
+  transform-origin: 0 50%;
+  scale: var(--f) 1;
+}
+
+.ch-mark-title {
+  font-size: clamp(30px, 3.4vw, 48px);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+}
+
+.ch-mark:focus-visible .ch-mark-title {
+  text-decoration: underline;
+  text-decoration-color: var(--c);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 6px;
+}
+
+/* ---- The last chapter ends on the next disc ---- */
+
+.ch-next {
+  row-gap: 12px;
+  margin-top: 8vh;
+  padding-bottom: 22vh;
+}
+
+.ch-next-button {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 10px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
+}
+
+@media (min-width: 768px) {
+  .ch-next-button {
+    grid-column: 4 / -1;
+  }
+}
+
+.ch-next-title {
+  font-size: clamp(44px, 7vw, 112px);
+  font-weight: 600;
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+  transition: text-shadow var(--glide) ease;
+}
+
+.ch-next-button:hover .ch-next-title,
+.ch-next-button:focus-visible .ch-next-title {
+  text-shadow: 0.03em 0.03em 0 var(--neon-0);
+}
+
+/* ---- Extras and Details ---- */
+
+.ch-section {
+  row-gap: 16px;
+  margin-top: calc(var(--baseline) * 14);
+  padding-bottom: 22vh;
+}
+
+.ch-section-main {
+  display: grid;
+  gap: 28px;
+}
+
+.ch-section-lead {
+  max-width: 52ch;
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+
+.ch-extras-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(24px, 2.6vw, 40px);
+}
+
+.ch-extra {
+  display: grid;
+  gap: 8px;
+}
+
+.ch-extra-slot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  border: 1.5px dashed color-mix(in srgb, var(--ink) 32%, transparent);
+  border-radius: 6px;
+  background: repeating-linear-gradient(-45deg, transparent 0 10px, color-mix(in srgb, var(--ink) 4%, transparent) 10px 20px);
+}
+
+.ch-extra-chip {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 3px 7px;
+  border-radius: 3px;
+  background: var(--c);
+  color: var(--on-c);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.ch-extra-placeholder {
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.ch-extra-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.ch-extra-note {
+  font-size: 13px;
+  color: var(--ink-faint);
+}
+
+.ch-details {
+  align-items: start;
+}
+
+@media (min-width: 768px) {
+  .ch-details {
+    grid-template-columns: minmax(200px, 300px) minmax(0, 1fr);
+    gap: 56px;
+  }
+}
+
+/* The disc: the art printed to the edge, a clear hub, and a sheen that turns while you point at it. */
+.ch-disc-art {
+  position: relative;
+  overflow: hidden;
+  width: min(300px, 70vw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--c) 18%, #121419);
+  box-shadow:
+    0 18px 40px -20px rgb(0 0 0 / 0.55),
+    inset 0 0 0 1px rgb(255 255 255 / 0.12);
+  animation: ch-spin 7s linear infinite;
+  animation-play-state: paused;
+}
+
+.ch-disc-art:hover {
+  animation-play-state: running;
+}
+
+.ch-disc-img {
+  object-fit: cover;
+}
+
+.ch-disc-field {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 30% 30%, var(--c), transparent 55%),
+    radial-gradient(circle at 72% 70%, color-mix(in srgb, var(--c), #fff 45%), transparent 50%);
+  filter: blur(10px);
+}
+
+/* The pressing's rainbow sheen, then the hub. */
+.ch-disc-art::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 50%;
+  background: conic-gradient(from 20deg, transparent, rgb(255 255 255 / 0.4) 8%, transparent 20%, rgb(255 255 255 / 0.25) 52%, transparent 66%);
+  mix-blend-mode: overlay;
+}
+
+.ch-disc-art::after {
+  content: '';
+  position: absolute;
+  inset: 38%;
+  z-index: 2;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow:
+    0 0 0 12px rgb(255 255 255 / 0.28),
+    inset 0 0 0 1px var(--rule);
+}
+
+.ch-disc-label {
+  position: absolute;
+  left: 50%;
+  bottom: 14%;
+  z-index: 2;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: var(--c);
+  color: var(--on-c);
+  font-family: var(--font-doto), monospace;
+  font-size: 15px;
+  font-weight: 800;
+  translate: -50% 0;
+}
+
+@keyframes ch-spin {
+  to {
+    rotate: 1turn;
+  }
+}
+
+.ch-details-text {
+  display: grid;
+  gap: 28px;
+}
+
+/* End credits: the job on the right of the centre line, the name on the left of it. */
+.ch-credits > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+  align-items: baseline;
+  gap: 20px;
+  padding: 12px 0;
+  border-top: 1px solid var(--rule);
+}
+
+.ch-credits dt {
+  text-align: right;
+  color: var(--ink-faint);
+}
+
+.ch-credits dd {
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+.ch-credits a {
+  text-decoration: underline;
+  text-decoration-color: var(--ink-faint);
+  text-underline-offset: 3px;
+}
+
+.ch-credits a:hover {
+  color: var(--accent);
+}
+
+/* The spec boxes on the back of a case. */
+.ch-specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ch-specs li {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--ink);
+  border-radius: 4px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ch-specs strong {
+  font-family: var(--font-doto), monospace;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+/* ---- On-screen displays (osd.tsx) ---- */
+
+.ch-osd {
+  z-index: 62;
+  color: var(--osd-ink);
+}
+
+/* The chapter number as the display prints it. */
+.ch-dots {
+  font-family: var(--font-doto), monospace;
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--c);
+  text-shadow: 0 0 14px color-mix(in srgb, var(--c) 55%, transparent);
+}
+
+.ch-dots-ch {
+  margin-right: 0.18em;
+  font-size: 0.56em;
+}
+
+/* A rubber key: lit in the chapter's neon under the finger. */
+.ch-key {
+  display: inline-grid;
+  place-items: center;
+  min-width: 38px;
+  height: 38px;
+  padding: 0 10px;
+  border-radius: 10px;
+  background: rgb(255 255 255 / 0.08);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08);
+  font-size: 11px;
+  letter-spacing: -0.12em;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    scale 120ms ease;
+}
+
+.ch-key:hover:not(:disabled) {
+  background: var(--c);
+  color: var(--on-c);
+}
+
+.ch-key:active:not(:disabled) {
+  scale: 0.93;
+}
+
+.ch .ch-key:disabled {
+  opacity: 0.32;
+  cursor: default;
+}
+
+/* Bar: a player's transport along the bottom, in the frame. */
+.ch-bar {
+  position: fixed;
+  right: calc(var(--frame-inset) + 8px);
+  bottom: calc(var(--frame-inset) + 8px);
+  left: calc(var(--frame-inset) + 8px);
+  display: grid;
+  grid-template-columns: auto minmax(160px, 260px) minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 18px;
+  padding: 10px 12px 10px 10px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--osd-bg) 94%, transparent);
+  box-shadow:
+    0 14px 34px -14px rgb(0 0 0 / 0.55),
+    inset 0 0 0 1px rgb(255 255 255 / 0.07);
+  backdrop-filter: blur(12px);
+  animation: ch-osd-in 420ms var(--ease-out) both;
+}
+
+@keyframes ch-osd-in {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+  }
+}
+
+.ch-bar-skip {
+  display: flex;
+  gap: 6px;
+}
+
+.ch-bar-now {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.ch-bar-title {
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.ch-bar-track {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 38px;
+}
+
+/* One segment per chapter, as long as its runtime (flex-grow, set inline). */
+.ch-seg {
+  position: relative;
+  flex-basis: 0;
+  min-width: 28px;
+  height: 100%;
+}
+
+.ch-seg::before,
+.ch-seg-fill {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 6px;
+  border-radius: 3px;
+  translate: 0 -50%;
+  transition: height 160ms ease;
+}
+
+.ch-seg::before {
+  background: rgb(255 255 255 / 0.16);
+}
+
+.ch-seg-fill {
+  background: var(--c);
+  transform-origin: 0 50%;
+  scale: var(--f) 1;
+}
+
+.ch-seg:hover::before,
+.ch-seg:hover .ch-seg-fill,
+.ch-seg:focus-visible::before,
+.ch-seg:focus-visible .ch-seg-fill {
+  height: 12px;
+}
+
+/* The playhead, on the segment playing. */
+.ch-seg-head {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--f) * 100%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--c) 65%, transparent),
+    0 0 16px var(--c);
+  translate: -50% -50%;
+  pointer-events: none;
+}
+
+.ch-seg-tip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px 6px;
+  border-radius: 9px;
+  background: var(--osd-bg);
+  box-shadow:
+    0 10px 24px -10px rgb(0 0 0 / 0.6),
+    inset 0 0 0 1px rgb(255 255 255 / 0.08);
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  translate: -50% 4px;
+  pointer-events: none;
+  transition:
+    opacity 160ms ease,
+    translate 160ms ease;
+}
+
+.ch-seg-tip .ch-dots {
+  font-size: 17px;
+}
+
+.ch-seg:hover .ch-seg-tip,
+.ch-seg:focus-visible .ch-seg-tip {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+.ch-bar-time {
+  font-size: 12px;
+  color: var(--osd-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ch-bar-elapsed {
+  color: var(--osd-ink);
+}
+
+.ch .ch-bar-menu {
+  padding-inline: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* The frame's foot gives way to the bar and the remote. */
+html:has(.ch-disc[data-osd='bar']) .vf-foot,
+html:has(.ch-disc[data-osd='remote']) .vf-foot {
+  display: none;
+}
+
+.ch-disc[data-osd='bar'] .ch-next {
+  padding-bottom: calc(22vh + 80px);
+}
+
+@media (max-width: 767px) {
+  .ch-bar {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 8px 12px;
+    padding: 10px;
+  }
+
+  .ch-bar-now {
+    grid-column: 1 / span 2;
+    grid-row: 1;
+  }
+
+  .ch-bar-time {
+    grid-column: 3;
+    grid-row: 1;
+    text-align: right;
+  }
+
+  .ch-bar-skip {
+    grid-row: 2;
+  }
+
+  .ch-bar-track {
+    grid-column: 2 / -1;
+    grid-row: 2;
+  }
+
+  .ch .ch-bar-menu {
+    display: none;
+  }
+
+  .ch-seg-tip {
+    display: none;
+  }
+}
+
+/* Rail: the chapters down the hanging margin, sticky beside the text. */
+.ch-rail {
+  grid-column: 1 / span 3;
+  position: sticky;
+  top: 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding-right: 8px;
+}
+
+.ch-rail-now {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+}
+
+.ch-rail-kicker {
+  color: var(--ink-faint);
+}
+
+.ch-rail-dots {
+  padding: 8px 10px 6px;
+  border-radius: 4px;
+  background: var(--c);
+  color: var(--on-c);
+  font-size: 36px;
+  text-shadow: none;
+  transition: background-color var(--glide) ease;
+}
+
+.ch-rail-title {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.ch-rail-time {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-faint);
+}
+
+.ch-rail-list {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin-left: -8px;
+}
+
+/* A neutral block follows the pointer here, and only while it's there; the neon is in the bars. */
+.ch-rail .ch-hl-mark {
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
+  opacity: 0;
+}
+
+.ch-rail-list:is(:hover, :focus-within) .ch-hl-mark {
+  opacity: 1;
+}
+
+.ch-rail .ch-hl-mark ~ button[data-active] {
+  color: inherit;
+}
+
+.ch-rail-item {
+  display: grid;
+  grid-template-columns: 4px 12px 24px minmax(0, 1fr) auto;
+  align-items: start;
+  column-gap: 8px;
+  min-height: clamp(44px, calc(var(--runtime) * 3px), 168px);
+  padding: 8px 8px 8px 8px;
+}
+
+/* As tall as the chapter's runtime, filling top to bottom as you read it. */
+.ch-rail-seg {
+  align-self: stretch;
+  overflow: hidden;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--ink) 14%, transparent);
+}
+
+.ch-rail-seg > span {
+  display: block;
+  height: 100%;
+  background: var(--c);
+  transform-origin: 50% 0;
+  scale: 1 var(--f);
+}
+
+.ch-rail-tick {
+  padding-top: 3px;
+  font-size: 9px;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.ch-rail-item[aria-current='step'] .ch-rail-tick {
+  opacity: 1;
+}
+
+.ch-rail-num {
+  font-family: var(--font-doto), monospace;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.ch-rail-label {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.ch-rail-dur {
+  padding-top: 1px;
+  font-size: 12px;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 767px) {
+  /* On a phone the rail turns into a strip under the pills, sticking while you read. */
+  .ch .ch-read {
+    display: block;
+  }
+
+  .ch-rail {
+    top: calc(var(--frame-inset) + 52px);
+    z-index: 5;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+    padding: 8px 10px;
+    border-radius: 14px;
+    background: var(--surface);
+    box-shadow:
+      inset 0 0 0 1px var(--rule),
+      0 10px 24px -14px rgb(0 0 0 / 0.35);
+  }
+
+  .ch-rail-now {
+    display: flex;
+    align-items: center;
+  }
+
+  .ch-rail-kicker,
+  .ch-rail-title,
+  .ch-rail-time {
+    display: none;
+  }
+
+  .ch-rail-dots {
+    padding: 4px 6px 3px;
+    font-size: 18px;
+  }
+
+  .ch-rail-list {
+    flex: 1;
+    flex-direction: row;
+    gap: 4px;
+    margin: 0;
+  }
+
+  .ch-rail .ch-hl {
+    display: none;
+  }
+
+  .ch-rail-item {
+    display: block;
+    flex: var(--runtime) 1 0;
+    min-height: 0;
+    padding: 10px 0;
+  }
+
+  .ch-rail-item > :not(.ch-rail-seg) {
+    display: none;
+  }
+
+  .ch-rail-seg {
+    display: block;
+    height: 5px;
+  }
+
+  .ch-rail-seg > span {
+    transform-origin: 0 50%;
+    scale: var(--f) 1;
+  }
+}
+
+/* Remote: a handset in the corner. */
+.ch-remote {
+  position: fixed;
+  right: calc(var(--frame-inset) + 20px);
+  bottom: calc(var(--frame-inset) + 20px);
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  width: 216px;
+  padding: 20px 14px 16px;
+  border-radius: 36px;
+  background: linear-gradient(165deg, #2c303b, #16181d 58%);
+  box-shadow:
+    0 26px 50px -20px rgb(0 0 0 / 0.6),
+    inset 0 1px 0 rgb(255 255 255 / 0.14),
+    inset 0 -3px 0 rgb(0 0 0 / 0.45);
+  animation: ch-osd-in 520ms var(--ease-out) both;
+}
+
+.ch[data-ground='dark'] .ch-remote {
+  box-shadow:
+    0 26px 50px -20px rgb(0 0 0 / 0.8),
+    inset 0 0 0 1px rgb(255 255 255 / 0.1),
+    inset 0 1px 0 rgb(255 255 255 / 0.16);
+}
+
+/* The IR lamp blinks on every press. */
+.ch-remote-ir {
+  position: absolute;
+  top: 9px;
+  left: 50%;
+  width: 12px;
+  height: 5px;
+  border-radius: 3px;
+  background: #43121a;
+  translate: -50% 0;
+}
+
+.ch-remote-ir[data-blink] {
+  animation: ch-ir 300ms steps(2, jump-none) 2;
+}
+
+@keyframes ch-ir {
+  50% {
+    background: #ff3b4e;
+    box-shadow: 0 0 10px #ff3b4e;
+  }
+}
+
+.ch-remote-brand {
+  font-size: 9px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--osd-muted);
+}
+
+/* A backlit LCD with its dot grid showing. */
+.ch-lcd {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  padding: 9px 11px 8px;
+  border-radius: 12px;
+  background:
+    radial-gradient(rgb(255 255 255 / 0.05) 0.8px, transparent 1.2px) 0 0 / 3px 3px,
+    #0a0c0b;
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.06),
+    inset 0 2px 10px rgb(0 0 0 / 0.85);
+}
+
+.ch-lcd-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ch-lcd .ch-dots {
+  font-size: 25px;
+}
+
+.ch-lcd-time {
+  font-family: var(--font-doto), monospace;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--c);
+  font-variant-numeric: tabular-nums;
+}
+
+.ch-lcd-title {
+  overflow: hidden;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: rgb(255 255 255 / 0.82);
+}
+
+.ch-remote-pad {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+}
+
+.ch-remote-pad .ch-key {
+  min-width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  padding: 0;
+}
+
+.ch-ring-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.ch-ring {
+  width: 116px;
+  height: 116px;
+  cursor: pointer;
+}
+
+.ch-ring-track,
+.ch-ring-fill {
+  fill: none;
+  stroke-width: 10;
+}
+
+.ch-ring-track {
+  stroke: rgb(255 255 255 / 0.12);
+  transition: stroke 160ms ease;
+}
+
+.ch-ring-fill {
+  stroke: var(--c);
+  stroke-dasharray: 1 1;
+  stroke-dashoffset: calc(1 - var(--f));
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--c) 70%, transparent));
+}
+
+[data-peek] > .ch-ring-track {
+  stroke: color-mix(in srgb, var(--c) 40%, transparent);
+}
+
+.ch .ch-remote-menu {
+  position: absolute;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #3b404d, #1b1e26 70%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.14),
+    0 3px 8px rgb(0 0 0 / 0.5);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-align: center;
+  text-transform: uppercase;
+  transition: scale 120ms ease;
+}
+
+.ch-remote-menu:active {
+  scale: 0.94;
+}
+
+@media (max-width: 767px) {
+  .ch-remote {
+    right: calc(var(--frame-inset) + 10px);
+    bottom: calc(var(--frame-inset) + 10px);
+    scale: 0.82;
+    transform-origin: 100% 100%;
+  }
+}
+
+/* ⊘, the player's "not available". */
+.ch-toast {
+  position: fixed;
+  top: calc(var(--frame-inset) + 60px);
+  left: 50%;
+  z-index: 63;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: var(--osd-bg);
+  color: var(--osd-ink);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0;
+  translate: -50% -8px;
+  pointer-events: none;
+  transition:
+    opacity 200ms ease,
+    translate 200ms ease;
+}
+
+.ch-toast[data-show] {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+.ch-toast-icon {
+  font-size: 22px;
+  line-height: 1;
+  color: #ff3b4e;
+}
+
+/* ---- Lab panel: top right, clear of the bar and the remote ---- */
+
+/* Two classes, so it beats panel.css's bottom: 16px whichever stylesheet the
+   production build loads last; with both edges set the panel would stretch. */
+.hl-panel.ch-lab-panel {
+  top: calc(var(--frame-inset) + 56px);
+  bottom: auto;
+  font-family: var(--font-paper-mono), ui-monospace, monospace;
+}
+
+@media (max-width: 767px) {
+  .ch-scene-grid,
+  .ch-extras-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* On a phone the scenes list like episodes: a small still, the caption beside it. */
+  .ch-scene-grid {
+    gap: 14px;
+  }
+
+  .ch-scene {
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .ch-thumb {
+    flex: none;
+    width: 46%;
+  }
+
+  .ch-thumb-num {
+    left: 8px;
+    font-size: 34px;
+  }
+
+  .ch-thumb-time {
+    display: none;
+  }
+
+  .ch-scene-caption {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .ch-scene-time {
+    margin-left: 0;
+  }
+
+  .ch-hl-frame {
+    margin: -8px;
+    padding: 4px;
+  }
+
+  .ch-tabbar .ch-play {
+    margin-left: 0;
+  }
+
+  /* The rail's strip takes the top on a phone, so the lab's panel moves to the bottom. */
+  .ch:has(.ch-disc[data-osd='rail']) .ch-lab-panel {
+    top: auto;
+    bottom: calc(var(--frame-inset) + 36px);
+  }
+}
+
+/* ---- Still ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  .ch *,
+  .ch *::before,
+  .ch *::after {
+    animation: none !important;
+    transition-duration: 0ms !important;
+  }
+}

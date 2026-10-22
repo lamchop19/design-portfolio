@@ -34,28 +34,10 @@ html:has(.lg) {
   translate: 0 -6vh;
 }
 
-/* The export's fixed 245 × 136 size, scaled to the stage. */
-.lg-mark svg {
-  width: 100%;
-  height: auto;
-  overflow: visible;
-}
-
-/* Each letter moves about its own box, landing on its baseline. */
-.lg-mark path {
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
-}
-
+/* The mark fills the stage; its own sizing and letter origins are in components/brand/logo/logo.css. */
 .lg-mark {
+  display: block;
   cursor: default;
-}
-
-/* The Spotlight hover's light: faded in and out, moved by script. */
-.lg-spot {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 220ms ease;
 }
 
 .lg-set {

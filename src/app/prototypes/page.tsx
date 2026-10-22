@@ -1,7 +1,10 @@
 import Link from 'next/link'
 
 const prototypes = [
-  { href: '/prototypes/logo', title: 'Logo motion', note: 'The maL mark from the “logos final” frame in three colourways: five load animations and five hovers that play with its gradients and noise' },
+  { href: '/prototypes/scenes', title: 'Scenes', note: 'Big airbrushed pictures for the top of the homepage, after Hiroshi Nagai and the aquarium: a breaking wave, a jet over the city, a coast road, a pool, a sunset, two reefs, a record store and a flower field, shown as the hero, a window, a 7-inch sleeve, or all together' },
+  { href: '/prototypes/chapters', title: 'Chapters', note: 'The case study as a disc: scene selection with the DVD menu’s gliding neon frame, the body in chapters timed at reading speed, and the on-screen display three ways (a bar, a margin rail, a remote), plus Extras and Details tabs' },
+  { href: '/prototypes/screen-print', title: 'Screen print', note: 'The covers printed the way the maL mark is: one-ink halftone, grain, LED or two-ink riso prints that swell into full colour when pointed at, shown on the homepage, a contact sheet of proofs, or a cut where the ink floods the screen as a dot screen' },
+  { href: '/prototypes/logo', title: 'Logo motion', note: 'The maL mark from the “logos final” frame in three colourways: five load animations and five hovers that play with its gradients and noise. The Halftone load with Sweep, Boil and Shift is now the homepage intro' },
   { href: '/prototypes/dvd', title: 'DVD menu', note: 'The homepage as a disc’s main menu: seven layouts (two after chiquach.com and franceszhao.ca, and Split, a 40/60 site merging them) over airbrush fish, the PS3 wave or jellies, with a neon highlight that glides between items' },
   { href: '/prototypes/sea', title: 'Sea', note: 'One watercolour scene in three snapped screens: sky and sailboat, open water and the work, the floor with the submarine' },
   { href: '/prototypes/aquarium', title: 'Aquarium', note: 'An airbrushed tank of fish and coral behind the portfolio, with the text centred over it, three ways' },
