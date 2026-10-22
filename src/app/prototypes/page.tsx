@@ -1,6 +1,8 @@
 import Link from 'next/link'
 
 const prototypes = [
+  { href: '/prototypes/logo', title: 'Logo motion', note: 'The maL mark from the “logos final” frame in three colourways: five load animations and five hovers that play with its gradients and noise' },
+  { href: '/prototypes/dvd', title: 'DVD menu', note: 'The homepage as a disc’s main menu: seven layouts (two after chiquach.com and franceszhao.ca, and Split, a 40/60 site merging them) over airbrush fish, the PS3 wave or jellies, with a neon highlight that glides between items' },
   { href: '/prototypes/sea', title: 'Sea', note: 'One watercolour scene in three snapped screens: sky and sailboat, open water and the work, the floor with the submarine' },
   { href: '/prototypes/aquarium', title: 'Aquarium', note: 'An airbrushed tank of fish and coral behind the portfolio, with the text centred over it, three ways' },
   { href: '/prototypes/one-page', title: 'One page', note: 'The whole portfolio on one screen, four formats, with folk-plant flora in two-ink or full palette' },
