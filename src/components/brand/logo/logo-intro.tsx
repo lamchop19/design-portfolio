@@ -33,7 +33,19 @@ const QUICK_FLIGHT = 480
  * HTML, so the page never flashes before it, and CSS hides it unless the head
  * script asked for it (and after 8s if the script never takes over).
  */
-export function LogoIntro({ svg, target }: { svg: string; target: string }) {
+export function LogoIntro({
+  svg,
+  target,
+  hold = HOLD_UNTIL,
+  flight = FLIGHT,
+}: {
+  svg: string
+  target: string
+  /** When the mark starts flying home, in ms from mount (the homepage's by default). */
+  hold?: number
+  /** How long the flight takes, in ms. */
+  flight?: number
+}) {
   const layer = useRef<HTMLDivElement>(null)
   const mark = useRef<HTMLDivElement>(null)
 
@@ -89,7 +101,7 @@ export function LogoIntro({ svg, target }: { svg: string; target: string }) {
       const to = document.querySelector(target)?.querySelector('[id="Group 6"]')?.getBoundingClientRect()
       const from = parts.group.getBoundingClientRect()
       const box = host.getBoundingClientRect()
-      const flight = to?.width
+      const move = to?.width
         ? // FLIP: scale about the top-left corner so the letters land exactly on the frame's.
           host.animate(
             [
@@ -102,11 +114,11 @@ export function LogoIntro({ svg, target }: { svg: string; target: string }) {
           )
         : // No frame to land in: fade out where it stands.
           host.animate([{ opacity: 1 }, { opacity: 0, transform: 'scale(0.97)' }], { duration: ms, easing: 'ease-in', fill: 'forwards' })
-      anims.push(flight)
-      flight.onfinish = land
+      anims.push(move)
+      move.onfinish = land
     }
 
-    const timer = window.setTimeout(() => fly(FLIGHT), HOLD_UNTIL)
+    const timer = window.setTimeout(() => fly(flight), hold)
     events.forEach((type) => window.addEventListener(type, skip, { passive: true }))
 
     return () => {
@@ -121,7 +133,7 @@ export function LogoIntro({ svg, target }: { svg: string; target: string }) {
       // Torn down before landing (React's dev double-mount does this): set up to play again.
       if (!landed) html.dataset.intro = 'play'
     }
-  }, [target])
+  }, [target, hold, flight])
 
   return (
     <div ref={layer} className="mal-intro" aria-hidden="true">

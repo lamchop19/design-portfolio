@@ -1,0 +1,481 @@
+/* ---------------------------------------------------------------------------
+   School (prototypes/school): Marc's centred landing over the fish school.
+   One fixed screen over the site's frame (60/61), under the intro (70).
+   --------------------------------------------------------------------------- */
+
+.school {
+  --s-blue: var(--brand-blue, #0059ff);
+  --s-ink: #111216;
+  --s-clear: 255 255 255;
+  --s-clear-k: 1;
+  --g-bold: 700;
+  position: fixed;
+  inset: 0;
+  z-index: 65;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #f7f8fc;
+  font-family: var(--font-geist-sans), 'Helvetica Neue', Arial, sans-serif;
+}
+
+.school-fish {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* The soft paper clearing that sits behind type: solid in the middle, fading
+   out well past it, so fish swimming under it dissolve instead of crossing
+   the letters. */
+.school {
+  --s-clearing: radial-gradient(
+    closest-side,
+    rgb(var(--s-clear) / calc(0.94 * var(--s-clear-k))) 0%,
+    rgb(var(--s-clear) / calc(0.9 * var(--s-clear-k))) 52%,
+    rgb(var(--s-clear) / calc(0.55 * var(--s-clear-k))) 74%,
+    rgb(var(--s-clear) / 0) 100%
+  );
+}
+
+/* The type's layer: the whole screen, arranged by data-layout. */
+.school-stack {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: max(24px, env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px)) max(24px, env(safe-area-inset-bottom, 0px))
+    max(20px, env(safe-area-inset-left, 0px));
+}
+
+/* Centred, and every layout on phones: one column in the middle under one clearing. */
+.school-cluster {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(28px, 4.5vh, 48px);
+  width: min(620px, 100%);
+  text-align: center;
+}
+
+.school-cluster::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -34% -30%;
+  background: var(--s-clearing);
+  pointer-events: none;
+}
+
+.school-mast {
+  margin: 0;
+  line-height: 0;
+}
+
+.school-logo {
+  width: clamp(180px, 17vw, 240px);
+}
+
+/* Held back while the intro's big mark flies down onto it (logo.css does the
+   same for the guide's mark). Shown after 8s whatever happens. */
+html[data-intro] .school-logo {
+  visibility: hidden;
+  animation: school-landing-failsafe 0s 8s forwards;
+}
+
+@keyframes school-landing-failsafe {
+  to {
+    visibility: visible;
+  }
+}
+
+.school-bio {
+  margin: 0;
+  max-width: 30ch;
+  color: var(--s-blue);
+  font-size: clamp(17px, 1.6vw, 22px);
+  line-height: 1.38;
+  font-weight: 400;
+  text-wrap: balance;
+}
+
+.school-bio strong {
+  font-weight: var(--g-bold);
+}
+
+.school-menu {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  width: min(610px, 100%);
+  margin-top: clamp(8px, 2vh, 24px);
+  font-size: clamp(22px, 2.1vw, 30px);
+  font-weight: 300;
+  letter-spacing: -0.01em;
+}
+
+/* The menu's numbers, for the Index layout. */
+.school-num {
+  display: none;
+}
+
+/* ---- The spread-out layouts, from tablets up ---- */
+
+@media (min-width: 760px) {
+  .school:not([data-layout='centred']) .school-stack {
+    place-items: stretch;
+    gap: 24px;
+    padding: clamp(28px, 4vw, 56px);
+  }
+
+  /* The cluster steps aside so each part sits on the stack's grid, with a clearing of its own. */
+  .school:not([data-layout='centred']) .school-cluster {
+    display: contents;
+  }
+
+  .school:not([data-layout='centred']) .school-cluster::before {
+    content: none;
+  }
+
+  .school:not([data-layout='centred']) .school-part {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .school:not([data-layout='centred']) .school-part::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: -55% -24%;
+    background: var(--s-clearing);
+    pointer-events: none;
+  }
+
+  .school:not([data-layout='centred']) .school-mast {
+    grid-area: mast;
+    justify-self: start;
+    align-self: start;
+  }
+
+  .school:not([data-layout='centred']) .school-mast::before {
+    inset: -45% -35%;
+  }
+
+  .school:not([data-layout='centred']) .school-bio {
+    grid-area: bio;
+    text-align: left;
+  }
+
+  .school:not([data-layout='centred']) .school-menu {
+    grid-area: menu;
+    width: auto;
+    margin: 0;
+  }
+
+  /* Index: mark top left, numbered menu bottom left, sentence bottom right. */
+  .school[data-layout='index'] .school-stack {
+    grid-template:
+      'mast . .' auto
+      '. . .' 1fr
+      'menu . bio' auto
+      / 1fr 1fr 1fr;
+  }
+
+  .school[data-layout='index'] .school-logo {
+    width: clamp(150px, 13vw, 210px);
+  }
+
+  .school[data-layout='index'] .school-menu {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.08em;
+    justify-self: start;
+    align-self: end;
+    font-size: clamp(30px, 3.2vw, 48px);
+    line-height: 1.1;
+  }
+
+  .school[data-layout='index'] .school-menu a {
+    display: inline-flex;
+    align-items: baseline;
+  }
+
+  .school[data-layout='index'] .school-num {
+    display: inline-block;
+    width: 3.2em;
+    font-size: 0.36em;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.6;
+  }
+
+  .school[data-layout='index'] .school-bio {
+    justify-self: end;
+    align-self: end;
+    max-width: 28ch;
+  }
+
+  /* Column: one left-aligned column, centred on the height; the water has the right. */
+  .school[data-layout='column'] .school-stack {
+    grid-template:
+      '. .' 1fr
+      'mast .' auto
+      'bio .' auto
+      'menu .' auto
+      '. .' 1fr
+      / minmax(320px, 40%) 1fr;
+    row-gap: clamp(24px, 4vh, 44px);
+    padding-left: clamp(40px, 8vw, 128px);
+  }
+
+  .school[data-layout='column'] .school-logo {
+    width: clamp(200px, 19vw, 290px);
+  }
+
+  .school[data-layout='column'] .school-bio {
+    justify-self: start;
+    max-width: 28ch;
+  }
+
+  .school[data-layout='column'] .school-menu {
+    justify-self: start;
+    gap: 1.3em;
+  }
+
+  /* Lower third: everything on one band along the bottom, like a TV's caption bar. */
+  .school[data-layout='bar'] .school-stack {
+    grid-template:
+      '. . .' 1fr
+      'mast bio menu' auto
+      / auto 1fr auto;
+    align-items: end;
+    column-gap: clamp(28px, 4vw, 64px);
+  }
+
+  .school[data-layout='bar'] .school-mast {
+    align-self: end;
+  }
+
+  .school[data-layout='bar'] .school-logo {
+    width: clamp(120px, 10vw, 170px);
+  }
+
+  .school[data-layout='bar'] .school-bio {
+    justify-self: start;
+    max-width: 36ch;
+    font-size: clamp(15px, 1.25vw, 19px);
+  }
+
+  .school[data-layout='bar'] .school-menu {
+    gap: 1.2em;
+    font-size: clamp(20px, 1.8vw, 26px);
+  }
+
+  /* Masthead: a big mark at the top, the sentence under it, the menu along the bottom edge. */
+  .school[data-layout='masthead'] .school-stack {
+    grid-template:
+      'mast' auto
+      'bio' auto
+      '.' 1fr
+      'menu' auto
+      / 1fr;
+    justify-items: center;
+    row-gap: clamp(20px, 3vh, 36px);
+    padding-top: clamp(48px, 9vh, 112px);
+  }
+
+  .school[data-layout='masthead'] .school-mast {
+    justify-self: center;
+  }
+
+  .school[data-layout='masthead'] .school-logo {
+    width: clamp(240px, 26vw, 400px);
+  }
+
+  .school[data-layout='masthead'] .school-bio {
+    justify-self: center;
+    text-align: center;
+  }
+
+  .school[data-layout='masthead'] .school-menu {
+    justify-self: stretch;
+    justify-content: space-between;
+    padding-inline: clamp(0px, 4vw, 64px);
+    font-size: clamp(26px, 2.6vw, 38px);
+  }
+
+  .school[data-layout='masthead'] .school-menu::before {
+    inset: -80% -6%;
+  }
+
+  /* Corners: mark top left, menu top right like a nav bar, the sentence large bottom left. */
+  .school[data-layout='corners'] .school-stack {
+    grid-template:
+      'mast menu' auto
+      '. .' 1fr
+      'bio .' auto
+      / 1fr auto;
+  }
+
+  .school[data-layout='corners'] .school-logo {
+    width: clamp(140px, 12vw, 190px);
+  }
+
+  .school[data-layout='corners'] .school-menu {
+    justify-self: end;
+    align-self: start;
+    gap: 1.4em;
+    font-size: clamp(18px, 1.6vw, 24px);
+  }
+
+  .school[data-layout='corners'] .school-bio {
+    justify-self: start;
+    max-width: 22ch;
+    font-size: clamp(28px, 3.2vw, 48px);
+    line-height: 1.14;
+    letter-spacing: -0.015em;
+    text-wrap: pretty;
+  }
+}
+
+.school-menu a {
+  color: var(--s-ink);
+  text-decoration: none;
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1px;
+  transition: color 160ms ease;
+}
+
+.school-menu a:hover {
+  color: var(--s-blue);
+  text-decoration-line: underline;
+}
+
+.school-menu a:focus-visible {
+  outline: 2px solid var(--s-blue);
+  outline-offset: 4px;
+}
+
+/* The intro's preview: fish darting across the big mark, over the intro layer (70). */
+.school-dash {
+  position: fixed;
+  inset: 0;
+  z-index: 71;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.school-dash:not([data-live]) {
+  display: none;
+}
+
+/* ---- The lab panel (on top of ../_panel's corner panel) ---- */
+
+.school-panel {
+  width: min(calc(100% - 32px), 340px);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  font-family: var(--font-paper-mono), ui-monospace, monospace;
+}
+
+/* Layouts with type in the bottom-right corner get the panel in the top right instead. */
+.school[data-layout='bar'] .school-panel,
+.school[data-layout='masthead'] .school-panel {
+  top: 16px;
+  bottom: auto;
+}
+
+html[data-intro] .school-panel {
+  visibility: hidden;
+}
+
+.sp-body {
+  display: grid;
+  gap: 14px;
+  padding: 4px 4px 2px;
+}
+
+.sp-body section {
+  display: grid;
+  gap: 8px;
+}
+
+.sp-head {
+  margin: 0;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink-faint);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sp-label {
+  color: var(--ink-muted);
+  font-size: 12px;
+}
+
+.sp-note {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.sp-field {
+  display: grid;
+  gap: 6px;
+}
+
+.sp-slider {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 2px 8px;
+}
+
+.sp-slider output {
+  color: var(--ink-faint);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sp-slider input {
+  grid-column: 1 / -1;
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.sp-colours {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.sp-colour {
+  display: grid;
+  gap: 4px;
+}
+
+.sp-colour input {
+  width: 100%;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--rule);
+  background: none;
+  cursor: pointer;
+}
+
+@media (max-width: 520px) {
+  .school-menu {
+    justify-content: center;
+    gap: 28px;
+  }
+}
