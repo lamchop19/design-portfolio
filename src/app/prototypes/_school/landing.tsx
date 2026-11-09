@@ -58,11 +58,30 @@ const hexTriple = (hex: string) => {
  * it. The corner panel tunes the fish and the ground and replays the intro;
  * settings stay in this browser.
  */
-export function SchoolLanding({ introSvg, logoSvg }: { introSvg: string; logoSvg: string }) {
+export function SchoolLanding({
+  introSvg,
+  logoSvg,
+  initialLook = SCHOOL_LOOK,
+  lab = true,
+  placeholders = false,
+  alwaysIntro = true,
+}: {
+  introSvg: string
+  logoSvg: string
+  /** The look to start from (and Reset to). */
+  initialLook?: SchoolLook
+  /** Show the lab panel and restore this browser's settings. Off, `?lab` in the address still opens the panel. */
+  lab?: boolean
+  /** The menu's links go nowhere yet (the live landing, before the content pages are rebuilt). */
+  placeholders?: boolean
+  /** Play the intro on every visit (the prototype). Off, it plays once a visit, decided by the head script, as on the homepage. */
+  alwaysIntro?: boolean
+}) {
   const [run, setRun] = useState(0)
-  const [look, setLook] = useState<SchoolLook>(SCHOOL_LOOK)
-  const [preset, setPreset] = useState<string | null>('Shallows')
-  const [count, setCount] = useState(SCHOOL_LOOK.start)
+  const [look, setLook] = useState<SchoolLook>(initialLook)
+  const [preset, setPreset] = useState<string | null>(initialLook === SCHOOL_LOOK ? 'Shallows' : null)
+  const [showLab, setShowLab] = useState(lab)
+  const [count, setCount] = useState(initialLook.start)
   const [layout, setLayoutState] = useState<Layout>('centred')
   const setLayout = (next: Layout) => {
     setLayoutState(next)
@@ -71,8 +90,9 @@ export function SchoolLanding({ introSvg, logoSvg }: { introSvg: string; logoSvg
     } catch {}
   }
 
-  // Number keys 1–6 switch layouts, for flipping between them quickly.
+  // Number keys 1–6 switch layouts, for flipping between them quickly (with the panel open).
   useEffect(() => {
+    if (!showLab) return
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey || (e.target as Element | null)?.closest('input, textarea, select')) return
       const i = Number(e.key) - 1
@@ -80,17 +100,20 @@ export function SchoolLanding({ introSvg, logoSvg }: { introSvg: string; logoSvg
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [])
+  }, [showLab])
 
-  // Settings from last time.
+  // Settings from last time, in the lab. The live landing keeps its own look,
+  // but `?lab` in the address opens the panel over it.
   useEffect(() => {
+    /* eslint-disable-next-line react-hooks/set-state-in-effect -- the address is only readable after hydration */
+    if (!lab && /[?&]lab\b/.test(location.search)) setShowLab(true)
+    if (!lab) return
     let saved: { look?: SchoolLook; preset?: string | null } | null = null
     try {
       saved = JSON.parse(localStorage.getItem(STORE) ?? 'null')
     } catch {}
     // Read after hydration on purpose: the server can't see this browser's settings,
     // and reading them during render would make the first client render differ from it.
-    /* eslint-disable react-hooks/set-state-in-effect */
     if (saved?.look) {
       setLook({ ...SCHOOL_LOOK, ...saved.look })
       setPreset(saved.preset ?? null)
@@ -99,8 +122,7 @@ export function SchoolLanding({ introSvg, logoSvg }: { introSvg: string; logoSvg
       const l = localStorage.getItem(LAYOUT_STORE)
       if (LAYOUTS.some(([id]) => id === l)) setLayoutState(l as Layout)
     } catch {}
-    /* eslint-enable react-hooks/set-state-in-effect */
-  }, [])
+  }, [lab])
 
   const save = (next: SchoolLook, p: string | null) => {
     try {
@@ -130,8 +152,8 @@ export function SchoolLanding({ introSvg, logoSvg }: { introSvg: string; logoSvg
     try {
       localStorage.removeItem(STORE)
     } catch {}
-    setLook({ ...SCHOOL_LOOK })
-    setPreset('Shallows')
+    setLook({ ...initialLook })
+    setPreset(initialLook === SCHOOL_LOOK ? 'Shallows' : null)
   }
 
   // The intro only plays when <html data-intro="play">. The page's inline
@@ -140,8 +162,9 @@ export function SchoolLanding({ introSvg, logoSvg }: { introSvg: string; logoSvg
   // plays on every visit, for testing.
   useLayoutEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (!alwaysIntro && run === 0) return
     document.documentElement.dataset.intro = 'play'
-  }, [run])
+  }, [run, alwaysIntro])
 
   const vars = {
     background: look.groundStyle === 'blank' ? '#ffffff' : look.ground[0],
@@ -175,6 +198,12 @@ export function SchoolLanding({ introSvg, logoSvg }: { introSvg: string; logoSvg
                   <span>{item.label}</span>
                 </>
               )
+              if (placeholders)
+                return (
+                  <a key={item.label} href="#" title="Coming soon" onClick={(e) => e.preventDefault()}>
+                    {inner}
+                  </a>
+                )
               return item.href.startsWith('mailto:') ? (
                 <a key={item.label} href={item.href}>
                   {inner}
@@ -189,7 +218,7 @@ export function SchoolLanding({ introSvg, logoSvg }: { introSvg: string; logoSvg
         </div>
       </div>
 
-      <SchoolPanel look={look} preset={preset} count={count} layout={layout} onLayout={setLayout} onLook={update} onPreset={choose} onReplay={() => setRun((n) => n + 1)} onReset={reset} />
+      {showLab && <SchoolPanel look={look} preset={preset} count={count} layout={layout} onLayout={setLayout} onLook={update} onPreset={choose} onReplay={() => setRun((n) => n + 1)} onReset={reset} />}
 
       <LogoIntro key={`intro-${run}`} svg={introSvg} target=".school-logo" hold={INTRO.hold} flight={INTRO.flight} />
       <IntroDash key={`dash-${run}`} look={look} />

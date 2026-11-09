@@ -50,3 +50,6 @@ next-env.d.ts
 
 # conductor workspace scratch
 /.context/
+
+# landing-only static build for Vercel (scripts/deploy-landing.mjs)
+/.deploy/

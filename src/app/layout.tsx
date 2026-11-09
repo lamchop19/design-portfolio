@@ -9,6 +9,7 @@ import { ViewportFrame } from '@/components/layout/viewport-frame'
 import { SceneBackdrop } from '@/components/scenes/scene-backdrop'
 import { introInitScript } from '@/lib/intro'
 import { ogImage } from '@/lib/og'
+import { LANDING_ONLY } from '@/lib/site-mode'
 import { sceneInitScript, sceneRules } from '@/lib/scene-choice'
 import { site } from '@/../content/site'
 
@@ -58,11 +59,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <style dangerouslySetInnerHTML={{ __html: sceneRules() }} />
       </head>
       <body className="flex min-h-dvh flex-col">
-        <SceneBackdrop />
-        <SmoothScroll />
-        <ViewportFrame mark={logoSvg('blue', { ns: 'mal-frame', monogram: true })} />
+        {/* The live landing on its own (lib/site-mode) is one fixed screen: no frame, footer or scene. */}
+        {!LANDING_ONLY && <SceneBackdrop />}
+        {!LANDING_ONLY && <SmoothScroll />}
+        {!LANDING_ONLY && <ViewportFrame mark={logoSvg('blue', { ns: 'mal-frame', monogram: true })} />}
         <main className="flex-1">{children}</main>
-        <SiteFooter />
+        {!LANDING_ONLY && <SiteFooter />}
       </body>
     </html>
   )

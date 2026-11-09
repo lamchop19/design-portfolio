@@ -18,7 +18,8 @@
     "new-project": "node scripts/new-project.mjs",
     "refs": "node --env-file-if-exists=.env.local scripts/sync-refs.mjs",
     "scenes": "tsx scripts/generate-scenes.tsx",
-    "backdrops": "tsx scripts/scene-backdrops.ts"
+    "backdrops": "tsx scripts/scene-backdrops.ts",
+    "deploy:landing": "node scripts/deploy-landing.mjs"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",
