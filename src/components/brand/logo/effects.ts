@@ -20,6 +20,8 @@ export type Parts = {
   letters: SVGPathElement[]
   /** The twelve letters of "marc andre lam". */
   name: SVGPathElement[]
+  /** The intro's title card, a line set in the name's dots (logoSvg's `card`), if there is one. */
+  card: SVGPathElement[]
   filter: SVGFilterElement
   turbulence: SVGFETurbulenceElement
   /** The threshold that decides how much of the noise turns into ink. */
@@ -44,6 +46,7 @@ export function getParts(host: HTMLElement): Parts | null {
     group,
     letters: [byId('Vector'), byId('Vector_3'), byId('Vector_2')],
     name: [...svg.querySelectorAll<SVGPathElement>('[id="marc andre lam"] path')],
+    card: [...svg.querySelectorAll<SVGPathElement>('[id="title card"] path')],
     filter: svg.querySelector('filter')!,
     turbulence: svg.querySelector('feTurbulence')!,
     grain: svg.querySelector('feFuncA')!,
@@ -112,8 +115,15 @@ const BOUNCE: Keyframe[] = [
   { transform: 'translateY(0) scale(1, 1)' },
 ]
 
-/** Runs a load animation and returns how to stop it. Resolves the mark to rest at the end. */
-export function playLoad(id: LoadId, p: Parts): () => void {
+/** The name's flicker in the Halftone load, which the title card borrows. */
+const FLICKER: Keyframe[] = [{ opacity: 0 }, { opacity: 1, offset: 0.3 }, { opacity: 0.15, offset: 0.5 }, { opacity: 1 }]
+
+/**
+ * Runs a load animation and returns how to stop it. Resolves the mark to rest
+ * at the end. `name: false` leaves the dotted name to someone else (the
+ * intro's title card).
+ */
+export function playLoad(id: LoadId, p: Parts, { name = true }: { name?: boolean } = {}): () => void {
   const stops: (() => void)[] = []
   const anims: Animation[] = []
   const animate = (node: Element, frames: Keyframe[], options: KeyframeAnimationOptions) => {
@@ -173,13 +183,7 @@ export function playLoad(id: LoadId, p: Parts): () => void {
       )
     })
     stops.push(() => added.forEach((node) => node.remove()))
-    p.name.forEach((letter, i) =>
-      animate(letter, [{ opacity: 0 }, { opacity: 1, offset: 0.3 }, { opacity: 0.15, offset: 0.5 }, { opacity: 1 }], {
-        duration: 360,
-        delay: 500 + i * 55,
-        easing: 'steps(4)',
-      }),
-    )
+    if (name) p.name.forEach((letter, i) => animate(letter, FLICKER, { duration: 360, delay: 500 + i * 55, easing: 'steps(4)' }))
   }
 
   if (id === 'grain') {
@@ -237,9 +241,36 @@ export function playLoad(id: LoadId, p: Parts): () => void {
   }
 }
 
+/**
+ * The intro's title card: the line under the mark reads the card first,
+ * flickering on letter by letter like the name does in the Halftone load,
+ * holds, goes out the same way, and the name flickers on in its place. Times
+ * in ms from the start of the load. Returns how to stop it.
+ */
+export function playTitleCard(p: Parts, { on, off, name }: { on: number; off: number; name: number }): () => void {
+  const anims: Animation[] = []
+  p.card.forEach((letter, i) => {
+    anims.push(letter.animate(FLICKER, { duration: 360, delay: on + i * 40, easing: 'steps(4)', fill: 'backwards' }))
+    // jump-start, so the held end is the last step (fully out) rather than the one before it.
+    anims.push(
+      letter.animate([{ opacity: 1 }, { opacity: 0.15, offset: 0.4 }, { opacity: 0.7, offset: 0.6 }, { opacity: 0 }], {
+        duration: 300,
+        delay: off + i * 22,
+        easing: 'steps(3, jump-start)',
+        fill: 'forwards',
+      }),
+    )
+  })
+  p.name.forEach((letter, i) => anims.push(letter.animate(FLICKER, { duration: 360, delay: name + i * 55, easing: 'steps(4)', fill: 'backwards' })))
+  return () => anims.forEach((a) => a.cancel())
+}
+
 /* ---- Hover ---- */
 
 export type HoverId = 'spotlight' | 'sweep' | 'boil' | 'ink' | 'shift' | 'jelly'
+
+/** Marc's picks from /prototypes/logo, for the site's marks. */
+export const MARK_HOVERS: HoverId[] = ['sweep', 'boil', 'shift']
 
 export const HOVERS: { id: HoverId; name: string; note: string }[] = [
   { id: 'spotlight', name: 'Spotlight', note: 'a soft white light sits right on the cursor, clipped to the letters and grained by the same noise' },

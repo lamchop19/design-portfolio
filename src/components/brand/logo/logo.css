@@ -103,9 +103,24 @@ html:not([data-intro]) .mal-intro {
   visibility: hidden;
 }
 
-/* As the ground lifts, the page settles up into place under it. A wrapper
-   beside the intro, never around it: a moving ancestor would become the fixed
-   layer's containing block and carry the flying mark off with it. */
+/* The mark the intro lands on (.guide-logo, components/guide) is held back
+   while the big one flies in. Shown after 8s whatever happens, like the
+   intro layer's own failsafe. */
+html[data-intro] .guide-logo {
+  visibility: hidden;
+  animation: mal-landing-failsafe 0s 8s forwards;
+}
+
+@keyframes mal-landing-failsafe {
+  to {
+    visibility: visible;
+  }
+}
+
+/* As the ground lifts, the page settles up into place under it. Put on the
+   parts that move, beside the intro and never around it: a moving ancestor
+   would become the fixed layer's containing block and carry the flying mark
+   off with it. Nor around the mark it lands on, which has to hold still. */
 html[data-intro='dock'] .mal-intro-settle {
   animation: mal-settle 1100ms var(--ease-out) both;
 }

@@ -1276,5 +1276,353 @@
    "line": "cobalt",
    "spot": "butter"
   }
+ },
+ {
+  "id": "branch-1",
+  "family": "branch",
+  "roles": [
+   "base",
+   "body",
+   "shade",
+   "accent",
+   "spot"
+  ],
+  "inks": {
+   "base": "pink",
+   "stem": "green",
+   "body": "blue",
+   "shade": "yellow",
+   "accent": "pink",
+   "line": "orange",
+   "spot": "paper"
+  },
+  "air": {
+   "base": "mint",
+   "stem": "leaf",
+   "body": "blush",
+   "shade": "butter",
+   "accent": "cobalt",
+   "line": "cobalt",
+   "spot": "butter"
+  }
+ },
+ {
+  "id": "branch-2",
+  "family": "branch",
+  "roles": [
+   "base",
+   "body",
+   "shade",
+   "accent",
+   "spot"
+  ],
+  "inks": {
+   "base": "pink",
+   "stem": "green",
+   "body": "black",
+   "shade": "blue",
+   "accent": "pink",
+   "line": "orange",
+   "spot": "yellow"
+  },
+  "air": {
+   "base": "mint",
+   "stem": "leaf",
+   "body": "mint",
+   "shade": "lilac",
+   "accent": "lime",
+   "line": "rose",
+   "spot": "tangerine"
+  }
+ },
+ {
+  "id": "branch-3",
+  "family": "branch",
+  "roles": [
+   "base",
+   "body",
+   "shade",
+   "accent",
+   "spot"
+  ],
+  "inks": {
+   "base": "pink",
+   "stem": "black",
+   "body": "blue",
+   "shade": "pink",
+   "accent": "orange",
+   "line": "black",
+   "spot": "paper"
+  },
+  "air": {
+   "base": "lime",
+   "stem": "leaf",
+   "body": "blush",
+   "shade": "lilac",
+   "accent": "cobalt",
+   "line": "cream",
+   "spot": "cream"
+  }
+ },
+ {
+  "id": "branch-4",
+  "family": "branch",
+  "roles": [
+   "base",
+   "body",
+   "shade",
+   "accent",
+   "spot"
+  ],
+  "inks": {
+   "base": "blue",
+   "stem": "black",
+   "body": "green",
+   "shade": "black",
+   "accent": "orange",
+   "line": "black",
+   "spot": "black"
+  },
+  "air": {
+   "base": "leaf",
+   "stem": "mint",
+   "body": "lilac",
+   "shade": "butter",
+   "accent": "lime",
+   "line": "cobalt",
+   "spot": "tangerine"
+  }
+ },
+ {
+  "id": "branch-5",
+  "family": "branch",
+  "roles": [
+   "base",
+   "body",
+   "shade",
+   "accent",
+   "spot"
+  ],
+  "inks": {
+   "base": "green",
+   "stem": "blue",
+   "body": "pink",
+   "shade": "yellow",
+   "accent": "orange",
+   "line": "black",
+   "spot": "black"
+  },
+  "air": {
+   "base": "leaf",
+   "stem": "mint",
+   "body": "rose",
+   "shade": "butter",
+   "accent": "tangerine",
+   "line": "cobalt",
+   "spot": "butter"
+  }
+ },
+ {
+  "id": "branch-6",
+  "family": "branch",
+  "roles": [
+   "base",
+   "body",
+   "shade",
+   "accent",
+   "spot"
+  ],
+  "inks": {
+   "base": "pink",
+   "stem": "green",
+   "body": "blue",
+   "shade": "green",
+   "accent": "orange",
+   "line": "black",
+   "spot": "paper"
+  },
+  "air": {
+   "base": "leaf",
+   "stem": "mint",
+   "body": "blush",
+   "shade": "cream",
+   "accent": "butter",
+   "line": "cream",
+   "spot": "cream"
+  }
+ },
+ {
+  "id": "fan-1",
+  "family": "fan",
+  "roles": [
+   "stem",
+   "body",
+   "shade",
+   "accent",
+   "spot"
+  ],
+  "inks": {
+   "base": "pink",
+   "stem": "green",
+   "body": "black",
+   "shade": "pink",
+   "accent": "orange",
+   "line": "black",
+   "spot": "paper"
+  },
+  "air": {
+   "base": "leaf",
+   "stem": "mint",
+   "body": "blush",
+   "shade": "cream",
+   "accent": "tangerine",
+   "line": "cobalt",
+   "spot": "butter"
+  }
+ },
+ {
+  "id": "fan-2",
+  "family": "fan",
+  "roles": [
+   "stem",
+   "body",
+   "shade",
+   "accent",
+   "spot"
+  ],
+  "inks": {
+   "base": "black",
+   "stem": "green",
+   "body": "blue",
+   "shade": "yellow",
+   "accent": "orange",
+   "line": "black",
+   "spot": "paper"
+  },
+  "air": {
+   "base": "lime",
+   "stem": "leaf",
+   "body": "mint",
+   "shade": "lilac",
+   "accent": "lime",
+   "line": "cobalt",
+   "spot": "tangerine"
+  }
+ },
+ {
+  "id": "fan-3",
+  "family": "fan",
+  "roles": [
+   "stem",
+   "body",
+   "shade",
+   "accent",
+   "spot"
+  ],
+  "inks": {
+   "base": "pink",
+   "stem": "black",
+   "body": "blue",
+   "shade": "black",
+   "accent": "orange",
+   "line": "black",
+   "spot": "yellow"
+  },
+  "air": {
+   "base": "mint",
+   "stem": "leaf",
+   "body": "sky",
+   "shade": "lilac",
+   "accent": "tangerine",
+   "line": "cream",
+   "spot": "cream"
+  }
+ },
+ {
+  "id": "fan-4",
+  "family": "fan",
+  "roles": [
+   "stem",
+   "body",
+   "shade",
+   "accent",
+   "spot"
+  ],
+  "inks": {
+   "base": "blue",
+   "stem": "green",
+   "body": "pink",
+   "shade": "yellow",
+   "accent": "orange",
+   "line": "black",
+   "spot": "paper"
+  },
+  "air": {
+   "base": "lime",
+   "stem": "mint",
+   "body": "rose",
+   "shade": "blush",
+   "accent": "cobalt",
+   "line": "cobalt",
+   "spot": "tangerine"
+  }
+ },
+ {
+  "id": "fan-5",
+  "family": "fan",
+  "roles": [
+   "stem",
+   "body",
+   "shade",
+   "accent",
+   "spot"
+  ],
+  "inks": {
+   "base": "blue",
+   "stem": "black",
+   "body": "pink",
+   "shade": "yellow",
+   "accent": "orange",
+   "line": "black",
+   "spot": "paper"
+  },
+  "air": {
+   "base": "lime",
+   "stem": "leaf",
+   "body": "rose",
+   "shade": "sky",
+   "accent": "butter",
+   "line": "cobalt",
+   "spot": "cream"
+  }
+ },
+ {
+  "id": "fan-6",
+  "family": "fan",
+  "roles": [
+   "stem",
+   "body",
+   "shade",
+   "accent",
+   "spot"
+  ],
+  "inks": {
+   "base": "pink",
+   "stem": "blue",
+   "body": "yellow",
+   "shade": "pink",
+   "accent": "orange",
+   "line": "black",
+   "spot": "paper"
+  },
+  "air": {
+   "base": "lime",
+   "stem": "mint",
+   "body": "sky",
+   "shade": "lilac",
+   "accent": "cobalt",
+   "line": "rose",
+   "spot": "cream"
+  }
  }
 ]

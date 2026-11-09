@@ -2,7 +2,9 @@
 
 import { useState } from 'react'
 
-import { itemProps, SECTIONS, useMenu } from '../_dvd/menu'
+import { itemProps, useMenu } from '@/components/menu/use-menu'
+
+import { SECTIONS } from '../_dvd/menu'
 
 import { chapterNumber, clock, NEON_COUNT, type Chapter } from './chapters'
 

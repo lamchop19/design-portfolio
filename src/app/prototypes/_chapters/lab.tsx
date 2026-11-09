@@ -5,10 +5,11 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { HangMargin } from '@/components/layout/hang-margin'
 import { scrollToY } from '@/components/layout/smooth-scroll'
+import { itemProps, useMenu } from '@/components/menu/use-menu'
 import type { ImageEntry } from '@/lib/images'
 import { indexLabel, type WorkItem } from '@/lib/work-items'
 
-import { CUT_MS, itemProps, tint, useMenu } from '../_dvd/menu'
+import { CUT_MS, tint } from '../_dvd/menu'
 
 import { chapterNumber, clock, type Chapter, type Disc } from './chapters'
 import { BarOsd, chapterVars, NEON_VARS, neonSection, OSDS, RailOsd, RemoteOsd, type OsdId } from './osd'

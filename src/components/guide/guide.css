@@ -1,0 +1,768 @@
+/* ---------------------------------------------------------------------------
+   The guide (components/guide)
+
+   The homepage as a TV guide's main menu, and the screens it opens, after
+   Marc's "new layout" wireframe. Everything sits on the site's 12-column grid
+   (4 on phones; --page-margin, --gutter in globals.css, G draws it) and over
+   the painted scene (components/scenes). Corners are square throughout.
+   --------------------------------------------------------------------------- */
+
+.guide {
+  /* Ink, by data-ink. Deep blue holds 4.5:1 over every scene. */
+  --g-ink: #0033b8;
+  --g-rule: color-mix(in srgb, var(--g-ink) 32%, transparent);
+  /* The highlight, by data-highlight: a block the selected item turns over on. */
+  --g-hl: var(--brand-blue);
+  --g-on-hl: #fff;
+
+  /* Type, by data-type (the guide lab tries them). The default is the
+     wireframe's: a Helvetica-like grotesk, light with bold. */
+  --g-font: var(--font-geist-sans), 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --g-light: 300;
+  --g-bold: 700;
+  --g-tracking: -0.015em;
+  --g-label-font: var(--g-font);
+  --g-label-weight: var(--g-bold);
+  --g-label-case: none;
+  --g-label-wdth: 100;
+  --g-label-tracking: -0.01em;
+  /* Each face's menu is scaled by this against the layout's --g-menu-size. */
+  --g-label-size: 1;
+
+  color: var(--g-ink);
+  font-family: var(--g-font);
+  letter-spacing: var(--g-tracking);
+}
+
+.guide[data-ink='blue'] {
+  --g-ink: var(--brand-blue);
+}
+
+.guide[data-ink='black'] {
+  --g-ink: var(--ink);
+}
+
+.guide[data-highlight='yellow'] {
+  --g-hl: var(--ink-yellow);
+  --g-on-hl: var(--ink);
+}
+
+/* After jadefranson.com: a book face for the sentence, small mono capitals for the menu. */
+.guide[data-type='serif-mono'] {
+  --g-font: var(--font-newsreader), Georgia, 'Times New Roman', serif;
+  --g-light: 400;
+  --g-bold: 600;
+  --g-tracking: -0.01em;
+  --g-label-font: var(--font-paper-mono), ui-monospace, monospace;
+  --g-label-weight: 400;
+  --g-label-case: uppercase;
+  --g-label-tracking: 0;
+  --g-label-size: 0.78;
+}
+
+.guide[data-type='mono'] {
+  --g-font: var(--font-paper-mono), ui-monospace, monospace;
+  --g-light: 400;
+  --g-bold: 600;
+  --g-tracking: -0.03em;
+  --g-label-tracking: -0.02em;
+}
+
+/* Sky's own voice: condensed extra-bold capitals for the menu. */
+.guide[data-type='broadcast'] {
+  --g-font: var(--font-archivo), var(--font-geist-sans), sans-serif;
+  --g-label-weight: 800;
+  --g-label-case: uppercase;
+  --g-label-wdth: 68;
+  --g-label-tracking: 0.01em;
+  --g-label-size: 1.1;
+}
+
+/* The grotesk for the sentence, mono capitals for the menu. */
+.guide[data-type='grotesk-mono'] {
+  --g-label-font: var(--font-paper-mono), ui-monospace, monospace;
+  --g-label-weight: 500;
+  --g-label-case: uppercase;
+  --g-label-tracking: 0.02em;
+  --g-label-size: 0.8;
+}
+
+/* The menu in LED dots, like the name under the mark. */
+.guide[data-type='dot'] {
+  --g-label-font: var(--font-doto), var(--font-paper-mono), monospace;
+  --g-label-weight: 800;
+  --g-label-tracking: 0;
+  --g-label-size: 1.2;
+}
+
+.guide[data-type='bricolage'] {
+  --g-font: var(--font-bricolage), var(--font-geist-sans), sans-serif;
+  --g-tracking: -0.03em;
+}
+
+.guide strong {
+  font-weight: var(--g-bold);
+}
+
+/* ---- The landing: one screen on the grid ---- */
+
+/* Phones first: everything stacked, the mark and the scene boxes sharing the top row. */
+.guide-landing {
+  --g-logo: 120px;
+  --g-bio-size: 24px;
+  --g-menu-size: 22px;
+  display: grid;
+  grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
+  align-content: start;
+  column-gap: var(--gutter);
+  row-gap: 32px;
+  min-height: 100dvh;
+  padding: var(--page-margin);
+}
+
+.guide-mast {
+  grid-column: 1 / span 2;
+  grid-row: 1;
+  align-self: center;
+  line-height: 0;
+}
+
+.guide-logo {
+  width: var(--g-logo);
+}
+
+.guide-bio {
+  grid-column: 1 / -1;
+  font-size: var(--g-bio-size);
+  font-weight: var(--g-light);
+  line-height: 1.25;
+}
+
+.guide-menu {
+  grid-column: 1 / -1;
+}
+
+.guide-scenes {
+  --ss-size: 30px;
+  grid-column: 3 / -1;
+  grid-row: 1;
+  align-self: center;
+  justify-self: end;
+}
+
+/* A layout's rules between regions, drawn as a grid item (split uses it). */
+.guide-landing::before {
+  content: '';
+  display: none;
+}
+
+/* ---- The menu (guide-menu) ---- */
+
+.gm-list {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.gm-item {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+  padding: 10px 8px;
+  border-top: 1px solid var(--g-rule);
+  color: var(--g-ink);
+  font-family: var(--g-label-font);
+  font-size: calc(var(--g-menu-size) * var(--g-label-size));
+  font-weight: var(--g-label-weight);
+  font-variation-settings: 'wdth' var(--g-label-wdth);
+  letter-spacing: var(--g-label-tracking);
+  line-height: 1.1;
+  text-transform: var(--g-label-case);
+  outline-offset: 4px;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.gm-num {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  font-variation-settings: normal;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* What a section holds: only the table has room for it. */
+.gm-meta,
+.gm-items {
+  display: none;
+}
+
+/* The highlight: a square block the selected item sits on, which turns the
+   item to the highlight's ink. One block, gliding (useMenu places it). */
+.gm-hl {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--g-hl);
+  pointer-events: none;
+}
+
+.gm[data-ready] .gm-hl {
+  transition:
+    transform 380ms var(--ease-out),
+    width 380ms var(--ease-out),
+    height 380ms var(--ease-out);
+}
+
+.gm-item[data-active] {
+  color: var(--g-on-hl);
+}
+
+/* ---- The changing word (channel-word) ---- */
+
+/* The dot radius of a word coming or going. */
+@property --cw-dot {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+.cw {
+  white-space: nowrap;
+}
+
+/* The wireframe's blank: a rule the words sit on, as wide as the longest. */
+.cw-slot {
+  display: inline-grid;
+  justify-items: center;
+  padding-inline: 0.04em;
+  /* The sentence's own first-line indent (index) mustn't reach the words. */
+  text-indent: 0;
+  border-bottom: max(1.5px, 0.05em) solid currentColor;
+  line-height: 1.12;
+}
+
+/* Words come and go through a dot screen in steps, like a channel changing.
+   4px cells are covered from a 3px radius. */
+.cw-word {
+  --cw-dot: 0px;
+  grid-area: 1 / 1;
+  font-weight: var(--g-bold);
+  visibility: hidden;
+  mask-image: radial-gradient(circle, #000 var(--cw-dot), transparent calc(var(--cw-dot) + 0.5px));
+  mask-size: 4px 4px;
+  transition:
+    --cw-dot 300ms steps(5),
+    visibility 0s 300ms;
+}
+
+.cw-word[data-on] {
+  --cw-dot: 3px;
+  visibility: visible;
+  transition:
+    --cw-dot 420ms steps(6) 160ms,
+    visibility 0s;
+}
+
+/* ---- The layouts, from tablets up ---- */
+
+@media (min-width: 768px) {
+  .guide-landing {
+    row-gap: 0;
+  }
+
+  .guide-scenes {
+    --ss-size: clamp(36px, 3vw, 44px);
+  }
+
+  /* Index, after jadefranson.com: the mark and the menu as an index top left,
+     the sentence bottom right with its first line indented a column, the
+     scene boxes bottom left where her clock sits. */
+  .guide[data-layout='index'] {
+    --g-logo: 204px;
+    --g-bio-size: clamp(19px, 1.55vw, 24px);
+    --g-menu-size: 16px;
+    grid-template-rows: auto auto 1fr auto;
+  }
+
+  .guide[data-layout='index'] .guide-mast {
+    grid-column: 1 / span 3;
+    grid-row: 1;
+    align-self: start;
+  }
+
+  .guide[data-layout='index'] .guide-menu {
+    grid-column: 1 / span 4;
+    grid-row: 2;
+    margin-top: 64px;
+  }
+
+  .guide[data-layout='index'] .gm-item {
+    justify-content: space-between;
+    margin-inline: -6px;
+    padding: 4px 6px;
+    border-top: 0;
+  }
+
+  .guide[data-layout='index'] .gm-num {
+    order: 2;
+  }
+
+  .guide[data-layout='index'] .guide-bio {
+    grid-column: 8 / -1;
+    grid-row: 4;
+    align-self: end;
+    line-height: 1.38;
+    /* One grid column and its gutter: the bio spans five. */
+    text-indent: calc((100% + var(--gutter)) / 5);
+  }
+
+  .guide[data-layout='index'] .guide-scenes {
+    grid-column: 1 / span 4;
+    grid-row: 4;
+    align-self: end;
+    justify-self: start;
+  }
+
+  /* Statement: the sentence is the headline; the menu runs along the foot in
+     four columns of three, on a rule, with the highlight as a bar on it. */
+  .guide[data-layout='statement'] {
+    --g-logo: 150px;
+    --g-bio-size: clamp(36px, 4.4vw, 68px);
+    --g-menu-size: clamp(20px, 1.9vw, 28px);
+    grid-template-rows: auto 1fr auto;
+  }
+
+  .guide[data-layout='statement'] .guide-mast {
+    grid-column: 1 / span 2;
+    align-self: start;
+  }
+
+  .guide[data-layout='statement'] .guide-scenes {
+    grid-column: 9 / -1;
+    align-self: start;
+  }
+
+  .guide[data-layout='statement'] .guide-bio {
+    grid-column: 1 / span 11;
+    grid-row: 2;
+    align-self: center;
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+  }
+
+  .guide[data-layout='statement'] .guide-menu {
+    grid-row: 3;
+  }
+
+  .guide[data-layout='statement'] .gm-list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: var(--gutter);
+    border-top: 1px solid var(--g-rule);
+  }
+
+  .guide[data-layout='statement'] .gm-item {
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px 0 0;
+    border-top: 0;
+  }
+
+  .guide[data-layout='statement'] .gm-hl {
+    margin-top: -3px;
+    border-top: 5px solid var(--g-hl);
+    background: none;
+  }
+
+  .guide[data-layout='statement'] .gm-item[data-active] {
+    color: var(--g-ink);
+  }
+
+  /* Axis, after Oevra: the page's centre line is the axis. The mark sits
+     against it on the left; the sentence and the menu hang off the right. */
+  .guide[data-layout='axis'] {
+    --g-logo: clamp(240px, 27vw, 400px);
+    --g-bio-size: clamp(22px, 1.9vw, 30px);
+    --g-menu-size: clamp(18px, 1.5vw, 24px);
+    grid-template-rows: 1fr auto auto 1fr;
+  }
+
+  .guide[data-layout='axis'] .guide-mast {
+    grid-column: 1 / span 6;
+    grid-row: 2 / span 2;
+    align-self: start;
+    justify-self: end;
+    /* The letters' cap height starts a little under the box. */
+    margin-top: 0.3em;
+  }
+
+  .guide[data-layout='axis'] .guide-bio {
+    grid-column: 7 / span 5;
+    grid-row: 2;
+  }
+
+  .guide[data-layout='axis'] .guide-menu {
+    grid-column: 7 / span 4;
+    grid-row: 3;
+    margin-top: 40px;
+  }
+
+  /* A short rule between the sentence and the menu. */
+  .guide[data-layout='axis'] .guide-menu::before {
+    content: '';
+    display: block;
+    width: 48px;
+    height: 2px;
+    margin-bottom: 24px;
+    background: var(--g-ink);
+  }
+
+  .guide[data-layout='axis'] .gm-item {
+    margin-inline: -8px;
+    padding: 6px 8px;
+    border-top: 0;
+  }
+
+  .guide[data-layout='axis'] .guide-scenes {
+    grid-column: 1 / span 4;
+    grid-row: 4;
+    align-self: end;
+    justify-self: start;
+  }
+
+  /* Table, after Waka Waka: the menu as an index table on the page's own
+     columns (subgrid), each row saying what its section holds. */
+  .guide[data-layout='table'] {
+    --g-logo: 204px;
+    --g-bio-size: clamp(20px, 1.7vw, 26px);
+    --g-menu-size: clamp(24px, 2.3vw, 34px);
+    grid-template-rows: auto 1fr auto;
+  }
+
+  .guide[data-layout='table'] .guide-mast {
+    grid-column: 1 / span 3;
+    align-self: start;
+  }
+
+  .guide[data-layout='table'] .guide-bio {
+    grid-column: 5 / span 6;
+    grid-row: 1;
+  }
+
+  .guide[data-layout='table'] .guide-scenes {
+    grid-column: 11 / -1;
+    align-self: start;
+  }
+
+  .guide[data-layout='table'] .guide-menu {
+    grid-row: 3;
+  }
+
+  .guide[data-layout='table'] :is(.guide-menu, .gm, .gm-list, .gm-item) {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: 1 / -1;
+  }
+
+  .guide[data-layout='table'] .gm-list {
+    border-bottom: 1px solid var(--g-rule);
+  }
+
+  .guide[data-layout='table'] .gm-item {
+    align-items: baseline;
+    padding: 12px 0 14px;
+  }
+
+  .guide[data-layout='table'] .gm-num {
+    grid-column: 1;
+    padding-left: 8px;
+  }
+
+  .guide[data-layout='table'] .gm-label {
+    grid-column: 2 / span 4;
+  }
+
+  .guide[data-layout='table'] .gm-meta {
+    display: block;
+    grid-column: 6 / span 2;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-variation-settings: normal;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+
+  .guide[data-layout='table'] .gm-items {
+    display: block;
+    grid-column: 8 / -1;
+    font-family: var(--g-font);
+    font-size: 16px;
+    font-variation-settings: normal;
+    font-weight: var(--g-light);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  /* Split, after Analogue: the sentence as one line over a rule across the
+     window, the menu big in the left half with superscript numbers, the
+     mark in the right half, and a rule down the middle. */
+  .guide[data-layout='split'] {
+    --g-logo: clamp(240px, 22vw, 340px);
+    --g-bio-size: 17px;
+    --g-menu-size: clamp(44px, 5.4vw, 84px);
+    grid-template-rows: auto 1fr;
+  }
+
+  .guide[data-layout='split'] .guide-bio {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    margin-inline: calc(var(--page-margin) * -1);
+    padding: 0 var(--page-margin) 16px;
+    border-bottom: 1px solid var(--g-rule);
+    line-height: 1.4;
+    text-align: center;
+  }
+
+  .guide[data-layout='split']::before {
+    display: block;
+    grid-column: 7;
+    grid-row: 2;
+    margin: 0 0 calc(var(--page-margin) * -1) calc(var(--gutter) / -2);
+    border-left: 1px solid var(--g-rule);
+  }
+
+  .guide[data-layout='split'] .guide-menu {
+    grid-column: 1 / span 6;
+    grid-row: 2;
+    margin-top: 24px;
+  }
+
+  .guide[data-layout='split'] .gm-list {
+    align-items: flex-start;
+  }
+
+  .guide[data-layout='split'] .gm-item {
+    gap: 0.06em;
+    margin-left: -0.08em;
+    padding: 0.02em 0.1em 0.08em 0.08em;
+    border-top: 0;
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+  }
+
+  .guide[data-layout='split'] .gm-num {
+    align-self: flex-start;
+    margin-top: 0.12em;
+    font-size: max(12px, 0.24em);
+  }
+
+  .guide[data-layout='split'] .guide-mast {
+    grid-column: 7 / -1;
+    grid-row: 2;
+    align-self: end;
+    justify-self: end;
+  }
+
+  .guide[data-layout='split'] .guide-scenes {
+    grid-column: 7 / -1;
+    grid-row: 2;
+    align-self: start;
+    justify-self: end;
+    margin-top: 24px;
+  }
+
+  /* Masthead: the wireframe, centred, with its menu in ruled cells along the
+     foot and the scene boxes in a column top right. */
+  .guide[data-layout='masthead'],
+  .guide[data-layout='channel'] {
+    grid-template-rows: auto auto 1fr auto;
+    text-align: center;
+  }
+
+  .guide[data-layout='masthead'] {
+    --g-logo: clamp(220px, 21vw, 320px);
+    --g-bio-size: clamp(24px, 2.1vw, 32px);
+    --g-menu-size: clamp(18px, 1.5vw, 22px);
+  }
+
+  :is(.guide[data-layout='masthead'], .guide[data-layout='channel']) .guide-mast {
+    grid-column: 4 / span 6;
+    grid-row: 1;
+    justify-self: center;
+  }
+
+  :is(.guide[data-layout='masthead'], .guide[data-layout='channel']) .guide-bio {
+    grid-column: 3 / span 8;
+    grid-row: 2;
+    justify-self: center;
+    max-width: 21em;
+    margin-top: 48px;
+    text-wrap: balance;
+  }
+
+  :is(.guide[data-layout='masthead'], .guide[data-layout='channel']) .guide-scenes {
+    grid-column: 11 / -1;
+    grid-row: 1 / span 2;
+    align-self: start;
+  }
+
+  .guide[data-layout='masthead'] .guide-menu {
+    grid-row: 4;
+  }
+
+  .guide[data-layout='masthead'] .gm-list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-block: 1px solid var(--g-rule);
+  }
+
+  .guide[data-layout='masthead'] .gm-item {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 22px 0;
+    border-top: 0;
+  }
+
+  .guide[data-layout='masthead'] .gm-item + .gm-item {
+    border-left: 1px solid var(--g-rule);
+  }
+
+  /* Channel: centred, with the menu as the Sky Guide's list: blue bars,
+     painted under the rows so Sky's yellow highlight can glide over them. */
+  .guide[data-layout='channel'] {
+    --g-logo: clamp(200px, 18vw, 280px);
+    --g-bio-size: clamp(24px, 2.08vw, 32px);
+    --g-menu-size: clamp(16px, 1.45vw, 22px);
+    --g-hl: var(--ink-yellow);
+    --g-on-hl: var(--ink);
+  }
+
+  .guide[data-layout='channel'] .guide-menu {
+    grid-column: 5 / span 4;
+    grid-row: 3;
+    align-self: center;
+  }
+
+  .guide[data-layout='channel'] .gm {
+    --row: 2.1em;
+    --gap: 3px;
+    font-size: calc(var(--g-menu-size) * var(--g-label-size));
+  }
+
+  .guide[data-layout='channel'] .gm-list {
+    gap: var(--gap);
+    background: repeating-linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--brand-blue) 90%, transparent) 0 var(--row),
+      transparent var(--row) calc(var(--row) + var(--gap))
+    );
+  }
+
+  .guide[data-layout='channel'] .gm-item {
+    align-items: center;
+    height: var(--row);
+    padding: 0 0.7em;
+    border-top: 0;
+    color: #fff;
+    font-size: inherit;
+    text-align: left;
+  }
+
+  .guide[data-layout='channel'] .gm-item[data-active] {
+    color: var(--g-on-hl);
+  }
+
+  .guide[data-layout='channel'] .gm-num {
+    width: 2em;
+  }
+}
+
+/* ---- A section's screen (guide-screen), for now a plain page ---- */
+
+.guide-screen {
+  min-height: 100dvh;
+  padding: var(--page-margin);
+}
+
+.guide-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 32px;
+  padding-right: calc(4 * 44px + 3 * 8px + 24px);
+}
+
+.guide-head-logo {
+  width: clamp(88px, 8vw, 120px);
+}
+
+.guide-head-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 28px;
+  font-size: clamp(15px, 1.25vw, 19px);
+  font-weight: var(--g-bold);
+}
+
+.guide-head-nav a {
+  padding-bottom: 4px;
+  border-bottom: 3px solid transparent;
+}
+
+.guide-head-nav a[aria-current='page'],
+.guide-head-nav a:hover {
+  border-color: currentColor;
+}
+
+.guide-screen-title {
+  margin-top: clamp(48px, 10vh, 112px);
+  font-size: clamp(36px, 5vw, 76px);
+  font-weight: var(--g-bold);
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+
+.guide-screen-body {
+  max-width: 40em;
+  margin-top: 28px;
+  font-size: clamp(17px, 1.4vw, 21px);
+  font-weight: var(--g-light);
+  line-height: 1.45;
+}
+
+.guide-screen-body li + li {
+  margin-top: 8px;
+}
+
+.guide-screen-body a {
+  font-weight: var(--g-bold);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.guide-screen-scenes {
+  --ss-size: 44px;
+  position: fixed;
+  top: var(--page-margin);
+  right: var(--page-margin);
+  z-index: 62;
+}
+
+@media (max-width: 767px) {
+  .guide-head {
+    padding-right: 0;
+  }
+
+  .guide-screen-scenes {
+    --ss-size: 30px;
+    position: static;
+    margin-top: 24px;
+  }
+}

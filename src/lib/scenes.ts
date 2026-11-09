@@ -109,6 +109,8 @@ export const SCENES: SceneMeta[] = [
 
 export const sceneFile = (id: string, variant: string, layer?: string) => `/scenes/${id}-${variant}${layer ? `-${layer}` : ''}.webp`
 export const motionFile = (id: string, variant: string) => `/scenes/${id}-${variant}.json`
+/** The small copy of a still behind the site and in its scene boxes (scripts/scene-backdrops.ts). */
+export const backdropFile = (id: string, variant: string) => `/scenes/backdrop/${id}-${variant}.webp`
 
 /**
  * The time of day by the clock in the site's frame (New York): the homepage

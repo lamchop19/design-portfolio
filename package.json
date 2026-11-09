@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm run images && npm run specimens && npm run flora && npm run aquarium && npm run sea && next dev",
-    "build": "npm run images && npm run specimens && npm run flora && npm run aquarium && npm run sea && npm run og && next build",
+    "dev": "npm run images && npm run specimens && npm run flora && npm run aquarium && npm run sea && npm run backdrops && next dev",
+    "build": "npm run images && npm run specimens && npm run flora && npm run aquarium && npm run sea && npm run backdrops && npm run og && next build",
     "images": "node scripts/optimize-images.mjs",
     "start": "npx serve out",
     "lint": "eslint",
@@ -17,7 +17,8 @@
     "sea": "tsx scripts/generate-sea.tsx",
     "new-project": "node scripts/new-project.mjs",
     "refs": "node --env-file-if-exists=.env.local scripts/sync-refs.mjs",
-    "scenes": "tsx scripts/generate-scenes.tsx"
+    "scenes": "tsx scripts/generate-scenes.tsx",
+    "backdrops": "tsx scripts/scene-backdrops.ts"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",

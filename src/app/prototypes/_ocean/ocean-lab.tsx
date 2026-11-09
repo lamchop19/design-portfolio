@@ -47,7 +47,7 @@ export function OceanLab({ items, fontClasses }: { items: WorkItem[]; fontClasse
   const [run, setRun] = useState(0)
   const [folded, setFolded] = useState(false)
 
-  // The wallpaper lives in the root layout, so the lab steers it from <html>.
+  // The wallpaper lives in the prototypes layout, so the lab steers it from <html>.
   useEffect(() => {
     const root = document.documentElement
     root.dataset.water = water

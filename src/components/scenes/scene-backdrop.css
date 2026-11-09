@@ -1,0 +1,74 @@
+/* ---------------------------------------------------------------------------
+   Scene backdrop (components/scenes/scene-backdrop)
+
+   The painted scene behind the site, blurred and faint. The picture and its
+   focus come from --bd-src and --bd-pos, set per html[data-scene] by the
+   rules in the document head (lib/scene-choice). How strongly it shows is
+   the four numbers below, which the guide lab tunes.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --bd-blur: 28px;
+  --bd-opacity: 0.4;
+  --bd-saturate: 1.15;
+  /* 0–1: an even wash of paper over the scene, so type holds wherever a
+     layout puts it. At 0.35 the guide's deep blue keeps 4.5:1 over every
+     scene, even the darkest (Horizon at dusk). */
+  --bd-veil: 0.35;
+}
+
+/* Case studies are for reading, so the scene steps further back. */
+html:has([data-reading]) {
+  --bd-opacity: 0.18;
+}
+
+/* The dot radius of a scene change's dissolve. */
+@property --bd-dot {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+/* Behind the page, like the ocean wallpaper was, and under the paper grain. */
+.bd {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  /* On the group, so a leaving picture over the new one never doubles the strength. */
+  opacity: var(--bd-opacity);
+}
+
+/* Bled past the window so the blur's soft edge stays off screen. */
+.bd-scene {
+  position: absolute;
+  inset: calc(var(--bd-blur) * -2.5);
+  background: var(--bd-src) var(--bd-pos, 50% 50%) / cover no-repeat;
+  filter: blur(var(--bd-blur)) saturate(var(--bd-saturate));
+}
+
+.bd::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--surface) calc(var(--bd-veil) * 100%), transparent);
+}
+
+/* Changing scene: the old picture breaks into a dot screen whose dots shrink
+   to nothing over the new one. 12px cells are covered from a 9px radius. */
+.bd-leaving {
+  mask-image: radial-gradient(circle, #000 var(--bd-dot), transparent calc(var(--bd-dot) + 0.5px));
+  mask-size: 12px 12px;
+  mask-position: 50% 50%;
+  animation: bd-dissolve 680ms cubic-bezier(0.55, 0, 0.35, 1) forwards;
+}
+
+@keyframes bd-dissolve {
+  from {
+    --bd-dot: 9px;
+  }
+  to {
+    --bd-dot: 0px;
+  }
+}

@@ -1,0 +1,115 @@
+/* ---------------------------------------------------------------------------
+   Scene boxes (components/scenes/scene-selector)
+
+   Small square thumbnails in a column or a row (data-axis; always a row on
+   phones). The page places the group; --ss-size and --ss-gap size it.
+   --------------------------------------------------------------------------- */
+
+.ss {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ss-gap, clamp(10px, 1.3vw, 19px));
+}
+
+.ss[data-axis='row'] {
+  flex-direction: row;
+  --ss-gap: 8px;
+}
+
+.ss-box {
+  position: relative;
+  width: var(--ss-size, clamp(40px, 3.5vw, 54px));
+  aspect-ratio: 1;
+  background: var(--thumb) var(--thumb-pos, 50% 50%) / cover no-repeat;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ink) 16%, transparent);
+  cursor: pointer;
+  transition: translate var(--dur-fast) var(--ease-out);
+}
+
+.ss-box:hover {
+  translate: -3px 0;
+}
+
+.ss[data-axis='row'] .ss-box:hover {
+  translate: 0 -3px;
+}
+
+/* The channel on air: ringed in the accent, off the paper. */
+.ss-box[aria-checked='true'] {
+  box-shadow:
+    0 0 0 2px var(--surface),
+    0 0 0 4px var(--accent);
+}
+
+.ss-box:focus-visible {
+  outline-offset: 6px;
+}
+
+.ss-num {
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  text-shadow: 0 1px 2px rgb(10 14 40 / 0.65);
+}
+
+/* The scene's name, slid out beside the box (under it in a row) on hover or focus. */
+.ss-name {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 12px);
+  padding: 3px 8px;
+  background: var(--surface);
+  color: var(--ink);
+  white-space: nowrap;
+  opacity: 0;
+  translate: 6px -50%;
+  pointer-events: none;
+  transition:
+    opacity var(--dur-fast) var(--ease-out),
+    translate var(--dur-fast) var(--ease-out);
+}
+
+.ss-box:hover .ss-name,
+.ss-box:focus-visible .ss-name {
+  opacity: 1;
+  translate: 0 -50%;
+}
+
+.ss[data-axis='row'] .ss-name {
+  top: calc(100% + 10px);
+  right: auto;
+  left: 0;
+  translate: 0 -4px;
+}
+
+.ss[data-axis='row'] .ss-box:hover .ss-name,
+.ss[data-axis='row'] .ss-box:focus-visible .ss-name {
+  translate: 0 0;
+}
+
+@media (max-width: 767px) {
+  .ss {
+    flex-direction: row;
+    --ss-gap: 8px;
+  }
+
+  .ss-box:hover {
+    translate: 0 -3px;
+  }
+
+  .ss-name {
+    top: calc(100% + 10px);
+    right: 0;
+    translate: 0 -4px;
+  }
+
+  .ss-box:hover .ss-name,
+  .ss-box:focus-visible .ss-name {
+    translate: 0 0;
+  }
+}

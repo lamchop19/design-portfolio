@@ -9,16 +9,9 @@
    --------------------------------------------------------------------------- */
 
 :root {
-  /* CSS px per bitmap dot, shared with the flora. Whole numbers only, or the dots blur. */
-  --dot: 1;
-  /* Ink strength of the water, 0–1. Kept low so it never competes with type. */
+  /* Ink strength of the water, 0–1. Kept low so it never competes with type.
+     Its dot size is --dot, in globals.css. */
   --ocean-water: 0.1;
-}
-
-@media (min-width: 768px) {
-  :root {
-    --dot: 2;
-  }
 }
 
 body {

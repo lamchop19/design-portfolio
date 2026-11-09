@@ -57,6 +57,9 @@
   /* One cell of the footer grid. The artwork is 60x38 at 1440 wide. */
   --cell-w: 40px;
   --cell-h: 25px;
+
+  /* CSS px per bitmap dot, for the ocean wallpaper and the flora. Whole numbers only, or the dots blur. */
+  --dot: 1;
 }
 
 @media (min-width: 768px) {
@@ -64,6 +67,7 @@
     --page-margin: 3rem;
     --cell-w: 60px;
     --cell-h: 38px;
+    --dot: 2;
   }
 }
 

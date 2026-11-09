@@ -1,0 +1,67 @@
+/* ---------------------------------------------------------------------------
+   Guide lab (/prototypes/guide)
+
+   The homepage itself with a panel over it, so the prototypes' ocean
+   wallpaper steps aside, and the frame's pills, as they do on the site.
+   --------------------------------------------------------------------------- */
+
+body:has(.gl) .ocean,
+body:has(.gl) .vf-nav {
+  display: none;
+}
+
+/* Top centre. Folded to one chip it sits in the page's top margin, where no
+   layout puts anything, so each can be seen whole. */
+.hl-panel.gl-panel {
+  top: 6px;
+  bottom: auto;
+  left: 50%;
+  right: auto;
+  translate: -50% 0;
+  max-height: calc(100dvh - 2 * var(--frame-inset) - 24px);
+  overflow: auto;
+  font-family: var(--font-paper-mono), ui-monospace, monospace;
+}
+
+/* Small enough to stay inside the 48px margin. */
+.hl-panel.gl-panel[data-folded] {
+  top: 4px;
+  padding: 4px;
+}
+
+.gl-set {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.gl-set + .gl-set {
+  padding-left: 10px;
+  border-left: 1px solid var(--rule);
+}
+
+.gl-panel .hl-chip[aria-pressed='true'] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--surface);
+}
+
+.gl-dial {
+  align-items: center;
+  gap: 10px;
+}
+
+.gl-dial span {
+  width: 11em;
+}
+
+.gl-dial input {
+  flex: 1;
+  min-width: 120px;
+  accent-color: var(--ink);
+}
+
+.gl-boxes-label {
+  align-self: center;
+  color: var(--ink-muted);
+}

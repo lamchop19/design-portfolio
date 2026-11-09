@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
 const prototypes = [
+  { href: '/prototypes/guide', title: 'Guide', note: 'The new homepage from the “new layout” wireframe, a TV guide’s main menu over a blurred scene, with its options side by side: seven typographic layouts on the grid (one after jadefranson.com), seven faces, the backdrop’s strength and which scenes sit in the boxes' },
   { href: '/prototypes/scenes', title: 'Scenes', note: 'Big airbrushed pictures for the top of the homepage, after Hiroshi Nagai and the aquarium: a breaking wave, a jet over the city, a coast road, a pool, a sunset, two reefs, a record store and a flower field, shown as the hero, a window, a 7-inch sleeve, or all together' },
   { href: '/prototypes/chapters', title: 'Chapters', note: 'The case study as a disc: scene selection with the DVD menu’s gliding neon frame, the body in chapters timed at reading speed, and the on-screen display three ways (a bar, a margin rail, a remote), plus Extras and Details tabs' },
   { href: '/prototypes/screen-print', title: 'Screen print', note: 'The covers printed the way the maL mark is: one-ink halftone, grain, LED or two-ink riso prints that swell into full colour when pointed at, shown on the homepage, a contact sheet of proofs, or a cut where the ink floods the screen as a dot screen' },

@@ -18,6 +18,11 @@ export const site = {
   headline: 'Building Brands & Communities',
   bio: 'Designer working across brand, social and graphic design — building identities for communities of people, not just products.',
 
+  /** The homepage's sentence, from Marc's wireframe. Words between ** are set heavier. It ends on one of `interests`. */
+  intro: 'Marc Andre Lam is a **marketer, designer, student,** and **life-long learner** enthusiastic about',
+  /* TODO(content): Marc's words. Seeded from the bio until then. */
+  interests: ['brand identity', 'communities', 'graphic design', 'social media'],
+
   email: 'mlamchop23@gmail.com',
   links: [
     { label: 'LinkedIn', href: 'https://www.linkedin.com/in/marcalam/', kind: 'external' },

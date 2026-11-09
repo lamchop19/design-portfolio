@@ -6,9 +6,10 @@ import { logoSvg } from '@/components/brand/logo/source'
 import { SiteFooter } from '@/components/layout/site-footer'
 import { SmoothScroll } from '@/components/layout/smooth-scroll'
 import { ViewportFrame } from '@/components/layout/viewport-frame'
-import { OceanWallpaper } from '@/components/ocean/ocean-wallpaper'
+import { SceneBackdrop } from '@/components/scenes/scene-backdrop'
 import { introInitScript } from '@/lib/intro'
 import { ogImage } from '@/lib/og'
+import { sceneInitScript, sceneRules } from '@/lib/scene-choice'
 import { site } from '@/../content/site'
 
 import './globals.css'
@@ -50,13 +51,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    // The head script sets data-intro on <html> before React hydrates it.
+    // The head script sets data-intro and data-scene on <html> before React hydrates it.
     <html lang="en" className={`${display.variable} ${paperMono.variable}`} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: introInitScript(process.env.NEXT_PUBLIC_BASE_PATH ?? '') }} />
+        <script dangerouslySetInnerHTML={{ __html: introInitScript(process.env.NEXT_PUBLIC_BASE_PATH ?? '') + sceneInitScript() }} />
+        <style dangerouslySetInnerHTML={{ __html: sceneRules() }} />
       </head>
       <body className="flex min-h-dvh flex-col">
-        <OceanWallpaper />
+        <SceneBackdrop />
         <SmoothScroll />
         <ViewportFrame mark={logoSvg('blue', { ns: 'mal-frame', monogram: true })} />
         <main className="flex-1">{children}</main>

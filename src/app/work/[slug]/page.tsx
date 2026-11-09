@@ -43,7 +43,8 @@ export default async function WorkPage(props: PageProps<'/work/[slug]'>) {
       exit={{ 'nav-forward': 'nav-forward', 'nav-back': 'nav-back', default: 'none' }}
       default="none"
     >
-      <article className="px-(--page-margin)">
+      {/* data-reading sets the scene behind the page further back (components/scenes). */}
+      <article className="px-(--page-margin)" data-reading>
         <ScrollProgress />
         <header className="pt-[14vh] pb-12">
           <h1 className="flex flex-wrap items-baseline gap-x-5 gap-y-2">

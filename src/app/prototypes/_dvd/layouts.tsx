@@ -7,16 +7,17 @@ import { Briefcase, Film, Mail, UserRound, type LucideIcon } from 'lucide-react'
 
 import { LiveClock } from '@/components/brand/live-clock'
 import { MetaRail } from '@/components/case-study/meta-rail'
+import { itemProps, useMenu } from '@/components/menu/use-menu'
 import { asset } from '@/lib/paths'
 import { indexLabel, placeholder, type WorkItem } from '@/lib/work-items'
 import { site } from '@/../content/site'
 
 import { Backdrop, type BackdropId } from './backdrops'
-import { CUT_MS, itemProps, SECTIONS, tint, useMenu, type Section, type SectionId } from './menu'
+import { CUT_MS, SECTIONS, tint, type Section, type SectionId } from './menu'
 
 /*
  * The homepage as a DVD main menu, seven ways. Every layout has the same four
- * items and the same remote-control behaviour (menu.ts); they differ in where
+ * items and the same remote-control behaviour (components/menu/use-menu); they differ in where
  * the logo and menu sit and what the highlight looks like. Four play over the
  * full-screen scene; Split, Index and Column sit on paper and show the scene
  * in a pane, a window or where you click. Styles in dvd.css.

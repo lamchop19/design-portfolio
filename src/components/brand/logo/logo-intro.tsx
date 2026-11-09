@@ -4,22 +4,29 @@ import { useEffect, useRef } from 'react'
 
 import { INTRO_KEY } from '@/lib/intro'
 
-import { getParts, playLoad } from './effects'
+import { getParts, playLoad, playTitleCard } from './effects'
 
 import './logo.css'
 
-/* Milliseconds from when the mark mounts. The Halftone load resolves its last letter at about 1.6s. */
-const HOLD_UNTIL = 2000
+/*
+ * Milliseconds from when the mark mounts. The Halftone load resolves its last
+ * letter at about 1.6s. Under it the title card reads from 0.5s, goes out at
+ * 2.3s, and the name comes on at 2.75s; the mark flies home at 3.9s.
+ */
+const CARD = { on: 500, off: 2300, name: 2750 }
+const HOLD_UNTIL = 3900
 const FLIGHT = 950
 /** A skip still flies the mark home, just faster. */
 const QUICK_FLIGHT = 480
 
 /**
- * The homepage's opening, like a disc's studio ident before its menu: the
- * maL mark on the logo frame's dark ground plays the Halftone load (each
- * letter swells out of a dot screen, the dotted name flickers on), then flies
- * into `target`, the frame's mark in the top-left pill, while the ground
- * dissolves through the same dot screen onto the page.
+ * The homepage's opening, like a feature's titles before the menu: the maL
+ * mark on the logo frame's dark ground plays the Halftone load (each letter
+ * swells out of a dot screen) while the dotted line under it reads "feature
+ * presentation", then gives way to "marc andre lam" (logoSvg's `card`). Then
+ * the mark flies into `target`, the guide's mark at the top of the page,
+ * dropping the name on the way, while the ground dissolves through the same
+ * dot screen onto the page. Without a card, the name flickers on with the load.
  *
  * Once a visit, decided before paint by the head script in lib/intro. Any key,
  * click, wheel or touch skips ahead to the flight. The layer is in the server
@@ -43,7 +50,9 @@ export function LogoIntro({ svg, target }: { svg: string; target: string }) {
       sessionStorage.setItem(INTRO_KEY, '1')
     } catch {}
 
-    const stopLoad = playLoad('halftone', parts)
+    const card = parts.card.length > 0
+    const stopLoad = playLoad('halftone', parts, { name: !card })
+    const stopCard = card ? playTitleCard(parts, CARD) : () => {}
     host.dataset.ready = ''
     const anims: Animation[] = []
     const events = ['keydown', 'pointerdown', 'wheel', 'touchstart'] as const
@@ -72,8 +81,10 @@ export function LogoIntro({ svg, target }: { svg: string; target: string }) {
       html.dataset.intro = 'dock'
       ground.style.setProperty('--out', `${Math.round(ms * 0.8)}ms`)
       ground.dataset.out = ''
-      // The frame's mark is the monogram alone, so the dotted name fades on the way.
-      parts.name.forEach((letter) => anims.push(letter.animate([{ opacity: 1 }, { opacity: 0 }], { duration: ms * 0.4, fill: 'forwards' })))
+      // The page's mark is the monogram alone, so the dotted line fades on the way.
+      ;[...parts.name, ...parts.card].forEach((letter) =>
+        anims.push(letter.animate([{}, { opacity: 0 }], { duration: ms * 0.4, fill: 'forwards' })),
+      )
 
       const to = document.querySelector(target)?.querySelector('[id="Group 6"]')?.getBoundingClientRect()
       const from = parts.group.getBoundingClientRect()
@@ -103,6 +114,7 @@ export function LogoIntro({ svg, target }: { svg: string; target: string }) {
       off()
       anims.forEach((a) => a.cancel())
       stopLoad()
+      stopCard()
       delete host.dataset.ready
       delete ground.dataset.out
       delete root.dataset.live
