@@ -8,7 +8,9 @@
  *
  * Only the homepage and the 404 page go up, with the built scripts, styles
  * and fonts (_next) and the icons; the other pages and prototypes don't.
- * The image generators aren't rerun: their output is committed.
+ * It first makes the files that are generated but not committed (the
+ * image derivatives and their manifest, the share image), so it also works
+ * from a fresh clone, as on Vercel. The other generators' output is committed.
  */
 import { execSync } from 'node:child_process'
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs'
@@ -17,6 +19,8 @@ import path from 'node:path'
 const root = process.cwd()
 const out = path.join(root, 'out')
 const dest = path.join(root, '.deploy', 'marcalam-landing')
+
+execSync('npm run images && npm run og', { stdio: 'inherit' })
 
 // Webpack, not Turbopack: Turbopack can't currently build the Ocean prototype's Doto font (next/font/google).
 execSync('npx next build --webpack', { stdio: 'inherit', env: { ...process.env, NEXT_PUBLIC_SITE: 'landing', NEXT_PUBLIC_BASE_PATH: '' } })
